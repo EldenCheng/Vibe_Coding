@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>井字过三关 - Tic-Tac-Toe</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="stars"></div>
+    <div class="twinkling"></div>
+    
+    <div class="container">
+        <h1 class="title">井 字 过 三 关</h1>
+        
+        <div class="controls">
+            <div class="mode-selector">
+                <button id="btn-pvp" class="btn active">双人对战</button>
+                <button id="btn-pve" class="btn">人机对战</button>
+            </div>
+            
+            <div id="difficulty-selector" class="difficulty-selector hidden">
+                <button id="btn-easy" class="btn btn-difficulty">简单</button>
+                <button id="btn-medium" class="btn btn-difficulty active">中等</button>
+                <button id="btn-hard" class="btn btn-difficulty">困难</button>
+            </div>
+        </div>
+        
+        <div class="game-area">
+            <div id="board" class="board">
+                <div class="cell" data-index="0"></div>
+                <div class="cell" data-index="1"></div>
+                <div class="cell" data-index="2"></div>
+                <div class="cell" data-index="3"></div>
+                <div class="cell" data-index="4"></div>
+                <div class="cell" data-index="5"></div>
+                <div class="cell" data-index="6"></div>
+                <div class="cell" data-index="7"></div>
+                <div class="cell" data-index="8"></div>
+            </div>
+        </div>
+        
+        <div id="status" class="status">玩家 X 的回合</div>
+        
+        <div class="info-panel">
+            <div class="scoreboard">
+                <h3>计分板</h3>
+                <div class="scores">
+                    <div class="score-item">
+                        <span class="label">X 胜:</span>
+                        <span id="score-x" class="value">0</span>
+                    </div>
+                    <div class="score-item">
+                        <span class="label">O 胜:</span>
+                        <span id="score-o" class="value">0</span>
+                    </div>
+                    <div class="score-item">
+                        <span class="label">平局:</span>
+                        <span id="score-draw" class="value">0</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="history-panel">
+                <h3>历史记录</h3>
+                <div id="history-list" class="history-list">
+                    <div class="empty-history">暂无记录</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="actions">
+            <button id="btn-restart" class="btn btn-action">重新开始</button>
+            <button id="btn-clear-history" class="btn btn-action">清除历史</button>
+        </div>
+    </div>
+    
+    <script src="js/game.js"></script>
+    <script src="js/ai.js"></script>
+    <script src="js/sound.js"></script>
+    <script src="js/history.js"></script>
+    <script src="js/ui.js"></script>
+</body>
+</html>
