@@ -1,0 +1,13 @@
+我使用免费的AI工具来尝试根据spec生成Test Case, 暂时有如下发现:
+
+Kiro 或者 Trae里的免费AI模型都不能很好地读取不是纯文本的PDF, 所以需要先把基于PDF的Flowchart(附件Flowchart.pdf)转换成structured logic, 有这种转换能力的暂时只有chatGPT, Gemini与Claude.
+然后我分别尝试使用免费的网页版chatGPT与Gemini来把PDF转换成structured logic, chatGPT网页上免费使用的限制次数非常少, 都未转换到满意的程度, 就已经要求我转为使用收费的Pro版来继续了, 后面使用Gemini免费的网页版, 讨论过几轮, 生成了一个比较满意的structured logic, 具体可以参考附件"structured logic output from Gemini.md"
+
+有了这份structured logic之后, 就可以在Kiro或者Trae里讨论生成Test case了, 先让AI根据structured logic出一份Test Coverage, 但AI出具的Test Coverage比较死板, 只会就最浅层的逻辑进行测试, 而且经过多论讨论后, 也没有太大的改善, 估计免费AI的模型理解能力应该就是这个水平了.
+然后我让AI生成它的Test Coverage后, 我再补充了对于输出格式的需求, 然后形成了文档"Prompt - Generate QA Test Cases.md".
+
+最后让AI根据这两个文档生成Test Case, 生成的结果是"BigBloom_QA_TestCases(add Negative Input).xlsx", 打开看了一下具体的内容, 发现flowchart里的操作都有对应的test case, 应该可以作为一个Base check使用的test case, 但缺少Interrution, Mode之间的切换之类的不会写在flowchart里, 但比较容易出问题test case.
+
+之后如果还有时间, 我准备尝试找一些之前有比较完备的test suite的项目, 来尝试在详细的test suite支持下, 能否可以提升test case的质量
+
+最后查看了一下使用量, 除了跟Gemini讨论把Flowchart转换成structured logic之外(这个操作在网页版中完成), 其它操作都是在Kiro上完成的, 整个过程总共使用了约5.37 Credits
