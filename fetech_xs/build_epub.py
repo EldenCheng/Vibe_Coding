@@ -10,11 +10,35 @@ from bs4 import BeautifulSoup
 BASE_DIR = Path(__file__).parent
 
 
+def load_chapter_titles(book_dir):
+    """
+    从 progress.json 加载完整章节标题映射
+    返回 {序号(字符串): "完整标题（含第X章）"} 的字典
+    """
+    progress_path = book_dir / "progress.json"
+    if progress_path.exists():
+        with open(progress_path, encoding="utf-8") as f:
+            pg = json.load(f)
+        return pg.get("chapter_titles", {})
+    return {}
+
+
+def load_author(book_dir):
+    """从 progress.json 读取作者信息"""
+    progress_path = book_dir / "progress.json"
+    if progress_path.exists():
+        with open(progress_path, encoding="utf-8") as f:
+            pg = json.load(f)
+        return pg.get("author", "未知作者")
+    return "未知作者"
+
+
 def scan_chapters(book_dir):
     """
     扫描 <书名>/chapters/ 目录下的所有 .html 章节文件
     按文件名数字前缀排序（0000, 0001, …）
-    返回 [(序号, 标题, HTML内容), …]
+    优先从 progress.json 读取完整标题（含第X章），否则从文件名推断
+    返回 [(序号, 完整标题, HTML内容), …]
     """
     chapters_dir = book_dir / "chapters"
     if not chapters_dir.exists():
@@ -27,6 +51,9 @@ def scan_chapters(book_dir):
         print(f"错误: 章节目录为空 {chapters_dir}")
         sys.exit(1)
 
+    # 加载完整章节标题映射
+    chapter_titles = load_chapter_titles(book_dir)
+
     chapters = []
     for fpath in files:
         stem = fpath.stem  # 不含扩展名的文件名
@@ -34,7 +61,8 @@ def scan_chapters(book_dir):
         m = re.match(r"(\d+)_(.+)", stem)
         if m:
             index = int(m.group(1))
-            title = m.group(2)
+            # 优先使用 progress.json 中的完整标题（含"第X章"）
+            title = chapter_titles.get(str(index), m.group(2))
         else:
             index = len(chapters)
             title = stem
@@ -114,13 +142,7 @@ def main():
         print(f"错误: 未找到小说目录 {book_dir}")
         sys.exit(1)
 
-    # 从 progress.json 读取作者信息
-    progress_path = book_dir / "progress.json"
-    author = "未知作者"
-    if progress_path.exists():
-        with open(progress_path, encoding="utf-8") as f:
-            pg = json.load(f)
-        author = pg.get("author", "未知作者")
+    author = load_author(book_dir)
 
     print(f"正在扫描章节文件: {book_dir / 'chapters'}")
     chapters = scan_chapters(book_dir)

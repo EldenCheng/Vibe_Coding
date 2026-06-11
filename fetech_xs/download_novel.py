@@ -254,10 +254,26 @@ def download_with_retry(session, config, base_url, source_id, chapter, referer):
     return False, None
 
 
+def parse_args():
+    """解析命令行参数，返回 (retry_failed 是否重新下载失败章节, 位置参数)"""
+    args = sys.argv[1:]
+    retry_failed = False
+    positional = []
+    for a in args:
+        if a in ("--rd", "-rd"):
+            retry_failed = True
+        else:
+            positional.append(a)
+    return retry_failed, positional
+
+
 def main():
     """主函数：解析参数 → 获取书籍信息 → 逐章下载（含断点续传）"""
-    if len(sys.argv) < 2:
-        print("用法: py -3 download_novel.py <章节列表URL | book_id>")
+
+    retry_failed, pos_args = parse_args()
+    if not pos_args:
+        print("用法: py -3 download_novel.py [--rd] <章节列表URL | book_id>")
+        print("  --rd    重试 progress.json 中记录的所有失败章节")
         sys.exit(1)
 
     # 加载配置并创建 HTTP 会话
@@ -266,7 +282,7 @@ def main():
     delay = config["request_delay"]
 
     # 解析参数：纯数字视为 book_id，否则视为完整 URL
-    arg = sys.argv[1]
+    arg = pos_args[0]
     if arg.isdigit():
         chapters_url = f"https://xn--1jqx9a.als1004.space/other/chapters/id/{arg}.html"
     else:
@@ -293,23 +309,48 @@ def main():
     progress["book_name"] = book_info["book_name"]
     progress["author"] = book_info["author"]
     progress["chapters_url"] = chapters_url
-    if progress["status"] == "complete":
-        print("所有章节已下载完成。直接运行 build_epub.py 生成 EPUB。")
-        return
+    if "chapter_titles" not in progress:
+        progress["chapter_titles"] = {}
 
     chapters = book_info["chapters"]
-    if progress["downloaded"]:
-        print(f"已有 {len(progress['downloaded'])} 章已下载，继续未完成的部分。")
 
-    # 断点续传：从上次最后位置之后开始
-    start = 0
-    if progress["last_index"] >= 0:
-        start = progress["last_index"] + 1
+    # --- 处理 --rd 重试模式 ---
+    if retry_failed:
+        retry_indices = list(progress.get("failed", []))
+        if not retry_indices:
+            print("没有失败章节需要重试。")
+            return
+        print(f"发现 {len(retry_indices)} 个失败章节，开始重试...")
+        # 从 failed 列表中移除这些索引，若重试仍失败会重新添加
+        progress["failed"] = []
+        # 确保这些索引也不在 downloaded 中，以便能重新下载
+        for idx in retry_indices:
+            if idx in progress["downloaded"]:
+                progress["downloaded"].remove(idx)
+        progress["status"] = "in_progress"
+        # 仅下载需要重试的章节（保持原有章节顺序）
+        download_targets = [ch for ch in chapters if ch["index"] in retry_indices]
+
+    else:
+        # --- 正常下载 / 断点续传 ---
+        if progress["status"] == "complete":
+            print("所有章节已下载完成。直接运行 build_epub.py 生成 EPUB。")
+            print("如需重试失败章节，请添加 --rd 参数运行。")
+            return
+
+        if progress["downloaded"]:
+            print(f"已有 {len(progress['downloaded'])} 章已下载，继续未完成的部分。")
+
+        # 断点续传：从上次最后位置之后开始
+        start = 0
+        if progress["last_index"] >= 0:
+            start = progress["last_index"] + 1
+        download_targets = chapters[start:]
 
     # 逐章下载
-    for ch in chapters[start:]:
-        # 跳过已下载的章节（边界情况）
-        if ch["index"] in progress["downloaded"]:
+    for ch in download_targets:
+        # 在正常模式下跳过已下载的章节
+        if not retry_failed and ch["index"] in progress["downloaded"]:
             continue
         # 每章之间随机间隔，模拟人工阅读节奏
         sleep_time = random.randint(delay["min"], delay["max"])
@@ -325,17 +366,21 @@ def main():
             saved_path = save_chapter(book_dir, ch, content)
             progress["downloaded"].append(ch["index"])
             progress["last_index"] = ch["index"]
+            progress["chapter_titles"][str(ch["index"])] = ch["title"]
             save_progress(progress_path, progress)
             print(f"  ✓ {saved_path.name}")
         else:
             # 失败章节记录在 progress.json，便于后续排查
             progress["failed"].append(ch["index"])
+            progress["failed"] = sorted(set(progress["failed"]))
             save_progress(progress_path, progress)
             print(f"  ✗ 下载失败，已跳过")
 
-    # 标记完成
-    progress["status"] = "complete"
-    progress["total"] = len(chapters)
+    # 标记完成（重试模式下也要更新状态）
+    if not retry_failed or not progress.get("failed"):
+        if not progress.get("failed"):
+            progress["status"] = "complete"
+            progress["total"] = len(chapters)
     save_progress(progress_path, progress)
 
     # 输出统计信息

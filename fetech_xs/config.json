@@ -1,10 +1,10 @@
 {
     "request_delay": {
-        "min": 15,
-        "max": 30
+        "min": 10,
+        "max": 15
     },
     "retry": {
-        "max_attempts": 5,
+        "max_attempts": 1,
         "backoff_base": 30,
         "backoff_multiplier": 2
     },
