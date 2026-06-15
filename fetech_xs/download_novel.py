@@ -352,10 +352,6 @@ def main():
         # 在正常模式下跳过已下载的章节
         if not retry_failed and ch["index"] in progress["downloaded"]:
             continue
-        # 每章之间随机间隔，模拟人工阅读节奏
-        sleep_time = random.randint(delay["min"], delay["max"])
-        print(f"[{ch['index']+1}/{len(chapters)}] {ch['title']}  (等待 {sleep_time}s)")
-        time.sleep(sleep_time)
 
         # 下载（含自动重试）
         ok, content = download_with_retry(
@@ -375,6 +371,11 @@ def main():
             progress["failed"] = sorted(set(progress["failed"]))
             save_progress(progress_path, progress)
             print(f"  ✗ 下载失败，已跳过")
+        
+        # 每章之间随机间隔，模拟人工阅读节奏
+        sleep_time = random.randint(delay["min"], delay["max"])
+        print(f"[{ch['index']+1}/{len(chapters)}] {ch['title']}  (等待 {sleep_time}s)")
+        time.sleep(sleep_time)
 
     # 标记完成（重试模式下也要更新状态）
     if not retry_failed or not progress.get("failed"):
