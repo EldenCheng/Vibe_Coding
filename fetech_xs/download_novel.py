@@ -255,25 +255,29 @@ def download_with_retry(session, config, base_url, source_id, chapter, referer):
 
 
 def parse_args():
-    """解析命令行参数，返回 (retry_failed 是否重新下载失败章节, 位置参数)"""
+    """解析命令行参数，返回 (retry_failed, check_mode, 位置参数)"""
     args = sys.argv[1:]
     retry_failed = False
+    check_mode = False
     positional = []
     for a in args:
         if a in ("--rd", "-rd"):
             retry_failed = True
+        elif a in ("--check", "-check"):
+            check_mode = True
         else:
             positional.append(a)
-    return retry_failed, positional
+    return retry_failed, check_mode, positional
 
 
 def main():
     """主函数：解析参数 → 获取书籍信息 → 逐章下载（含断点续传）"""
 
-    retry_failed, pos_args = parse_args()
+    retry_failed, check_mode, pos_args = parse_args()
     if not pos_args:
-        print("用法: py -3 download_novel.py [--rd] <章节列表URL | book_id>")
-        print("  --rd    重试 progress.json 中记录的所有失败章节")
+        print("用法: py -3 download_novel.py [--rd] [--check] <章节列表URL | book_id>")
+        print("  --rd      重试 progress.json 中记录的所有失败章节")
+        print("  --check   检查实际下载文件与记录是否一致，修复 failed 列表")
         sys.exit(1)
 
     # 加载配置并创建 HTTP 会话
@@ -309,26 +313,53 @@ def main():
     progress["book_name"] = book_info["book_name"]
     progress["author"] = book_info["author"]
     progress["chapters_url"] = chapters_url
-    if "chapter_titles" not in progress:
-        progress["chapter_titles"] = {}
 
     chapters = book_info["chapters"]
+    total = len(chapters)
+
+    # 预填所有章节标题（来自网页抓取，确保完整准确）
+    progress["chapter_titles"] = {str(ch["index"]): ch["title"] for ch in chapters}
+    save_progress(progress_path, progress)
+
+    # --- --check 验证模式 ---
+    if check_mode:
+        chapters_dir = book_dir / "chapters"
+        existing_indices = set()
+        if chapters_dir.exists():
+            for f in chapters_dir.iterdir():
+                if f.is_file() and f.suffix == ".html":
+                    m = re.match(r"(\d+)_", f.stem)
+                    if m:
+                        existing_indices.add(int(m.group(1)))
+
+        all_indices = set(range(total))
+        truly_missing = sorted(all_indices - existing_indices)
+        truly_downloaded = sorted(all_indices & existing_indices)
+
+        progress["downloaded"] = truly_downloaded
+        progress["failed"] = truly_missing
+        progress["last_index"] = max(truly_downloaded) if truly_downloaded else -1
+        progress["status"] = "complete" if not truly_missing else "in_progress"
+        progress["total"] = total
+        save_progress(progress_path, progress)
+
+        print(f"\n验证完成！实际文件: {len(truly_downloaded)}/{total}, 缺失: {len(truly_missing)}")
+        if truly_missing:
+            print(f"缺失章节已加入 failed: {truly_missing}")
+            print(f"建议运行: py -3 download_novel.py --rd {arg}")
+        return
 
     # --- 处理 --rd 重试模式 ---
     if retry_failed:
-        retry_indices = list(progress.get("failed", []))
+        retry_indices = sorted(set(progress.get("failed", [])))
         if not retry_indices:
             print("没有失败章节需要重试。")
             return
         print(f"发现 {len(retry_indices)} 个失败章节，开始重试...")
-        # 从 failed 列表中移除这些索引，若重试仍失败会重新添加
-        progress["failed"] = []
-        # 确保这些索引也不在 downloaded 中，以便能重新下载
-        for idx in retry_indices:
-            if idx in progress["downloaded"]:
-                progress["downloaded"].remove(idx)
+        # 从 failed 中移除待重试章节（成功后会加入 downloaded 而非 failed）
+        progress["failed"] = [i for i in progress.get("failed", []) if i not in retry_indices]
         progress["status"] = "in_progress"
-        # 仅下载需要重试的章节（保持原有章节顺序）
+        save_progress(progress_path, progress)  # 立即保存避免崩溃丢状态
         download_targets = [ch for ch in chapters if ch["index"] in retry_indices]
 
     else:
@@ -336,6 +367,7 @@ def main():
         if progress["status"] == "complete":
             print("所有章节已下载完成。直接运行 build_epub.py 生成 EPUB。")
             print("如需重试失败章节，请添加 --rd 参数运行。")
+            print("如需检查实际文件状态，请添加 --check 参数运行。")
             return
 
         if progress["downloaded"]:
@@ -352,39 +384,36 @@ def main():
         # 在正常模式下跳过已下载的章节
         if not retry_failed and ch["index"] in progress["downloaded"]:
             continue
-        # 每章之间随机间隔，模拟人工阅读节奏
-        sleep_time = random.randint(delay["min"], delay["max"])
-        print(f"[{ch['index']+1}/{len(chapters)}] {ch['title']}  (等待 {sleep_time}s)")
-        time.sleep(sleep_time)
 
-        # 下载（含自动重试）
         ok, content = download_with_retry(
             session, config, base_url, book_info["source_id"], ch, chapters_url
         )
         if ok:
-            # 保存文件并更新进度
             saved_path = save_chapter(book_dir, ch, content)
-            progress["downloaded"].append(ch["index"])
+            if ch["index"] not in progress["downloaded"]:
+                progress["downloaded"].append(ch["index"])
             progress["last_index"] = ch["index"]
-            progress["chapter_titles"][str(ch["index"])] = ch["title"]
             save_progress(progress_path, progress)
             print(f"  ✓ {saved_path.name}")
         else:
-            # 失败章节记录在 progress.json，便于后续排查
-            progress["failed"].append(ch["index"])
-            progress["failed"] = sorted(set(progress["failed"]))
+            if ch["index"] not in progress.get("failed", []):
+                progress["failed"] = sorted(set(progress.get("failed", [])) | {ch["index"]})
             save_progress(progress_path, progress)
             print(f"  ✗ 下载失败，已跳过")
+        
+        sleep_time = random.randint(delay["min"], delay["max"])
+        print(f"[{ch['index']+1}/{total}] {ch['title']}  (等待 {sleep_time}s)")
+        time.sleep(sleep_time)
 
     # 标记完成（重试模式下也要更新状态）
     if not retry_failed or not progress.get("failed"):
         if not progress.get("failed"):
             progress["status"] = "complete"
-            progress["total"] = len(chapters)
+            progress["total"] = total
     save_progress(progress_path, progress)
 
     # 输出统计信息
-    print(f"\n下载完成！成功 {len(progress['downloaded'])}/{len(chapters)}, 失败 {len(progress['failed'])}")
+    print(f"\n下载完成！成功 {len(progress['downloaded'])}/{total}, 失败 {len(progress['failed'])}")
     if progress["failed"]:
         print(f"失败章节索引: {progress['failed']}")
     print(f"章节文件保存在: {book_dir / 'chapters'}")
