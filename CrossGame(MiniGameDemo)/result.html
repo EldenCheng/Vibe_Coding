@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>游戏结果</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/common.css">
+  <link rel="stylesheet" href="css/result.css">
+</head>
+<body>
+  <div class="container">
+    <div id="result-content" class="result-content">
+      <div id="animation-area" class="animation-area">
+        <div id="win-animation" class="win-animation">
+          <div class="star star-1"></div>
+          <div class="star star-2"></div>
+          <div class="star star-3"></div>
+          <div class="star star-4"></div>
+          <div class="star star-5"></div>
+          <div class="firework fw-1"></div>
+          <div class="firework fw-2"></div>
+          <div class="firework fw-3"></div>
+        </div>
+        <div id="fail-animation" class="fail-animation">
+          <div class="sad-face">
+            <div class="eye-left"></div>
+            <div class="eye-right"></div>
+            <div class="mouth"></div>
+          </div>
+          <div class="teardrop td-1"></div>
+          <div class="teardrop td-2"></div>
+        </div>
+      </div>
+
+      <div id="result-text" class="result-text"></div>
+
+      <button id="retry-btn" class="retry-btn">
+        再来一次
+      </button>
+    </div>
+  </div>
+
+  <script type="module" src="js/result-page.js"></script>
+</body>
+</html>

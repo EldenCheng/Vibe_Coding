@@ -1,0 +1,305 @@
+/* ========================================
+   StartPage 样式 - 对齐 index_demo.html 风格
+   ======================================== */
+
+/* 0. 页面整体布局（覆盖 common.css 的 body 样式） */
+body {
+  height: 100vh;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 40%, #FFF0F5 0%, #FFD1DC 60%, #FFA6C9 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 20px 20px;
+  font-family: 'Fredoka One', 'Comic Sans MS', sans-serif;
+}
+
+/* 1. 弧形彩虹标题 */
+.title-container {
+  position: relative;
+  width: 340px;
+  height: 130px;
+  margin-top: 0;
+  display: flex;
+  justify-content: center;
+  z-index: 10;
+}
+
+.rainbow-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.rainbow-text {
+  font-size: 34px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  fill: url(#rainbowGradient);
+  filter: drop-shadow(2px 3px 0px #ffffff);
+}
+
+/* 2. 游戏区域（填字棋盘 + 吉祥物） */
+.game-zone {
+  position: relative;
+  width: 240px;
+  height: 240px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+}
+
+.crossword-board {
+  width: 200px;
+  height: 200px;
+  background: rgba(255, 255, 255, 0.75);
+  border-radius: 28px;
+  border: 4px solid #FFF;
+  box-shadow: 0 8px 32px rgba(255, 105, 180, 0.15);
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(5, 1fr);
+  gap: 6px;
+  padding: 12px;
+}
+
+/* 字母格 */
+.letter-cell {
+  background: #ffffff;
+  border-radius: 10px;
+  border: 2px solid #FFE4E1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: bold;
+  color: #FF69B4;
+  box-shadow: 0 3px 0 #FFE4E1;
+  opacity: 0.2;
+  transition: all 0.3s ease;
+}
+
+/* 填字动画点亮状态 */
+.letter-cell.active {
+  opacity: 1;
+  background: #FF69B4;
+  color: #ffffff;
+  border-color: #FF1493;
+  box-shadow: 0 3px 0 #C71585;
+  transform: scale(1.05);
+}
+
+/* 3. 松鼠吉祥物 */
+.mascot-character {
+  position: absolute;
+  bottom: -20px;
+  right: -70px;
+  width: 100px;
+  height: 100px;
+  z-index: 5;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  animation: writingAction 2s ease-in-out infinite;
+}
+
+@keyframes writingAction {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  25% { transform: translate(-4px, -2px) rotate(-2deg); }
+  75% { transform: translate(2px, -1px) rotate(2deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+/* 4. 底部控制区 */
+.control-panel {
+  width: 100%;
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 0;
+}
+
+/* 5. 粉色甜美下拉框 */
+.select-box {
+  width: 85%;
+  position: relative;
+}
+
+.pink-select {
+  width: 100%;
+  padding: 10px 20px;
+  font-size: 15px;
+  font-weight: bold;
+  font-family: 'ZCOOL KuaiLe', sans-serif;
+  color: #FF69B4;
+  background: #ffffff;
+  border: 3px solid #FFB7CE;
+  border-radius: 30px;
+  appearance: none;
+  -webkit-appearance: none;
+  outline: none;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(255, 183, 206, 0.3);
+  cursor: pointer;
+  min-height: 40px;
+}
+
+.pink-select:disabled {
+  background-color: #E8E8E8;
+  color: #999;
+  border-color: #CCC;
+}
+
+.select-box::after {
+  content: '\1F36C';
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  pointer-events: none;
+}
+
+/* 成就显示 */
+.achievement-display {
+  text-align: center;
+  font-size: 16px;
+  color: #FF69B4;
+  min-height: 20px;
+  margin: 0;
+  font-family: 'ZCOOL KuaiLe', sans-serif;
+}
+
+.achievement-display .stars {
+  font-size: 20px;
+  letter-spacing: 4px;
+}
+
+.achievement-display .progress-text {
+  font-size: 13px;
+  color: #999;
+  margin-top: 2px;
+}
+
+.error-message {
+  color: #DC143C;
+  font-size: 14px;
+  margin-top: 4px;
+  min-height: 18px;
+  text-align: center;
+}
+
+/* 6. 难度选择 */
+.difficulty-group {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+}
+
+.difficulty-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  font-family: 'ZCOOL KuaiLe', sans-serif;
+  color: #5D4037;
+  min-height: 36px;
+}
+
+.difficulty-option input[type="radio"] {
+  display: none;
+}
+
+.difficulty-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid #FFB6C1;
+  background: white;
+  transition: all 0.3s ease;
+}
+
+.difficulty-option input[type="radio"]:checked + .difficulty-dot {
+  background: #FF69B4;
+  border-color: #FF69B4;
+  box-shadow: 0 0 0 4px rgba(255, 105, 180, 0.3);
+}
+
+.difficulty-option input[type="radio"]:disabled + .difficulty-dot {
+  background: #DDD;
+  border-color: #BBB;
+}
+
+.difficulty-option input[type="radio"]:disabled {
+  cursor: not-allowed;
+}
+
+/* 7. 可爱 START 按钮（直接使用 StartButton 图片） */
+.cute-start-btn {
+  width: 280px;
+  height: 60px;
+  background: url('../assets/startbutton.png') no-repeat center / contain;
+  border: none;
+  border-radius: 40px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-indent: -9999px;
+  overflow: hidden;
+  min-height: 44px;
+  transition: transform 0.1s ease;
+  mix-blend-mode: multiply;
+}
+
+.cute-start-btn:active {
+  transform: scale(0.96);
+}
+
+.cute-start-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(0.5);
+}
+
+.cute-start-btn:disabled:active {
+  transform: none;
+}
+
+/* 8. 加载指示器 */
+.loading-indicator {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.9);
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  gap: 16px;
+}
+
+.loading-indicator.show {
+  display: flex;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #FFB6C1;
+  border-top-color: #FF69B4;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

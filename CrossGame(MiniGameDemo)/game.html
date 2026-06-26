@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>填字游戏 - 游戏中</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/common.css">
+  <link rel="stylesheet" href="css/game.css">
+</head>
+<body>
+  <div class="container">
+    <header class="game-header">
+      <button id="back-btn" class="back-btn">
+        <span class="arrow">←</span>
+      </button>
+      <div class="header-center">
+        <div id="progress-text" class="progress-text">第 1 关 / 共 3 关</div>
+        <div id="achievement-badge" class="achievement-badge"></div>
+      </div>
+      <div id="error-count" class="error-count">剩余机会：3</div>
+    </header>
+
+    <main class="game-main">
+      <div id="board-container" class="board-container">
+        <div id="puzzle-board" class="puzzle-board"></div>
+      </div>
+    </main>
+
+    <footer class="game-footer">
+      <div id="hints-container" class="hints-container">
+        <h3 class="hints-title">提示</h3>
+        <ul id="hints-list" class="hints-list"></ul>
+      </div>
+      <div class="buttons-area">
+        <button id="cancel-btn" class="action-btn cancel-btn">
+          取消
+        </button>
+        <button id="submit-btn" class="action-btn submit-btn">
+          提交
+        </button>
+      </div>
+    </footer>
+
+    <div id="message-toast" class="message-toast"></div>
+  </div>
+
+  <script type="module" src="js/game-controller.js"></script>
+</body>
+</html>

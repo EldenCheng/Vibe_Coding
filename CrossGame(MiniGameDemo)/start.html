@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>英语填字游戏</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/common.css">
+  <link rel="stylesheet" href="css/start.css">
+</head>
+<body>
+
+  <div class="title-container">
+    <svg class="rainbow-svg" viewBox="0 0 340 110">
+      <defs>
+        <linearGradient id="rainbowGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#FF6B6B" />
+          <stop offset="25%" stop-color="#FFBE0B" />
+          <stop offset="50%" stop-color="#00F5D4" />
+          <stop offset="75%" stop-color="#00BBF9" />
+          <stop offset="100%" stop-color="#9B5DE5" />
+        </linearGradient>
+        <path id="textArcPath" d="M 20,140 A 160,130 0 0,1 320,140" fill="none" />
+      </defs>
+      <text class="rainbow-text">
+        <textPath href="#textArcPath" startOffset="50%" text-anchor="middle">CROSSWORD</textPath>
+      </text>
+    </svg>
+  </div>
+
+  <div class="game-zone">
+    <div class="crossword-board" id="board"></div>
+    <img class="mascot-character" src="assets/mascot.png" alt="松鼠吉祥物">
+  </div>
+
+  <div class="control-panel">
+    <div class="select-box">
+      <select id="scope-select" class="pink-select" disabled>
+        <option value="">加载中...</option>
+      </select>
+      <div id="config-error" class="error-message"></div>
+    </div>
+
+    <div id="achievement-display" class="achievement-display"></div>
+
+    <div class="difficulty-group">
+      <label class="difficulty-option">
+        <input type="radio" name="difficulty" value="easy" checked disabled>
+        <span class="difficulty-dot"></span>
+        <span>初级</span>
+      </label>
+      <label class="difficulty-option">
+        <input type="radio" name="difficulty" value="medium" disabled>
+        <span class="difficulty-dot"></span>
+        <span>中级</span>
+      </label>
+      <label class="difficulty-option">
+        <input type="radio" name="difficulty" value="hard" disabled>
+        <span class="difficulty-dot"></span>
+        <span>高级</span>
+      </label>
+    </div>
+
+    <button id="start-btn" class="cute-start-btn" disabled aria-label="START"></button>
+  </div>
+
+  <div id="loading-indicator" class="loading-indicator">
+    <div class="spinner"></div>
+    <span>加载中...</span>
+  </div>
+
+  <div id="message-toast" class="message-toast"></div>
+
+  <script type="module" src="js/start-page.js"></script>
+</body>
+</html>

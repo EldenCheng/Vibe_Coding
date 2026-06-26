@@ -1,0 +1,2872 @@
+[
+  {
+    "id": "puzzle-3264",
+    "words": [
+      {
+        "word": "watch",
+        "meaning": "看；观看",
+        "row": 1,
+        "col": 1,
+        "direction": "across"
+      },
+      {
+        "word": "magazine",
+        "meaning": "杂志",
+        "row": 0,
+        "col": 2,
+        "direction": "down"
+      },
+      {
+        "word": "fun",
+        "meaning": "有趣的；好玩的",
+        "row": 6,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "sad",
+        "meaning": "难过的；悲伤的",
+        "row": 3,
+        "col": 1,
+        "direction": "across"
+      }
+    ],
+    "boardRows": 8,
+    "boardCols": 6
+  },
+  {
+    "id": "puzzle-8313",
+    "words": [
+      {
+        "word": "bag",
+        "meaning": "书包",
+        "row": 5,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "bitter",
+        "meaning": "苦的",
+        "row": 5,
+        "col": 0,
+        "direction": "down"
+      },
+      {
+        "word": "spring",
+        "meaning": "春天",
+        "row": 0,
+        "col": 2,
+        "direction": "down"
+      },
+      {
+        "word": "every",
+        "meaning": "每；每个",
+        "row": 9,
+        "col": 0,
+        "direction": "across"
+      }
+    ],
+    "boardRows": 11,
+    "boardCols": 5
+  },
+  {
+    "id": "puzzle-1847",
+    "words": [
+      {
+        "word": "village",
+        "meaning": "村庄",
+        "row": 3,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "sweet",
+        "meaning": "甜的",
+        "row": 1,
+        "col": 6,
+        "direction": "down"
+      },
+      {
+        "word": "helpful",
+        "meaning": "有帮助的；乐于助人的",
+        "row": 1,
+        "col": 2,
+        "direction": "down"
+      },
+      {
+        "word": "speak",
+        "meaning": "说；讲",
+        "row": 0,
+        "col": 4,
+        "direction": "down"
+      }
+    ],
+    "boardRows": 8,
+    "boardCols": 7
+  },
+  {
+    "id": "puzzle-5407",
+    "words": [
+      {
+        "word": "grandpa",
+        "meaning": "爷爷；外公",
+        "row": 3,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "windy",
+        "meaning": "有风的",
+        "row": 1,
+        "col": 3,
+        "direction": "down"
+      },
+      {
+        "word": "there",
+        "meaning": "那里",
+        "row": 0,
+        "col": 1,
+        "direction": "down"
+      },
+      {
+        "word": "April",
+        "meaning": "四月",
+        "row": 2,
+        "col": 5,
+        "direction": "down"
+      }
+    ],
+    "boardRows": 7,
+    "boardCols": 7
+  },
+  {
+    "id": "puzzle-6731",
+    "words": [
+      {
+        "word": "bitter",
+        "meaning": "苦的",
+        "row": 1,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "five",
+        "meaning": "五",
+        "row": 0,
+        "col": 1,
+        "direction": "down"
+      },
+      {
+        "word": "run",
+        "meaning": "跑；跑步",
+        "row": 1,
+        "col": 5,
+        "direction": "down"
+      },
+      {
+        "word": "know",
+        "meaning": "知道",
+        "row": 3,
+        "col": 4,
+        "direction": "across"
+      }
+    ],
+    "boardRows": 4,
+    "boardCols": 8
+  },
+  {
+    "id": "puzzle-4486",
+    "words": [
+      {
+        "word": "trousers",
+        "meaning": "裤子",
+        "row": 2,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "skirt",
+        "meaning": "裙子",
+        "row": 2,
+        "col": 4,
+        "direction": "down"
+      },
+      {
+        "word": "March",
+        "meaning": "三月",
+        "row": 0,
+        "col": 1,
+        "direction": "down"
+      },
+      {
+        "word": "seventh",
+        "meaning": "第七",
+        "row": 2,
+        "col": 7,
+        "direction": "down"
+      }
+    ],
+    "boardRows": 9,
+    "boardCols": 8
+  },
+  {
+    "id": "puzzle-4437",
+    "words": [
+      {
+        "word": "eight",
+        "meaning": "八",
+        "row": 1,
+        "col": 2,
+        "direction": "across"
+      },
+      {
+        "word": "kitchen",
+        "meaning": "厨房",
+        "row": 0,
+        "col": 3,
+        "direction": "down"
+      },
+      {
+        "word": "shy",
+        "meaning": "害羞的",
+        "row": 0,
+        "col": 5,
+        "direction": "down"
+      },
+      {
+        "word": "black",
+        "meaning": "黑色（的）",
+        "row": 3,
+        "col": 0,
+        "direction": "across"
+      }
+    ],
+    "boardRows": 7,
+    "boardCols": 7
+  },
+  {
+    "id": "puzzle-1675",
+    "words": [
+      {
+        "word": "sun",
+        "meaning": "太阳；阳光",
+        "row": 2,
+        "col": 1,
+        "direction": "across"
+      },
+      {
+        "word": "star",
+        "meaning": "星星；星形",
+        "row": 2,
+        "col": 1,
+        "direction": "down"
+      },
+      {
+        "word": "dangerous",
+        "meaning": "危险的",
+        "row": 0,
+        "col": 3,
+        "direction": "down"
+      },
+      {
+        "word": "may",
+        "meaning": "可以",
+        "row": 4,
+        "col": 0,
+        "direction": "across"
+      }
+    ],
+    "boardRows": 9,
+    "boardCols": 4
+  },
+  {
+    "id": "puzzle-4767",
+    "words": [
+      {
+        "word": "six",
+        "meaning": "六",
+        "row": 0,
+        "col": 4,
+        "direction": "across"
+      },
+      {
+        "word": "seafood",
+        "meaning": "海鲜",
+        "row": 0,
+        "col": 4,
+        "direction": "down"
+      },
+      {
+        "word": "low",
+        "meaning": "低的；低地",
+        "row": 4,
+        "col": 3,
+        "direction": "across"
+      },
+      {
+        "word": "village",
+        "meaning": "村庄",
+        "row": 2,
+        "col": 0,
+        "direction": "across"
+      }
+    ],
+    "boardRows": 7,
+    "boardCols": 7
+  },
+  {
+    "id": "puzzle-4639",
+    "words": [
+      {
+        "word": "welcome",
+        "meaning": "欢迎",
+        "row": 2,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "what",
+        "meaning": "什么",
+        "row": 2,
+        "col": 0,
+        "direction": "down"
+      },
+      {
+        "word": "summer",
+        "meaning": "夏天",
+        "row": 0,
+        "col": 5,
+        "direction": "down"
+      },
+      {
+        "word": "cinema",
+        "meaning": "电影院",
+        "row": 2,
+        "col": 3,
+        "direction": "down"
+      }
+    ],
+    "boardRows": 8,
+    "boardCols": 7
+  },
+  {
+    "id": "puzzle-9092",
+    "words": [
+      {
+        "word": "sweet",
+        "meaning": "甜的",
+        "row": 3,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "rice",
+        "meaning": "米饭",
+        "row": 0,
+        "col": 2,
+        "direction": "down"
+      },
+      {
+        "word": "thin",
+        "meaning": "瘦的",
+        "row": 3,
+        "col": 4,
+        "direction": "down"
+      },
+      {
+        "word": "third",
+        "meaning": "第三",
+        "row": 1,
+        "col": 0,
+        "direction": "across"
+      }
+    ],
+    "boardRows": 7,
+    "boardCols": 5
+  },
+  {
+    "id": "puzzle-9883",
+    "words": [
+      {
+        "word": "Thursday",
+        "meaning": "星期四",
+        "row": 2,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "banana",
+        "meaning": "香蕉",
+        "row": 1,
+        "col": 6,
+        "direction": "down"
+      },
+      {
+        "word": "visit",
+        "meaning": "拜访；参观",
+        "row": 0,
+        "col": 4,
+        "direction": "down"
+      },
+      {
+        "word": "pink",
+        "meaning": "粉红色（的）",
+        "row": 5,
+        "col": 4,
+        "direction": "across"
+      }
+    ],
+    "boardRows": 7,
+    "boardCols": 8
+  },
+  {
+    "id": "puzzle-7444",
+    "words": [
+      {
+        "word": "building",
+        "meaning": "建筑物；大楼",
+        "row": 2,
+        "col": 2,
+        "direction": "across"
+      },
+      {
+        "word": "fish",
+        "meaning": "鱼；鱼肉",
+        "row": 1,
+        "col": 4,
+        "direction": "down"
+      },
+      {
+        "word": "tennis",
+        "meaning": "网球",
+        "row": 0,
+        "col": 8,
+        "direction": "down"
+      },
+      {
+        "word": "tenth",
+        "meaning": "第十",
+        "row": 4,
+        "col": 0,
+        "direction": "across"
+      }
+    ],
+    "boardRows": 6,
+    "boardCols": 10
+  },
+  {
+    "id": "puzzle-4478",
+    "words": [
+      {
+        "word": "grandpa",
+        "meaning": "爷爷；外公",
+        "row": 2,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "January",
+        "meaning": "一月",
+        "row": 1,
+        "col": 2,
+        "direction": "down"
+      },
+      {
+        "word": "busy",
+        "meaning": "忙的；忙碌的",
+        "row": 4,
+        "col": 1,
+        "direction": "across"
+      },
+      {
+        "word": "expensive",
+        "meaning": "昂贵的",
+        "row": 0,
+        "col": 5,
+        "direction": "down"
+      }
+    ],
+    "boardRows": 9,
+    "boardCols": 7
+  },
+  {
+    "id": "puzzle-2423",
+    "words": [
+      {
+        "word": "hamburger",
+        "meaning": "汉堡包",
+        "row": 5,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "fifteen",
+        "meaning": "十五",
+        "row": 1,
+        "col": 7,
+        "direction": "down"
+      },
+      {
+        "word": "between",
+        "meaning": "在……之间",
+        "row": 5,
+        "col": 3,
+        "direction": "down"
+      },
+      {
+        "word": "doctor",
+        "meaning": "医生",
+        "row": 0,
+        "col": 5,
+        "direction": "down"
+      }
+    ],
+    "boardRows": 12,
+    "boardCols": 9
+  },
+  {
+    "id": "puzzle-7448",
+    "words": [
+      {
+        "word": "beautiful",
+        "meaning": "美丽的；漂亮的",
+        "row": 1,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "library",
+        "meaning": "图书馆",
+        "row": 1,
+        "col": 8,
+        "direction": "down"
+      },
+      {
+        "word": "seafood",
+        "meaning": "海鲜",
+        "row": 0,
+        "col": 1,
+        "direction": "down"
+      },
+      {
+        "word": "fan",
+        "meaning": "风扇",
+        "row": 1,
+        "col": 6,
+        "direction": "down"
+      }
+    ],
+    "boardRows": 8,
+    "boardCols": 9
+  },
+  {
+    "id": "puzzle-0831",
+    "words": [
+      {
+        "word": "grandmother",
+        "meaning": "奶奶；外婆",
+        "row": 2,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "easy",
+        "meaning": "容易的",
+        "row": 2,
+        "col": 9,
+        "direction": "down"
+      },
+      {
+        "word": "fourth",
+        "meaning": "第四",
+        "row": 1,
+        "col": 6,
+        "direction": "down"
+      },
+      {
+        "word": "long",
+        "meaning": "长的",
+        "row": 0,
+        "col": 3,
+        "direction": "down"
+      }
+    ],
+    "boardRows": 7,
+    "boardCols": 11
+  },
+  {
+    "id": "puzzle-3376",
+    "words": [
+      {
+        "word": "Friday",
+        "meaning": "星期五",
+        "row": 1,
+        "col": 1,
+        "direction": "across"
+      },
+      {
+        "word": "run",
+        "meaning": "跑；跑步",
+        "row": 1,
+        "col": 2,
+        "direction": "down"
+      },
+      {
+        "word": "went",
+        "meaning": "去（go的过去式）",
+        "row": 3,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "call",
+        "meaning": "打电话；呼叫",
+        "row": 0,
+        "col": 5,
+        "direction": "down"
+      }
+    ],
+    "boardRows": 4,
+    "boardCols": 7
+  },
+  {
+    "id": "puzzle-8503",
+    "words": [
+      {
+        "word": "his",
+        "meaning": "他的",
+        "row": 3,
+        "col": 3,
+        "direction": "across"
+      },
+      {
+        "word": "dress",
+        "meaning": "连衣裙",
+        "row": 0,
+        "col": 5,
+        "direction": "down"
+      },
+      {
+        "word": "here",
+        "meaning": "这里",
+        "row": 3,
+        "col": 3,
+        "direction": "down"
+      },
+      {
+        "word": "country",
+        "meaning": "国家",
+        "row": 1,
+        "col": 0,
+        "direction": "across"
+      }
+    ],
+    "boardRows": 7,
+    "boardCols": 7
+  },
+  {
+    "id": "puzzle-1334",
+    "words": [
+      {
+        "word": "foot",
+        "meaning": "脚（单数）",
+        "row": 2,
+        "col": 1,
+        "direction": "across"
+      },
+      {
+        "word": "art",
+        "meaning": "美术",
+        "row": 0,
+        "col": 4,
+        "direction": "down"
+      },
+      {
+        "word": "subway",
+        "meaning": "地铁",
+        "row": 0,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "slow",
+        "meaning": "慢的；慢地",
+        "row": 0,
+        "col": 0,
+        "direction": "down"
+      }
+    ],
+    "boardRows": 4,
+    "boardCols": 6
+  },
+  {
+    "id": "puzzle-4334",
+    "words": [
+      {
+        "word": "storybook",
+        "meaning": "故事书",
+        "row": 2,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "bathroom",
+        "meaning": "浴室；卫生间",
+        "row": 2,
+        "col": 5,
+        "direction": "down"
+      },
+      {
+        "word": "collect",
+        "meaning": "收集",
+        "row": 1,
+        "col": 2,
+        "direction": "down"
+      },
+      {
+        "word": "easy",
+        "meaning": "容易的",
+        "row": 0,
+        "col": 0,
+        "direction": "down"
+      }
+    ],
+    "boardRows": 10,
+    "boardCols": 9
+  },
+  {
+    "id": "puzzle-7730",
+    "words": [
+      {
+        "word": "clever",
+        "meaning": "聪明的",
+        "row": 4,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "child",
+        "meaning": "小孩（单数）",
+        "row": 4,
+        "col": 0,
+        "direction": "down"
+      },
+      {
+        "word": "room",
+        "meaning": "房间",
+        "row": 4,
+        "col": 5,
+        "direction": "down"
+      },
+      {
+        "word": "grape",
+        "meaning": "葡萄",
+        "row": 0,
+        "col": 2,
+        "direction": "down"
+      }
+    ],
+    "boardRows": 9,
+    "boardCols": 6
+  },
+  {
+    "id": "puzzle-0489",
+    "words": [
+      {
+        "word": "dangerous",
+        "meaning": "危险的",
+        "row": 1,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "walk",
+        "meaning": "走；步行",
+        "row": 0,
+        "col": 1,
+        "direction": "down"
+      },
+      {
+        "word": "December",
+        "meaning": "十二月",
+        "row": 0,
+        "col": 4,
+        "direction": "down"
+      },
+      {
+        "word": "boat",
+        "meaning": "小船",
+        "row": 0,
+        "col": 6,
+        "direction": "down"
+      }
+    ],
+    "boardRows": 8,
+    "boardCols": 9
+  },
+  {
+    "id": "puzzle-5164",
+    "words": [
+      {
+        "word": "socks",
+        "meaning": "袜子",
+        "row": 2,
+        "col": 2,
+        "direction": "across"
+      },
+      {
+        "word": "busy",
+        "meaning": "忙的；忙碌的",
+        "row": 0,
+        "col": 2,
+        "direction": "down"
+      },
+      {
+        "word": "come",
+        "meaning": "来",
+        "row": 2,
+        "col": 4,
+        "direction": "down"
+      },
+      {
+        "word": "writer",
+        "meaning": "作家",
+        "row": 5,
+        "col": 0,
+        "direction": "across"
+      }
+    ],
+    "boardRows": 6,
+    "boardCols": 7
+  },
+  {
+    "id": "puzzle-5881",
+    "words": [
+      {
+        "word": "shorts",
+        "meaning": "短裤",
+        "row": 4,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "vegetable",
+        "meaning": "蔬菜",
+        "row": 0,
+        "col": 4,
+        "direction": "down"
+      },
+      {
+        "word": "next",
+        "meaning": "下一个",
+        "row": 1,
+        "col": 3,
+        "direction": "across"
+      },
+      {
+        "word": "some",
+        "meaning": "一些",
+        "row": 4,
+        "col": 0,
+        "direction": "down"
+      }
+    ],
+    "boardRows": 9,
+    "boardCols": 7
+  },
+  {
+    "id": "puzzle-0166",
+    "words": [
+      {
+        "word": "eraser",
+        "meaning": "橡皮",
+        "row": 5,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "chicken",
+        "meaning": "鸡肉",
+        "row": 0,
+        "col": 0,
+        "direction": "down"
+      },
+      {
+        "word": "help",
+        "meaning": "帮助",
+        "row": 4,
+        "col": 4,
+        "direction": "down"
+      },
+      {
+        "word": "animal",
+        "meaning": "动物",
+        "row": 5,
+        "col": 2,
+        "direction": "down"
+      }
+    ],
+    "boardRows": 11,
+    "boardCols": 6
+  },
+  {
+    "id": "puzzle-8947",
+    "words": [
+      {
+        "word": "photo",
+        "meaning": "照片",
+        "row": 1,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "play",
+        "meaning": "玩",
+        "row": 1,
+        "col": 0,
+        "direction": "down"
+      },
+      {
+        "word": "colourful",
+        "meaning": "多彩的",
+        "row": 0,
+        "col": 2,
+        "direction": "down"
+      },
+      {
+        "word": "out",
+        "meaning": "外面",
+        "row": 1,
+        "col": 4,
+        "direction": "down"
+      }
+    ],
+    "boardRows": 9,
+    "boardCols": 5
+  },
+  {
+    "id": "puzzle-4197",
+    "words": [
+      {
+        "word": "usually",
+        "meaning": "通常",
+        "row": 2,
+        "col": 4,
+        "direction": "across"
+      },
+      {
+        "word": "count",
+        "meaning": "数；计数",
+        "row": 0,
+        "col": 4,
+        "direction": "down"
+      },
+      {
+        "word": "grandparents",
+        "meaning": "祖父母；外祖父母",
+        "row": 0,
+        "col": 7,
+        "direction": "down"
+      },
+      {
+        "word": "night",
+        "meaning": "晚上",
+        "row": 4,
+        "col": 0,
+        "direction": "across"
+      }
+    ],
+    "boardRows": 12,
+    "boardCols": 11
+  },
+  {
+    "id": "puzzle-5481",
+    "words": [
+      {
+        "word": "may",
+        "meaning": "可以",
+        "row": 4,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "today",
+        "meaning": "今天",
+        "row": 1,
+        "col": 1,
+        "direction": "down"
+      },
+      {
+        "word": "office",
+        "meaning": "办公室",
+        "row": 2,
+        "col": 1,
+        "direction": "across"
+      },
+      {
+        "word": "where",
+        "meaning": "在哪里",
+        "row": 0,
+        "col": 6,
+        "direction": "down"
+      }
+    ],
+    "boardRows": 6,
+    "boardCols": 7
+  },
+  {
+    "id": "puzzle-7242",
+    "words": [
+      {
+        "word": "young",
+        "meaning": "年轻的",
+        "row": 2,
+        "col": 1,
+        "direction": "across"
+      },
+      {
+        "word": "juice",
+        "meaning": "果汁",
+        "row": 1,
+        "col": 3,
+        "direction": "down"
+      },
+      {
+        "word": "three",
+        "meaning": "三",
+        "row": 5,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "degree",
+        "meaning": "度；度数",
+        "row": 0,
+        "col": 5,
+        "direction": "down"
+      }
+    ],
+    "boardRows": 6,
+    "boardCols": 6
+  },
+  {
+    "id": "puzzle-7825",
+    "words": [
+      {
+        "word": "biscuit",
+        "meaning": "饼干",
+        "row": 6,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "noodles",
+        "meaning": "面条",
+        "row": 0,
+        "col": 2,
+        "direction": "down"
+      },
+      {
+        "word": "doll",
+        "meaning": "玩具娃娃",
+        "row": 3,
+        "col": 2,
+        "direction": "across"
+      },
+      {
+        "word": "buy",
+        "meaning": "买",
+        "row": 6,
+        "col": 0,
+        "direction": "down"
+      }
+    ],
+    "boardRows": 9,
+    "boardCols": 7
+  },
+  {
+    "id": "puzzle-5976",
+    "words": [
+      {
+        "word": "sweater",
+        "meaning": "毛衣",
+        "row": 3,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "live",
+        "meaning": "居住",
+        "row": 0,
+        "col": 2,
+        "direction": "down"
+      },
+      {
+        "word": "short",
+        "meaning": "短的",
+        "row": 3,
+        "col": 0,
+        "direction": "down"
+      },
+      {
+        "word": "they",
+        "meaning": "他/她/它们",
+        "row": 3,
+        "col": 4,
+        "direction": "down"
+      }
+    ],
+    "boardRows": 8,
+    "boardCols": 7
+  },
+  {
+    "id": "puzzle-7938",
+    "words": [
+      {
+        "word": "grandmother",
+        "meaning": "奶奶；外婆",
+        "row": 2,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "yuan",
+        "meaning": "元（人民币单位）",
+        "row": 0,
+        "col": 2,
+        "direction": "down"
+      },
+      {
+        "word": "seventh",
+        "meaning": "第七",
+        "row": 1,
+        "col": 9,
+        "direction": "down"
+      },
+      {
+        "word": "egg",
+        "meaning": "鸡蛋",
+        "row": 1,
+        "col": 0,
+        "direction": "down"
+      }
+    ],
+    "boardRows": 8,
+    "boardCols": 11
+  },
+  {
+    "id": "puzzle-6450",
+    "words": [
+      {
+        "word": "street",
+        "meaning": "街道",
+        "row": 1,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "between",
+        "meaning": "在……之间",
+        "row": 0,
+        "col": 3,
+        "direction": "down"
+      },
+      {
+        "word": "today",
+        "meaning": "今天",
+        "row": 1,
+        "col": 1,
+        "direction": "down"
+      },
+      {
+        "word": "Monday",
+        "meaning": "星期一",
+        "row": 6,
+        "col": 1,
+        "direction": "across"
+      }
+    ],
+    "boardRows": 7,
+    "boardCols": 7
+  },
+  {
+    "id": "puzzle-6240",
+    "words": [
+      {
+        "word": "foot",
+        "meaning": "脚（单数）",
+        "row": 3,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "salty",
+        "meaning": "咸的",
+        "row": 0,
+        "col": 3,
+        "direction": "down"
+      },
+      {
+        "word": "fat",
+        "meaning": "胖的",
+        "row": 3,
+        "col": 0,
+        "direction": "down"
+      },
+      {
+        "word": "dance",
+        "meaning": "跳舞",
+        "row": 1,
+        "col": 2,
+        "direction": "across"
+      }
+    ],
+    "boardRows": 6,
+    "boardCols": 7
+  },
+  {
+    "id": "puzzle-9400",
+    "words": [
+      {
+        "word": "for",
+        "meaning": "给；为了",
+        "row": 5,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "winter",
+        "meaning": "冬天",
+        "row": 0,
+        "col": 2,
+        "direction": "down"
+      },
+      {
+        "word": "different",
+        "meaning": "不同的",
+        "row": 3,
+        "col": 0,
+        "direction": "down"
+      },
+      {
+        "word": "want",
+        "meaning": "想要",
+        "row": 0,
+        "col": 2,
+        "direction": "across"
+      }
+    ],
+    "boardRows": 12,
+    "boardCols": 6
+  },
+  {
+    "id": "puzzle-0606",
+    "words": [
+      {
+        "word": "fast",
+        "meaning": "快的；快地",
+        "row": 2,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "cap",
+        "meaning": "帽子",
+        "row": 1,
+        "col": 1,
+        "direction": "down"
+      },
+      {
+        "word": "between",
+        "meaning": "在……之间",
+        "row": 0,
+        "col": 3,
+        "direction": "down"
+      },
+      {
+        "word": "hand",
+        "meaning": "手",
+        "row": 6,
+        "col": 1,
+        "direction": "across"
+      }
+    ],
+    "boardRows": 7,
+    "boardCols": 5
+  },
+  {
+    "id": "puzzle-2465",
+    "words": [
+      {
+        "word": "night",
+        "meaning": "晚上",
+        "row": 3,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "yuan",
+        "meaning": "元（人民币单位）",
+        "row": 0,
+        "col": 0,
+        "direction": "down"
+      },
+      {
+        "word": "gift",
+        "meaning": "礼物",
+        "row": 3,
+        "col": 2,
+        "direction": "down"
+      },
+      {
+        "word": "active",
+        "meaning": "积极的；活跃的",
+        "row": 1,
+        "col": 4,
+        "direction": "down"
+      }
+    ],
+    "boardRows": 7,
+    "boardCols": 5
+  },
+  {
+    "id": "puzzle-5414",
+    "words": [
+      {
+        "word": "test",
+        "meaning": "测试；考试",
+        "row": 2,
+        "col": 1,
+        "direction": "across"
+      },
+      {
+        "word": "star",
+        "meaning": "星星；星形",
+        "row": 2,
+        "col": 3,
+        "direction": "down"
+      },
+      {
+        "word": "city",
+        "meaning": "城市",
+        "row": 0,
+        "col": 1,
+        "direction": "down"
+      },
+      {
+        "word": "your",
+        "meaning": "你的；你们的",
+        "row": 5,
+        "col": 0,
+        "direction": "across"
+      }
+    ],
+    "boardRows": 6,
+    "boardCols": 5
+  },
+  {
+    "id": "puzzle-0252",
+    "words": [
+      {
+        "word": "spring",
+        "meaning": "春天",
+        "row": 2,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "dance",
+        "meaning": "跳舞",
+        "row": 0,
+        "col": 4,
+        "direction": "down"
+      },
+      {
+        "word": "brother",
+        "meaning": "兄弟",
+        "row": 1,
+        "col": 2,
+        "direction": "down"
+      },
+      {
+        "word": "spicy",
+        "meaning": "辣的",
+        "row": 2,
+        "col": 0,
+        "direction": "down"
+      }
+    ],
+    "boardRows": 8,
+    "boardCols": 6
+  },
+  {
+    "id": "puzzle-3228",
+    "words": [
+      {
+        "word": "blackboard",
+        "meaning": "黑板",
+        "row": 2,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "pound",
+        "meaning": "英镑",
+        "row": 1,
+        "col": 6,
+        "direction": "down"
+      },
+      {
+        "word": "nice",
+        "meaning": "好看的；令人愉快的",
+        "row": 0,
+        "col": 3,
+        "direction": "down"
+      },
+      {
+        "word": "drink",
+        "meaning": "喝",
+        "row": 2,
+        "col": 9,
+        "direction": "down"
+      }
+    ],
+    "boardRows": 7,
+    "boardCols": 10
+  },
+  {
+    "id": "puzzle-4674",
+    "words": [
+      {
+        "word": "minute",
+        "meaning": "分钟",
+        "row": 3,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "November",
+        "meaning": "十一月",
+        "row": 0,
+        "col": 5,
+        "direction": "down"
+      },
+      {
+        "word": "pear",
+        "meaning": "梨",
+        "row": 6,
+        "col": 4,
+        "direction": "across"
+      },
+      {
+        "word": "policeman",
+        "meaning": "警察",
+        "row": 0,
+        "col": 1,
+        "direction": "down"
+      }
+    ],
+    "boardRows": 9,
+    "boardCols": 8
+  },
+  {
+    "id": "puzzle-8700",
+    "words": [
+      {
+        "word": "quickly",
+        "meaning": "快速地",
+        "row": 2,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "subject",
+        "meaning": "学科；科目",
+        "row": 1,
+        "col": 1,
+        "direction": "down"
+      },
+      {
+        "word": "that",
+        "meaning": "那；那个",
+        "row": 7,
+        "col": 1,
+        "direction": "across"
+      },
+      {
+        "word": "colourful",
+        "meaning": "多彩的",
+        "row": 0,
+        "col": 5,
+        "direction": "down"
+      }
+    ],
+    "boardRows": 9,
+    "boardCols": 7
+  },
+  {
+    "id": "puzzle-6835",
+    "words": [
+      {
+        "word": "one",
+        "meaning": "一",
+        "row": 3,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "face",
+        "meaning": "脸",
+        "row": 0,
+        "col": 2,
+        "direction": "down"
+      },
+      {
+        "word": "computer",
+        "meaning": "计算机",
+        "row": 2,
+        "col": 0,
+        "direction": "down"
+      },
+      {
+        "word": "there",
+        "meaning": "那里",
+        "row": 7,
+        "col": 0,
+        "direction": "across"
+      }
+    ],
+    "boardRows": 10,
+    "boardCols": 5
+  },
+  {
+    "id": "puzzle-9991",
+    "words": [
+      {
+        "word": "tennis",
+        "meaning": "网球",
+        "row": 3,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "wind",
+        "meaning": "风；刮风",
+        "row": 2,
+        "col": 4,
+        "direction": "down"
+      },
+      {
+        "word": "face",
+        "meaning": "脸",
+        "row": 0,
+        "col": 1,
+        "direction": "down"
+      },
+      {
+        "word": "fly",
+        "meaning": "飞；飞行",
+        "row": 0,
+        "col": 1,
+        "direction": "across"
+      }
+    ],
+    "boardRows": 6,
+    "boardCols": 6
+  },
+  {
+    "id": "puzzle-9325",
+    "words": [
+      {
+        "word": "milk",
+        "meaning": "牛奶",
+        "row": 2,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "cold",
+        "meaning": "冷的",
+        "row": 0,
+        "col": 2,
+        "direction": "down"
+      },
+      {
+        "word": "because",
+        "meaning": "因为",
+        "row": 0,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "street",
+        "meaning": "街道",
+        "row": 0,
+        "col": 5,
+        "direction": "down"
+      }
+    ],
+    "boardRows": 6,
+    "boardCols": 7
+  },
+  {
+    "id": "puzzle-7763",
+    "words": [
+      {
+        "word": "have",
+        "meaning": "有",
+        "row": 2,
+        "col": 2,
+        "direction": "across"
+      },
+      {
+        "word": "grandmother",
+        "meaning": "奶奶；外婆",
+        "row": 0,
+        "col": 3,
+        "direction": "down"
+      },
+      {
+        "word": "pilot",
+        "meaning": "飞行员",
+        "row": 6,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "sweet",
+        "meaning": "甜的",
+        "row": 0,
+        "col": 5,
+        "direction": "down"
+      }
+    ],
+    "boardRows": 11,
+    "boardCols": 6
+  },
+  {
+    "id": "puzzle-1503",
+    "words": [
+      {
+        "word": "animal",
+        "meaning": "动物",
+        "row": 2,
+        "col": 2,
+        "direction": "across"
+      },
+      {
+        "word": "size",
+        "meaning": "尺码；大小",
+        "row": 1,
+        "col": 4,
+        "direction": "down"
+      },
+      {
+        "word": "yuan",
+        "meaning": "元（人民币单位）",
+        "row": 0,
+        "col": 2,
+        "direction": "down"
+      },
+      {
+        "word": "bitter",
+        "meaning": "苦的",
+        "row": 4,
+        "col": 0,
+        "direction": "across"
+      }
+    ],
+    "boardRows": 5,
+    "boardCols": 8
+  },
+  {
+    "id": "puzzle-8492",
+    "words": [
+      {
+        "word": "away",
+        "meaning": "离开；远离",
+        "row": 3,
+        "col": 4,
+        "direction": "across"
+      },
+      {
+        "word": "grandmother",
+        "meaning": "奶奶；外婆",
+        "row": 1,
+        "col": 4,
+        "direction": "down"
+      },
+      {
+        "word": "great",
+        "meaning": "好极了；很棒的",
+        "row": 0,
+        "col": 6,
+        "direction": "down"
+      },
+      {
+        "word": "subject",
+        "meaning": "学科；科目",
+        "row": 10,
+        "col": 0,
+        "direction": "across"
+      }
+    ],
+    "boardRows": 12,
+    "boardCols": 8
+  },
+  {
+    "id": "puzzle-0205",
+    "words": [
+      {
+        "word": "playground",
+        "meaning": "操场",
+        "row": 2,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "under",
+        "meaning": "在……下面",
+        "row": 2,
+        "col": 7,
+        "direction": "down"
+      },
+      {
+        "word": "grandparents",
+        "meaning": "祖父母；外祖父母",
+        "row": 0,
+        "col": 2,
+        "direction": "down"
+      },
+      {
+        "word": "expensive",
+        "meaning": "昂贵的",
+        "row": 0,
+        "col": 0,
+        "direction": "down"
+      }
+    ],
+    "boardRows": 12,
+    "boardCols": 10
+  },
+  {
+    "id": "puzzle-3382",
+    "words": [
+      {
+        "word": "future",
+        "meaning": "将来；未来",
+        "row": 4,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "biscuit",
+        "meaning": "饼干",
+        "row": 0,
+        "col": 1,
+        "direction": "down"
+      },
+      {
+        "word": "number",
+        "meaning": "号码",
+        "row": 3,
+        "col": 3,
+        "direction": "down"
+      },
+      {
+        "word": "homework",
+        "meaning": "家庭作业",
+        "row": 1,
+        "col": 5,
+        "direction": "down"
+      }
+    ],
+    "boardRows": 9,
+    "boardCols": 6
+  },
+  {
+    "id": "puzzle-9376",
+    "words": [
+      {
+        "word": "photo",
+        "meaning": "照片",
+        "row": 2,
+        "col": 4,
+        "direction": "across"
+      },
+      {
+        "word": "hard",
+        "meaning": "努力地；困难的",
+        "row": 2,
+        "col": 5,
+        "direction": "down"
+      },
+      {
+        "word": "bitter",
+        "meaning": "苦的",
+        "row": 0,
+        "col": 7,
+        "direction": "down"
+      },
+      {
+        "word": "number",
+        "meaning": "号码",
+        "row": 4,
+        "col": 0,
+        "direction": "across"
+      }
+    ],
+    "boardRows": 6,
+    "boardCols": 9
+  },
+  {
+    "id": "puzzle-7141",
+    "words": [
+      {
+        "word": "study",
+        "meaning": "书房",
+        "row": 3,
+        "col": 1,
+        "direction": "across"
+      },
+      {
+        "word": "something",
+        "meaning": "某物；某事",
+        "row": 3,
+        "col": 1,
+        "direction": "down"
+      },
+      {
+        "word": "group",
+        "meaning": "组；群",
+        "row": 0,
+        "col": 3,
+        "direction": "down"
+      },
+      {
+        "word": "snow",
+        "meaning": "雪；下雪",
+        "row": 10,
+        "col": 0,
+        "direction": "across"
+      }
+    ],
+    "boardRows": 12,
+    "boardCols": 6
+  },
+  {
+    "id": "puzzle-0843",
+    "words": [
+      {
+        "word": "slow",
+        "meaning": "慢的；慢地",
+        "row": 1,
+        "col": 3,
+        "direction": "across"
+      },
+      {
+        "word": "skirt",
+        "meaning": "裙子",
+        "row": 1,
+        "col": 3,
+        "direction": "down"
+      },
+      {
+        "word": "song",
+        "meaning": "歌曲",
+        "row": 0,
+        "col": 5,
+        "direction": "down"
+      },
+      {
+        "word": "short",
+        "meaning": "短的",
+        "row": 4,
+        "col": 0,
+        "direction": "across"
+      }
+    ],
+    "boardRows": 6,
+    "boardCols": 7
+  },
+  {
+    "id": "puzzle-6673",
+    "words": [
+      {
+        "word": "want",
+        "meaning": "想要",
+        "row": 4,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "library",
+        "meaning": "图书馆",
+        "row": 0,
+        "col": 1,
+        "direction": "down"
+      },
+      {
+        "word": "city",
+        "meaning": "城市",
+        "row": 2,
+        "col": 3,
+        "direction": "down"
+      },
+      {
+        "word": "eight",
+        "meaning": "八",
+        "row": 1,
+        "col": 0,
+        "direction": "across"
+      }
+    ],
+    "boardRows": 7,
+    "boardCols": 5
+  },
+  {
+    "id": "puzzle-9017",
+    "words": [
+      {
+        "word": "fruit",
+        "meaning": "水果",
+        "row": 3,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "near",
+        "meaning": "在……附近",
+        "row": 0,
+        "col": 1,
+        "direction": "down"
+      },
+      {
+        "word": "street",
+        "meaning": "街道",
+        "row": 2,
+        "col": 4,
+        "direction": "down"
+      },
+      {
+        "word": "one",
+        "meaning": "一",
+        "row": 0,
+        "col": 0,
+        "direction": "across"
+      }
+    ],
+    "boardRows": 8,
+    "boardCols": 5
+  },
+  {
+    "id": "puzzle-3542",
+    "words": [
+      {
+        "word": "children",
+        "meaning": "小孩（复数）",
+        "row": 2,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "morning",
+        "meaning": "早上",
+        "row": 0,
+        "col": 5,
+        "direction": "down"
+      },
+      {
+        "word": "building",
+        "meaning": "建筑物；大楼",
+        "row": 0,
+        "col": 2,
+        "direction": "down"
+      },
+      {
+        "word": "careful",
+        "meaning": "小心的；仔细的",
+        "row": 2,
+        "col": 0,
+        "direction": "down"
+      }
+    ],
+    "boardRows": 9,
+    "boardCols": 8
+  },
+  {
+    "id": "puzzle-3273",
+    "words": [
+      {
+        "word": "October",
+        "meaning": "十月",
+        "row": 2,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "photo",
+        "meaning": "照片",
+        "row": 0,
+        "col": 3,
+        "direction": "down"
+      },
+      {
+        "word": "are",
+        "meaning": "是",
+        "row": 1,
+        "col": 6,
+        "direction": "down"
+      },
+      {
+        "word": "you",
+        "meaning": "你；你们",
+        "row": 4,
+        "col": 2,
+        "direction": "across"
+      }
+    ],
+    "boardRows": 5,
+    "boardCols": 7
+  },
+  {
+    "id": "puzzle-4541",
+    "words": [
+      {
+        "word": "dumplings",
+        "meaning": "饺子",
+        "row": 1,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "salty",
+        "meaning": "咸的",
+        "row": 1,
+        "col": 8,
+        "direction": "down"
+      },
+      {
+        "word": "flower",
+        "meaning": "花",
+        "row": 0,
+        "col": 4,
+        "direction": "down"
+      },
+      {
+        "word": "black",
+        "meaning": "黑色（的）",
+        "row": 3,
+        "col": 7,
+        "direction": "across"
+      }
+    ],
+    "boardRows": 6,
+    "boardCols": 12
+  },
+  {
+    "id": "puzzle-1542",
+    "words": [
+      {
+        "word": "before",
+        "meaning": "在……之前",
+        "row": 4,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "date",
+        "meaning": "日期",
+        "row": 1,
+        "col": 1,
+        "direction": "down"
+      },
+      {
+        "word": "juice",
+        "meaning": "果汁",
+        "row": 0,
+        "col": 5,
+        "direction": "down"
+      },
+      {
+        "word": "quickly",
+        "meaning": "快速地",
+        "row": 1,
+        "col": 4,
+        "direction": "across"
+      }
+    ],
+    "boardRows": 5,
+    "boardCols": 11
+  },
+  {
+    "id": "puzzle-9629",
+    "words": [
+      {
+        "word": "policeman",
+        "meaning": "警察",
+        "row": 2,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "eleven",
+        "meaning": "十一",
+        "row": 2,
+        "col": 5,
+        "direction": "down"
+      },
+      {
+        "word": "quiet",
+        "meaning": "安静的；文静的",
+        "row": 0,
+        "col": 3,
+        "direction": "down"
+      },
+      {
+        "word": "pear",
+        "meaning": "梨",
+        "row": 2,
+        "col": 0,
+        "direction": "down"
+      }
+    ],
+    "boardRows": 8,
+    "boardCols": 9
+  },
+  {
+    "id": "puzzle-3284",
+    "words": [
+      {
+        "word": "grandpa",
+        "meaning": "爷爷；外公",
+        "row": 4,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "second",
+        "meaning": "第二",
+        "row": 0,
+        "col": 3,
+        "direction": "down"
+      },
+      {
+        "word": "week",
+        "meaning": "星期；周",
+        "row": 1,
+        "col": 2,
+        "direction": "across"
+      },
+      {
+        "word": "pencil",
+        "meaning": "铅笔",
+        "row": 4,
+        "col": 5,
+        "direction": "down"
+      }
+    ],
+    "boardRows": 10,
+    "boardCols": 7
+  },
+  {
+    "id": "puzzle-5230",
+    "words": [
+      {
+        "word": "socks",
+        "meaning": "袜子",
+        "row": 2,
+        "col": 3,
+        "direction": "across"
+      },
+      {
+        "word": "child",
+        "meaning": "小孩（单数）",
+        "row": 2,
+        "col": 5,
+        "direction": "down"
+      },
+      {
+        "word": "Saturday",
+        "meaning": "星期六",
+        "row": 6,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "Miss",
+        "meaning": "老师；小姐",
+        "row": 0,
+        "col": 3,
+        "direction": "down"
+      }
+    ],
+    "boardRows": 7,
+    "boardCols": 8
+  },
+  {
+    "id": "puzzle-5836",
+    "words": [
+      {
+        "word": "careful",
+        "meaning": "小心的；仔细的",
+        "row": 1,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "grandfather",
+        "meaning": "爷爷；外公",
+        "row": 0,
+        "col": 2,
+        "direction": "down"
+      },
+      {
+        "word": "sun",
+        "meaning": "太阳；阳光",
+        "row": 0,
+        "col": 5,
+        "direction": "down"
+      },
+      {
+        "word": "kind",
+        "meaning": "和蔼的；善良的",
+        "row": 3,
+        "col": 0,
+        "direction": "across"
+      }
+    ],
+    "boardRows": 11,
+    "boardCols": 7
+  },
+  {
+    "id": "puzzle-8451",
+    "words": [
+      {
+        "word": "shirt",
+        "meaning": "衬衫",
+        "row": 1,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "different",
+        "meaning": "不同的",
+        "row": 0,
+        "col": 2,
+        "direction": "down"
+      },
+      {
+        "word": "season",
+        "meaning": "季节",
+        "row": 1,
+        "col": 0,
+        "direction": "down"
+      },
+      {
+        "word": "three",
+        "meaning": "三",
+        "row": 1,
+        "col": 4,
+        "direction": "down"
+      }
+    ],
+    "boardRows": 9,
+    "boardCols": 5
+  },
+  {
+    "id": "puzzle-5841",
+    "words": [
+      {
+        "word": "fast",
+        "meaning": "快的；快地",
+        "row": 6,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "test",
+        "meaning": "测试；考试",
+        "row": 6,
+        "col": 3,
+        "direction": "down"
+      },
+      {
+        "word": "brother",
+        "meaning": "兄弟",
+        "row": 9,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "birthday",
+        "meaning": "生日",
+        "row": 0,
+        "col": 1,
+        "direction": "down"
+      }
+    ],
+    "boardRows": 10,
+    "boardCols": 7
+  },
+  {
+    "id": "puzzle-6517",
+    "words": [
+      {
+        "word": "cool",
+        "meaning": "凉爽的",
+        "row": 3,
+        "col": 1,
+        "direction": "across"
+      },
+      {
+        "word": "favourite",
+        "meaning": "最喜欢的",
+        "row": 0,
+        "col": 2,
+        "direction": "down"
+      },
+      {
+        "word": "great",
+        "meaning": "好极了；很棒的",
+        "row": 5,
+        "col": 1,
+        "direction": "across"
+      },
+      {
+        "word": "plane",
+        "meaning": "飞机",
+        "row": 1,
+        "col": 0,
+        "direction": "across"
+      }
+    ],
+    "boardRows": 9,
+    "boardCols": 6
+  },
+  {
+    "id": "puzzle-5876",
+    "words": [
+      {
+        "word": "kitchen",
+        "meaning": "厨房",
+        "row": 3,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "grandma",
+        "meaning": "奶奶；外婆",
+        "row": 0,
+        "col": 6,
+        "direction": "down"
+      },
+      {
+        "word": "thirteen",
+        "meaning": "十三",
+        "row": 3,
+        "col": 2,
+        "direction": "down"
+      },
+      {
+        "word": "town",
+        "meaning": "城镇",
+        "row": 7,
+        "col": 2,
+        "direction": "across"
+      }
+    ],
+    "boardRows": 11,
+    "boardCols": 7
+  },
+  {
+    "id": "puzzle-8059",
+    "words": [
+      {
+        "word": "peach",
+        "meaning": "桃子",
+        "row": 1,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "October",
+        "meaning": "十月",
+        "row": 0,
+        "col": 3,
+        "direction": "down"
+      },
+      {
+        "word": "weekend",
+        "meaning": "周末",
+        "row": 0,
+        "col": 1,
+        "direction": "down"
+      },
+      {
+        "word": "know",
+        "meaning": "知道",
+        "row": 3,
+        "col": 1,
+        "direction": "across"
+      }
+    ],
+    "boardRows": 7,
+    "boardCols": 5
+  },
+  {
+    "id": "puzzle-8053",
+    "words": [
+      {
+        "word": "policewomen",
+        "meaning": "女警察（复数）",
+        "row": 1,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "spoon",
+        "meaning": "勺子",
+        "row": 0,
+        "col": 0,
+        "direction": "down"
+      },
+      {
+        "word": "coconut",
+        "meaning": "椰子",
+        "row": 1,
+        "col": 4,
+        "direction": "down"
+      },
+      {
+        "word": "mum",
+        "meaning": "妈妈（儿语）",
+        "row": 1,
+        "col": 8,
+        "direction": "down"
+      }
+    ],
+    "boardRows": 8,
+    "boardCols": 11
+  },
+  {
+    "id": "puzzle-3646",
+    "words": [
+      {
+        "word": "grandmother",
+        "meaning": "奶奶；外婆",
+        "row": 3,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "yes",
+        "meaning": "是；对",
+        "row": 2,
+        "col": 9,
+        "direction": "down"
+      },
+      {
+        "word": "February",
+        "meaning": "二月",
+        "row": 0,
+        "col": 1,
+        "direction": "down"
+      },
+      {
+        "word": "spoon",
+        "meaning": "勺子",
+        "row": 1,
+        "col": 6,
+        "direction": "down"
+      }
+    ],
+    "boardRows": 8,
+    "boardCols": 11
+  },
+  {
+    "id": "puzzle-2413",
+    "words": [
+      {
+        "word": "zoo",
+        "meaning": "动物园",
+        "row": 0,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "orange",
+        "meaning": "橙子；橙色",
+        "row": 0,
+        "col": 1,
+        "direction": "down"
+      },
+      {
+        "word": "yesterday",
+        "meaning": "昨天",
+        "row": 5,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "subject",
+        "meaning": "学科；科目",
+        "row": 1,
+        "col": 4,
+        "direction": "down"
+      }
+    ],
+    "boardRows": 8,
+    "boardCols": 9
+  },
+  {
+    "id": "puzzle-1228",
+    "words": [
+      {
+        "word": "second",
+        "meaning": "第二",
+        "row": 1,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "young",
+        "meaning": "年轻的",
+        "row": 0,
+        "col": 3,
+        "direction": "down"
+      },
+      {
+        "word": "delicious",
+        "meaning": "美味的；可口的",
+        "row": 1,
+        "col": 5,
+        "direction": "down"
+      },
+      {
+        "word": "star",
+        "meaning": "星星；星形",
+        "row": 1,
+        "col": 0,
+        "direction": "down"
+      }
+    ],
+    "boardRows": 10,
+    "boardCols": 6
+  },
+  {
+    "id": "puzzle-1482",
+    "words": [
+      {
+        "word": "hamburger",
+        "meaning": "汉堡包",
+        "row": 5,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "see",
+        "meaning": "看见；见到",
+        "row": 4,
+        "col": 7,
+        "direction": "down"
+      },
+      {
+        "word": "winter",
+        "meaning": "冬天",
+        "row": 0,
+        "col": 5,
+        "direction": "down"
+      },
+      {
+        "word": "magazine",
+        "meaning": "杂志",
+        "row": 5,
+        "col": 2,
+        "direction": "down"
+      }
+    ],
+    "boardRows": 13,
+    "boardCols": 9
+  },
+  {
+    "id": "puzzle-6476",
+    "words": [
+      {
+        "word": "careful",
+        "meaning": "小心的；仔细的",
+        "row": 3,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "July",
+        "meaning": "七月",
+        "row": 2,
+        "col": 5,
+        "direction": "down"
+      },
+      {
+        "word": "city",
+        "meaning": "城市",
+        "row": 3,
+        "col": 0,
+        "direction": "down"
+      },
+      {
+        "word": "shirt",
+        "meaning": "衬衫",
+        "row": 0,
+        "col": 2,
+        "direction": "down"
+      }
+    ],
+    "boardRows": 7,
+    "boardCols": 7
+  },
+  {
+    "id": "puzzle-2860",
+    "words": [
+      {
+        "word": "difference",
+        "meaning": "不同；差异",
+        "row": 2,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "sorry",
+        "meaning": "对不起；抱歉",
+        "row": 0,
+        "col": 5,
+        "direction": "down"
+      },
+      {
+        "word": "number",
+        "meaning": "号码",
+        "row": 2,
+        "col": 7,
+        "direction": "down"
+      },
+      {
+        "word": "dancer",
+        "meaning": "舞蹈家",
+        "row": 2,
+        "col": 0,
+        "direction": "down"
+      }
+    ],
+    "boardRows": 8,
+    "boardCols": 10
+  },
+  {
+    "id": "puzzle-2127",
+    "words": [
+      {
+        "word": "arm",
+        "meaning": "胳膊",
+        "row": 5,
+        "col": 6,
+        "direction": "across"
+      },
+      {
+        "word": "newspaper",
+        "meaning": "报纸",
+        "row": 0,
+        "col": 6,
+        "direction": "down"
+      },
+      {
+        "word": "village",
+        "meaning": "村庄",
+        "row": 1,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "September",
+        "meaning": "九月",
+        "row": 0,
+        "col": 8,
+        "direction": "down"
+      }
+    ],
+    "boardRows": 9,
+    "boardCols": 9
+  },
+  {
+    "id": "puzzle-6971",
+    "words": [
+      {
+        "word": "season",
+        "meaning": "季节",
+        "row": 2,
+        "col": 2,
+        "direction": "across"
+      },
+      {
+        "word": "grandpa",
+        "meaning": "爷爷；外公",
+        "row": 0,
+        "col": 4,
+        "direction": "down"
+      },
+      {
+        "word": "child",
+        "meaning": "小孩（单数）",
+        "row": 4,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "cool",
+        "meaning": "凉爽的",
+        "row": 1,
+        "col": 6,
+        "direction": "down"
+      }
+    ],
+    "boardRows": 7,
+    "boardCols": 8
+  },
+  {
+    "id": "puzzle-5119",
+    "words": [
+      {
+        "word": "middle",
+        "meaning": "中间；中央",
+        "row": 4,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "phone",
+        "meaning": "电话",
+        "row": 0,
+        "col": 5,
+        "direction": "down"
+      },
+      {
+        "word": "door",
+        "meaning": "门",
+        "row": 4,
+        "col": 2,
+        "direction": "down"
+      },
+      {
+        "word": "computer",
+        "meaning": "计算机",
+        "row": 2,
+        "col": 0,
+        "direction": "down"
+      }
+    ],
+    "boardRows": 10,
+    "boardCols": 6
+  },
+  {
+    "id": "puzzle-1121",
+    "words": [
+      {
+        "word": "boring",
+        "meaning": "无聊的",
+        "row": 4,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "for",
+        "meaning": "给；为了",
+        "row": 3,
+        "col": 1,
+        "direction": "down"
+      },
+      {
+        "word": "seven",
+        "meaning": "七",
+        "row": 0,
+        "col": 4,
+        "direction": "down"
+      },
+      {
+        "word": "twelve",
+        "meaning": "十二",
+        "row": 1,
+        "col": 2,
+        "direction": "across"
+      }
+    ],
+    "boardRows": 6,
+    "boardCols": 8
+  },
+  {
+    "id": "puzzle-6564",
+    "words": [
+      {
+        "word": "grandpa",
+        "meaning": "爷爷；外公",
+        "row": 4,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "building",
+        "meaning": "建筑物；大楼",
+        "row": 0,
+        "col": 4,
+        "direction": "down"
+      },
+      {
+        "word": "tired",
+        "meaning": "疲倦的；累的",
+        "row": 2,
+        "col": 1,
+        "direction": "down"
+      },
+      {
+        "word": "first",
+        "meaning": "第一",
+        "row": 2,
+        "col": 3,
+        "direction": "across"
+      }
+    ],
+    "boardRows": 8,
+    "boardCols": 8
+  },
+  {
+    "id": "puzzle-4644",
+    "words": [
+      {
+        "word": "policeman",
+        "meaning": "警察",
+        "row": 1,
+        "col": 0,
+        "direction": "across"
+      },
+      {
+        "word": "help",
+        "meaning": "帮助",
+        "row": 0,
+        "col": 5,
+        "direction": "down"
+      },
+      {
+        "word": "after",
+        "meaning": "在……之后",
+        "row": 1,
+        "col": 7,
+        "direction": "down"
+      },
+      {
+        "word": "toilet",
+        "meaning": "厕所；卫生间",
+        "row": 0,
+        "col": 1,
+        "direction": "down"
+      }
+    ],
+    "boardRows": 6,
+    "boardCols": 9
+  }
+]
