@@ -12,7 +12,7 @@ html, body {
 
 body {
   font-family: 'Fredoka One', 'Comic Sans MS', 'Microsoft YaHei', sans-serif;
-  background: radial-gradient(ellipse at top, #FFE4E1 0%, #FFB6C1 50%, #FF69B4 100%);
+  background: radial-gradient(circle at 50% 40%, #FFF0F5 0%, #FFD1DC 60%, #FFA6C9 100%);
   min-height: 100vh;
   display: flex;
   justify-content: center;
