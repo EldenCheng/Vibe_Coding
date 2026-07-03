@@ -302,3 +302,11 @@ body {
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+/* 桌面端：重置 body 高度以适配游戏机外壳 */
+@media (min-width: 800px) {
+  body {
+    height: auto;
+    min-height: 880px;
+  }
+}
