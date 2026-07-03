@@ -176,6 +176,38 @@ function hasAnyParallelAdjacency(placedWords) {
 }
 
 /**
+ * 检查是否存在因交叉单词导致在初级模式下整个单词被自动填满的情况。
+ * 3 字母单词在初级模式中首尾为提示格，若中间格恰好是另一个单词的首字母或尾字母，
+ * 则该格也被标记为提示格，导致整个单词无需用户输入。
+ * @param {PlacedWord[]} placedWords
+ * @returns {boolean} true 表示存在会自动填满的单词
+ */
+function hasAutoCompleteWord(placedWords) {
+  for (const w of placedWords) {
+    if (w.word.length !== 3) continue;
+
+    const midRow = w.direction === 'across' ? w.row : w.row + 1;
+    const midCol = w.direction === 'across' ? w.col + 1 : w.col;
+
+    for (const other of placedWords) {
+      if (other === w) continue;
+
+      const otherLastIdx = other.word.length - 1;
+      const firstRow = other.direction === 'across' ? other.row : other.row;
+      const firstCol = other.direction === 'across' ? other.col : other.col;
+      const lastRow = other.direction === 'across' ? other.row : other.row + otherLastIdx;
+      const lastCol = other.direction === 'across' ? other.col + otherLastIdx : other.col;
+
+      if ((midRow === firstRow && midCol === firstCol) ||
+          (midRow === lastRow && midCol === lastCol)) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+/**
  * @typedef {Object} PlacedWord
  * @property {string}          word      - 英文单词
  * @property {string}          meaning   - 中文释义
@@ -414,7 +446,7 @@ export function buildPuzzleSet(wordPool, difficulty, maxAttempts = 1000) {
       }
     }
 
-    if (placedCount === targetCount && isConnected(placedWords) && !hasAnyParallelAdjacency(placedWords)) {
+    if (placedCount === targetCount && isConnected(placedWords) && !hasAnyParallelAdjacency(placedWords) && !hasAutoCompleteWord(placedWords)) {
       const { boardRows, boardCols, adjustedWords } = trimBoard(board, placedWords);
 
       const puzzleId = `puzzle-${String(Math.floor(Math.random() * 10000)).padStart(4, '0')}`;

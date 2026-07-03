@@ -63,3 +63,7 @@ button {
 .message-toast.show {
   opacity: 1;
 }
+
+.hidden {
+  display: none !important;
+}

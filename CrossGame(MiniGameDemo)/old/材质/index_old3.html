@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Crossword Adventure</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            /* 高光浅粉活泼背景：利用径向渐变模拟中心高光聚光灯效果 */
+            background: radial-gradient(circle at 50% 40%, #FFF0F5 0%, #FFD1DC 60%, #FFA6C9 100%);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 25px 20px;
+            overflow: hidden;
+            font-family: 'Fredoka One', 'Comic Sans MS', sans-serif;
+        }
+
+        /* 2. 弧形彩虹文字区域 */
+        .title-container {
+            position: relative;
+            width: 340px;
+            height: 110px;
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .rainbow-svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+
+        .rainbow-text {
+            font-size: 34px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            fill: url(#rainbowGradient);
+            filter: drop-shadow(2px 3px 0px #ffffff);
+        }
+
+        /* 3. 核心游戏区域 */
+        .game-zone {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 10px 0;
+        }
+
+        /* 英文填字背景网格 */
+        .crossword-board {
+            width: 250px;
+            height: 250px;
+            background: rgba(255, 255, 255, 0.75);
+            border-radius: 28px;
+            border: 4px solid #FFF;
+            box-shadow: 0 8px 32px rgba(255, 105, 180, 0.15);
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(5, 1fr);
+            gap: 6px;
+            padding: 12px;
+        }
+
+        .letter-cell {
+            background: #ffffff;
+            border-radius: 10px;
+            border: 2px solid #FFE4E1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #FF69B4;
+            box-shadow: 0 3px 0 #FFE4E1;
+            opacity: 0.2;
+            transition: all 0.3s ease;
+        }
+
+        /* 正在填字的点亮状态 */
+        .letter-cell.active {
+            opacity: 1;
+            background: #FF69B4;
+            color: #ffffff;
+            border-color: #FF1493;
+            box-shadow: 0 3px 0 #C71585;
+            transform: scale(1.05);
+        }
+
+        /* 4. 动态小动物：加入混合模式实现完美的白色背景自动透明过滤 */
+        .mascot-character {
+            position: absolute;
+            bottom: -35px; /* 向下移一点，让它看起来更像是趴在网格边缘写字 */
+            right: -25px;
+            width: 170px;
+            height: 170px;
+            z-index: 5;
+            pointer-events: none;
+            
+            /* 【核心黑科技】混合模式：自动过滤掉素材中的纯白背景，只留下小动物本身 */
+            mix-blend-mode: multiply; 
+            
+            /* 假装填字的摇摆动画 */
+            animation: writingAction 2s ease-in-out infinite;
+        }
+
+        /* 5. 底部控制区 */
+        .control-panel {
+            width: 100%;
+            max-width: 320px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        /* 粉色甜美下拉框 */
+        .select-box {
+            width: 85%;
+            position: relative;
+        }
+
+        .pink-select {
+            width: 100%;
+            padding: 12px 20px;
+            font-size: 15px;
+            font-weight: bold;
+            color: #FF69B4;
+            background: #ffffff;
+            border: 3px solid #FFB7CE;
+            border-radius: 30px;
+            appearance: none;
+            -webkit-appearance: none;
+            outline: none;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(255, 183, 206, 0.3);
+            cursor: pointer;
+        }
+
+        .select-box::after {
+            content: '🍬';
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
+            pointer-events: none;
+        }
+
+        /* 可爱艺术字带猫爪的 Start 按键 */
+        .cute-start-btn {
+            width: 85%;
+            padding: 14px 0;
+            font-family: 'Fredoka One', sans-serif;
+            font-size: 26px;
+            color: #ffffff;
+            position: relative;
+            background: linear-gradient(180deg, #FF69B4 0%, #FF1493 100%);
+            border: none;
+            border-radius: 40px;
+            box-shadow: 0 6px 0 #D11174, 0 10px 20px rgba(255, 20, 147, 0.4);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: all 0.1s ease;
+            text-shadow: 1px 2px 2px rgba(0,0,0,0.2);
+        }
+
+        .cute-start-btn::before {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 5%;
+            width: 90%;
+            height: 25%;
+            background: rgba(255,255,255,0.3);
+            border-radius: 20px;
+            pointer-events: none;
+        }
+
+        .cute-start-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #D11174, 0 4px 10px rgba(255, 20, 147, 0.4);
+        }
+
+        .paw-icon {
+            font-size: 24px;
+            display: inline-block;
+        }
+        
+        .cute-start-btn:hover .paw-icon {
+            animation: wave 0.5s ease infinite alternate;
+        }
+
+        /* 动画特效定义 */
+        @keyframes writingAction {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(-4px, -2px) rotate(-2deg); }
+            75% { transform: translate(2px, -1px) rotate(2deg); }
+            100% { transform: translate(0, 0) rotate(0deg); }
+        }
+
+        @keyframes wave {
+            0% { transform: rotate(-10deg); }
+            100% { transform: rotate(10deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="title-container">
+        <svg class="rainbow-svg" viewBox="0 0 340 110">
+            <defs>
+                <linearGradient id="rainbowGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#FF6B6B" />
+                    <stop offset="25%" stop-color="#FFBE0B" />
+                    <stop offset="50%" stop-color="#00F5D4" />
+                    <stop offset="75%" stop-color="#00BBF9" />
+                    <stop offset="100%" stop-color="#9B5DE5" />
+                </linearGradient>
+                <path id="textArcPath" d="M 20,85 A 160,130 0 0,1 320,85" fill="none" />
+            </defs>
+            <text class="rainbow-text">
+                <textPath href="#textArcPath" startOffset="50%" text-anchor="middle">CROSSWORD</textPath>
+            </text>
+        </svg>
+    </div>
+
+    <div class="game-zone">
+        <div class="crossword-board" id="board"></div>
+        <img class="mascot-character" src="./mascot.png" alt="Mascot" onerror="this.style.display='none'; alert('未找到小动物图片，请确认 mascot.png 已放在 html 同目录下！');">
+    </div>
+
+    <div class="control-panel">
+        <div class="select-box">
+            <select class="pink-select">
+                <option value="animals">🐾 Cute Animals (CAT)</option>
+                <option value="fruits">🍓 Sweet Fruits (APPLE)</option>
+                <option value="colors">🎨 Magic Colors (PINK)</option>
+            </select>
+        </div>
+
+        <button class="cute-start-btn" onclick="alert('Let\'s Play!')">
+            <span class="paw-icon">🐾</span>
+            <span>START</span>
+            <span class="paw-icon">🐾</span>
+        </button>
+    </div>
+
+    <script>
+        // 5x5 的小学生基础英文单词填字展示 (C-A-T, D-O-G, A-P-P-L-E)
+        const boardMatrix = [
+            'C', 'A', 'T', '', '',
+            'O', '', 'O', '', '',
+            'W', '', 'G', '', 'A',
+            '', '', '', '', 'P',
+            'A', 'P', 'P', 'L', 'E'
+        ];
+
+        const boardContainer = document.getElementById('board');
+        boardMatrix.forEach(letter => {
+            const cell = document.createElement('div');
+            cell.className = 'letter-cell';
+            cell.innerText = letter;
+            boardContainer.appendChild(cell);
+        });
+
+        // 模拟填字展示序列
+        const cells = document.querySelectorAll('.letter-cell');
+        const fillSequence = [0, 1, 2, 2, 7, 12, 0, 5, 10, 20, 21, 22, 23, 24]; 
+        let step = 0;
+
+        function runCrosswordAnimation() {
+            if (step === 0) {
+                cells.forEach(c => c.classList.remove('active'));
+            }
+
+            if (step < fillSequence.length) {
+                cells[fillSequence[step]].classList.add('active');
+                step++;
+                setTimeout(runCrosswordAnimation, 400);
+            } else {
+                setTimeout(() => {
+                    step = 0;
+                    runCrosswordAnimation();
+                }, 2000);
+            }
+        }
+
+        window.onload = runCrosswordAnimation;
+    </script>
+</body>
+</html>

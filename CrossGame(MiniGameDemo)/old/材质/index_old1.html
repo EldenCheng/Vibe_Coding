@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>小动物填字游戏 - 开始页面</title>
+    <style>
+        /* 模仿微信小程序页面配置 */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(180deg, #FFF5E6 0%, #FFEDD5 100%);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 40px 20px;
+            overflow: hidden;
+            color: #5C3A21;
+        }
+
+        /* 顶部 Logo 与标题区域 */
+        .header-section {
+            text-align: center;
+            z-index: 10;
+            margin-top: 20px;
+        }
+
+        .logo-container {
+            width: 120px;
+            height: 120px;
+            background: #ffffff;
+            border-radius: 30px;
+            box-shadow: 0 8px 24px rgba(255, 154, 60, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            border: 4px solid #FFB066;
+            animation: float 3s ease-in-out infinite;
+            overflow: hidden;
+        }
+
+        .logo-img {
+            width: 90%;
+            height: 90%;
+            object-fit: contain;
+            border-radius: 20px;
+        }
+
+        .game-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #FF7A00;
+            text-shadow: 2px 2px 0px #ffffff, 4px 4px 0px rgba(255, 122, 0, 0.1);
+            letter-spacing: 2px;
+        }
+
+        /* 中部自动填字动画背景区域 */
+        .animation-container {
+            position: relative;
+            width: 260px;
+            height: 260px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 24px;
+            border: 3px dashed #FFC999;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            gap: 8px;
+            padding: 12px;
+            margin: 20px 0;
+        }
+
+        .grid-item {
+            background: #ffffff;
+            border-radius: 12px;
+            border: 2px solid #FFE4CC;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: #FF8F26;
+            box-shadow: 0 4px 0 #FFE4CC;
+            opacity: 0.3;
+            transition: all 0.4s ease;
+        }
+
+        /* 动画激活状态 */
+        .grid-item.active {
+            opacity: 1;
+            background: #FF9A3C;
+            color: #ffffff;
+            border-color: #FF7A00;
+            box-shadow: 0 4px 0 #D96500;
+            transform: scale(1.05);
+        }
+
+        /* 底部控制区域 */
+        .control-section {
+            width: 100%;
+            max-width: 320px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            z-index: 10;
+            margin-bottom: 20px;
+        }
+
+        /* 可爱风下拉框 */
+        .select-wrapper {
+            position: relative;
+            width: 85%;
+        }
+
+        .custom-select {
+            width: 100%;
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #7A4F31;
+            background-color: #ffffff;
+            border: 3px solid #FFB066;
+            border-radius: 50px;
+            appearance: none;
+            -webkit-appearance: none;
+            cursor: pointer;
+            outline: none;
+            box-shadow: 0 4px 12px rgba(255, 154, 60, 0.15);
+            text-align: center;
+        }
+
+        .select-wrapper::after {
+            content: '▼';
+            font-size: 12px;
+            color: #FF9A3C;
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+
+        /* 可爱Q弹的开始按钮 */
+        .start-btn {
+            width: 85%;
+            padding: 15px 0;
+            font-size: 22px;
+            font-weight: bold;
+            color: #ffffff;
+            background: linear-gradient(180deg, #FF6B6B 0%, #FF4747 100%);
+            border: none;
+            border-radius: 50px;
+            box-shadow: 0 6px 0 #C92A2A, 0 12px 24px rgba(255, 71, 71, 0.3);
+            cursor: pointer;
+            transition: all 0.1s ease;
+            letter-spacing: 4px;
+            text-align: center;
+        }
+
+        .start-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #C92A2A, 0 6px 12px rgba(255, 71, 71, 0.3);
+        }
+
+        /* 纯CSS动画 */
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(2deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-section">
+        <div class="logo-container">
+            <img class="logo-img" src="http://googleusercontent.com/image_generation_content/277" alt="游戏Logo" onerror="this.src='https://images.unsplash.com/photo-1541763428517-a812d0495f2b?w=150&auto=format&fit=crop';">
+        </div>
+        <h1 class="game-title">开心填字大冒险</h1>
+    </div>
+
+    <div class="animation-container" id="gridContainer">
+        </div>
+
+    <div class="control-section">
+        <div class="select-wrapper">
+            <select class="custom-select">
+                <option value="animal">🐱 可爱动物篇</option>
+                <option value="fruit">🍎 美味水果篇</option>
+                <option value="nature">🌳 大自然常识</option>
+                <option value="english">🔤 基础少儿英语</option>
+            </select>
+        </div>
+
+        <button class="start-btn" onclick="startGame()">开始游戏</button>
+    </div>
+
+    <script>
+        // 1. 初始化 4x4 的填字背景
+        const gridContainer = document.getElementById('gridContainer');
+        const demoWords = [
+            '猫', '', '', '',
+            '🎮', '游', '戏', '',
+            '', '乐', '', '',
+            '', '园', '', '🌸'
+        ];
+
+        for (let i = 0; i < 16; i++) {
+            const item = document.createElement('div');
+            item.className = 'grid-item';
+            item.innerText = demoWords[i] || '';
+            gridContainer.appendChild(item);
+        }
+
+        // 2. 自动填字动画逻辑 (循环点亮特定的格子模拟填字过程)
+        const animationSequence = [0, 4, 5, 6, 9, 13]; // 顺着字词方向的索引
+        let currentIndex = 0;
+        const grids = document.querySelectorAll('.grid-item');
+
+        function playFillAnimation() {
+            // 清除上一轮
+            if (currentIndex === 0) {
+                grids.forEach(g => g.classList.remove('active'));
+            }
+
+            if (currentIndex < animationSequence.length) {
+                const gridIdx = animationSequence[currentIndex];
+                grids[gridIdx].classList.add('active');
+                currentIndex++;
+                setTimeout(playFillAnimation, 600); // 每个字填入间隔 600ms
+            } else {
+                // 填完后停顿1.5秒，重新开始
+                setTimeout(() => {
+                    currentIndex = 0;
+                    playFillAnimation();
+                }, 1500);
+            }
+        }
+
+        // 页面加载后自动播放动画
+        window.onload = playFillAnimation;
+
+        // 3. 点击开始游戏事件
+        function startGame() {
+            const selectedTheme = document.querySelector('.custom-select').value;
+            alert('游戏开始！已为您女儿选择词库类别：' + selectedTheme);
+            // 在微信小程序中，这里会替换为 wx.navigateTo({ url: '/pages/game/game' })
+        }
+    </script>
+</body>
+</html>

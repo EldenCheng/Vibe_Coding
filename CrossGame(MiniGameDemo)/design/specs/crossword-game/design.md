@@ -106,11 +106,11 @@ const VALID_WORD = /^[A-Za-z]{3,20}$/;
 
 每难度单词数量规则：
 
-| 难度 | 每组单词数 | 棋盘提示 | 下方中文提示 |
-|------|-----------|---------|------------|
-| 初级 | 恰好 4 个 | 无 | 有编号，正常排列 |
-| 中级 | 恰好 4 个 | 每词首字母预填 | 无编号，随机排列 |
-| 高级 | 恰好 4 个 | 1-2个随机非首字母预填 | 无编号，随机排列 |
+| 难度 | 每组单词数 | 棋盘提示 | 中文提示 | 输入方式 | 字母面板 | 计时器 |
+|------|-----------|---------|---------|---------|---------|--------|
+| 初级 | 恰好 4 个 | 首字母+尾字母预填 | 有编号，正常排列 | 字母选择面板 | 精确字母（保留重复，每枚独立可点，用完即灰） | 无 |
+| 中级 | 恰好 4 个 | 每词首字母预填 | 无编号，随机排列 | 字母选择面板 | 去重字母+隐藏可用次数 | 无 |
+| 高级 | 恰好 4 个 | 按长度随机提示（<4字母1个、4~7字母2个、≥8字母3个，随机选位） | 无编号，随机排列 | 字母选择面板 | 去重字母+2~3干扰字母+隐藏可用次数 | 120秒倒计时，≤15秒抖动 |
 
 
 ### 2.3 DataSourceConfig（配置读取器）
@@ -137,8 +137,8 @@ const VALID_WORD = /^[A-Za-z]{3,20}$/;
 |------|------|
 | **运行环境** | 浏览器，`game.html` 内 |
 | **输入** | 当前关卡的 `PuzzleSet` 数据 |
-| **输出** | DOM 棋盘、用户输入事件 |
-| **职责** | 根据 `boardRows × boardCols` 渲染网格；区分输入格与暗格；绘制单词编号上标；渲染下方提示列表；处理单字符输入与过滤；**按单词顺序导航焦点**（填完一个单词后自动跳到下一个单词的第一个空格）；**格子固定32px** |
+| **输出** | DOM 棋盘、字母填入事件、提示格位置 |
+| **职责** | 根据 `boardRows × boardCols` 渲染网格；区分输入格与暗格；绘制单词编号上标；渲染下方提示列表；**按单词顺序导航焦点**（填完一个单词后自动跳到下一个单词的第一个空格）；**格子固定32px**；根据难度预填提示字母（初级首+尾、中级首字母、**高级按长度随机选位**）；**用 `<div>` 代替 `<input>` 彻底阻止系统键盘弹出**；**暴露 `fillCurrentCell()` 供字母面板调用，无焦点格时自动填入当前单词第一个空格**；暴露 `getHintPositions()` 供字母面板同步提示格位置；**暴露 `focusFirstEmptyCell()` 在新关卡或取消后自动聚焦第一个空格，若当前单词已被全部预填则跳转到下一个未完成单词**；**暴露 `setOnLetterRemoved()` 供字母面板注册字母删除回调** |
 
 ### 2.6 GameController（游戏控制器）
 
@@ -166,6 +166,32 @@ const VALID_WORD = /^[A-Za-z]{3,20}$/;
 | **输入** | sessionStorage 传递的错词数据（`wrongWords`） |
 | **输出** | 错词列表显示、关闭后返回 StartPage |
 | **职责** | 从 sessionStorage 读取失败关卡中答错的单词列表；渲染英文单词 + 中文意思；点击关闭按钮后清除 sessionStorage 并返回 StartPage |
+
+### 2.9 LetterSelectionPanel（字母选择面板）
+
+| 属性 | 说明 |
+|------|------|
+| **运行环境** | 浏览器，`letter-selection-panel.js` |
+| **输入** | PuzzleSet 数据、难度、提示格位置列表 |
+| **输出** | 调用 PuzzleBoard.fillCurrentCell() 填入字母 |
+| **职责** | 根据难度和提示格位置计算可用字母池；渲染字母按钮并随机排列；管理字母可用次数（初级每枚一次，中级去重隐藏次数，高级去重+干扰字母+不限次数）；点击字母后调用 PuzzleBoard 填入焦点格并更新自身状态；**暴露 `restoreLetter()` 供 PuzzleBoard 回调，用户删除格子字母时恢复按钮可用** |
+
+**各难度字母面板规则：**
+
+| 难度 | 字母来源 | 重复处理 | 使用次数限制 | 干扰字母 |
+|------|---------|---------|-------------|---------|
+| 初级 | 非提示格的全部字母（按物理格子去重） | 保留原始重复 | 每枚独立，点击一次即灰 | 无 |
+| 中级 | 非提示格的全部字母（按物理格子去重） | 去重，同字母合并为一个按钮 | 每枚剩余次数=该字母在非提示格出现次数，隐藏不显示；用完即灰 | 无 |
+| 高级 | 非提示格的全部字母 | 去重，同字母合并为一个按钮 | 无限制（始终可用） | 2~3个随机字母（不在当前单词池中） |
+
+### 2.10 Timer（计时器模块）
+
+| 属性 | 说明 |
+|------|------|
+| **运行环境** | 浏览器，`timer.js` |
+| **输入** | 倒计时秒数、超时回调 |
+| **输出** | 更新 DOM 显示、超时时调用回调 |
+| **职责** | 120秒倒计时（高级模式专用）；更新 Header 上的计时器显示；≤15秒时添加抖动动画（CSS keyframe）；超时调用 GameController.handleTimeout() 触发自动判负 |
 
 
 ---
@@ -419,6 +445,159 @@ for (let i = 0; i < w2.word.length; i++) {
   N           (纵向, col 1)
 ```
 
+### 5.5 字母面板算法
+
+LetterSelectionPanel 根据 PuzzleBoard 提供的提示格位置列表，确定非提示格所需的字母集合，再按难度规则渲染字母按钮。
+
+#### 数据流
+
+```
+PuzzleBoard.#applyGridHints() → #hintPositions[]
+     ↓
+getHintPositions() → LetterSelectionPanel.render(puzzleSet, difficulty, hintPositions)
+     ↓
+根据 hintPositions 排除已预填的提示格，计算非提示格字母需求
+     ↓
+按物理格子坐标去重（seenCells Set，每个格子只贡献一次字母）
+     ↓
+按难度规则生成字母按钮列表 → 随机打乱 → 渲染到 DOM
+```
+
+#### 各难度算法
+
+**初级（精确字母）：**
+```
+输入：非提示格字母列表 [A, R, A, D, P, P, I, O]
+输出：每个字母作为一个独立按钮 [A][R][A][D][P][P][I][O]（随机顺序）
+状态：每个按钮初始剩余=1，点击后灰化
+```
+
+**中级（去重+隐藏次数）：**
+```
+输入：非提示格字母计次 {A:2, R:1, D:1, P:2, L:1, E:1, I:1, O:1, N:1}
+输出：每个唯一字母一个按钮 [A][R][D][P][L][E][I][O][N]（随机顺序）
+状态：每个按钮剩余次数=上述计次（隐藏不显示），归零后灰化
+```
+
+**高级（去重+干扰字母+无限次）：**
+```
+输入：非提示格字母计次 {A:2, R:1, D:1, P:2, L:1, E:1, I:1, O:1, N:1}
+      干扰字母：随机选2~3个不在字母池中的字母 [H, G, Z]
+输出：每个唯一字母一个按钮 + 干扰字母按钮（随机顺序）
+状态：无使用次数限制（始终可用）
+```
+
+#### 焦点格交互
+
+```
+1. 用户点击棋盘格子 → 格子获得焦点 → #focusedCell 更新
+2. 用户点击字母按钮 → 按钮剩余>0? → 调用 PuzzleBoard.fillCurrentCell(letter)
+   → 格子填入字母 → 自动跳到下一个空格 (#moveToNext)
+   → 按钮剩余-1 → 归零则灰化
+3. 用户点击已填的非提示格 → 清空格子内容 → 触发 onLetterRemoved 回调
+   → letterPanel.restoreLetter(letter) → 对应按钮 remaining++ → 移除 'used' class
+4. 修改答案：清空后点击其他字母按钮填入
+```
+
+#### 去重逻辑
+
+字母面板的字母池基于**物理格子坐标**而非单词迭代构建：
+
+```js
+// Easy/Medium 模式下共用同一套去重逻辑
+const seenCells = new Set();
+puzzleSet.words.forEach(w => {
+  const word = w.word.toUpperCase();
+  for (let i = 0; i < word.length; i++) {
+    const cellKey = `${r},${c}`;
+    if (!hintSet.has(cellKey) && !seenCells.has(cellKey)) {
+      seenCells.add(cellKey);
+      // Easy: allLetters.push(word[i]);
+      // Medium: counts[letter] = (counts[letter] || 0) + 1;
+    }
+  }
+});
+```
+
+共享格（两个单词交叉的格子）只贡献一次字母，不会在面板上出现重复按钮。
+
+### 5.6 计时器算法（高级模式专用）
+
+Timer 模块在高级模式下提供 120 秒倒计时，超时自动判负。
+
+#### 状态机
+
+```
+idle → start(120) → running → stop() → idle
+                          ↘ tick() → remaining≤15 → urgent（抖动动画）
+                                     ↘ remaining=0 → timeout callback → triggerFail()
+```
+
+#### 超时处理
+
+```
+handleTimeout():
+  1. 调用 puzzleBoard.getValues() 获取当前所有格子的值
+  2. 调用 collectWrongWords(values, puzzleSet) 收集错词
+     （未填的格子也算错：userValue='' !== correctLetter → wrong）
+  3. 将错词列表写入 gameState.wrongWords
+  4. 设置 gameState.errorCount = MAX_ERRORS（标记为失败）
+  5. 调用 triggerFail() 跳转到结果页 → 错词回顾页
+```
+
+#### 超时与提交按钮的关系
+
+- 用户可在计时器运行期间随时提交
+- 提交时仍然检查所有格子是否填完（非提示格不能为空）
+- 超时 → 自动判负（与提交按钮独立）
+
+#### 视觉反馈
+
+```
+剩余时间 > 15秒：白色背景，正常显示 ⏱ 45
+剩余时间 ≤ 15秒：红色文字 + CSS shake 动画（每0.5秒一次往返抖动2px）
+```
+
+### 5.7 初级模式自动填满约束（生成器）
+
+#### 问题
+
+在初级模式中，每个单词的首字母和尾字母被标记为提示格预填。对于 3 字母单词，唯一位于中间的非提示格如果恰好是另一个单词的首字母或尾字母，则也会被标记为提示格，导致整个单词无需用户输入即自动填满。
+
+例如 `zoo`（首字母 Z、尾字母 O 均为提示格）与 `orange`（首字母 O 位于 `zoo` 的中间格）交叉时，`zoo` 的所有格子均为提示格。
+
+#### 约束规则
+
+PuzzleGenerator 在生成 PuzzleSet 后，检查是否存在 3 字母单词的中间格被其他单词的首字母或尾字母覆盖：
+
+```js
+function hasAutoCompleteWord(placedWords) {
+  for (const w of placedWords) {
+    if (w.word.length !== 3) continue;
+    const midRow = w.direction === 'across' ? w.row : w.row + 1;
+    const midCol = w.direction === 'across' ? w.col + 1 : w.col;
+    for (const other of placedWords) {
+      if (other === w) continue;
+      const firstRow = other.direction === 'across' ? other.row : other.row;
+      const firstCol = other.direction === 'across' ? other.col : other.col;
+      const lastRow = other.direction === 'across' ? other.row : other.row + other.word.length - 1;
+      const lastCol = other.direction === 'across' ? other.col + other.word.length - 1 : other.col;
+      if ((midRow === firstRow && midCol === firstCol) ||
+          (midRow === lastRow && midCol === lastCol)) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+```
+
+此约束与 `isConnected`、`hasAnyParallelAdjacency` 并列在 `buildPuzzleSet()` 的验收条件中执行，命中时该 PuzzleSet 被丢弃并重新生成。
+
+#### 运行时兜底
+
+即使生成器过滤掉了大部分情况，`focusFirstEmptyCell()` 仍保留兜底逻辑：当当前单词无空格时自动调用 `#findNextIncompleteWord()` 跳转到下一个未完成单词，确保焦点始终落到有实际空格可填的单词上。
+
 
 ---
 
@@ -541,52 +720,40 @@ for (let i = 0; i < w2.word.length; i++) {
 ### 7.2 GamePage 布局
 
 ```
-┌─────────────────────────────────────────┐
-│  ←  第 X 关 / 共 Y 关        ⭐⭐        │  ← 顶部固定进度条 + 成就星星
-├─────────────────────────────────────────┤
-│                                         │
-│  ┌───┬───┬───┬───┬───┐                  │
-│  │1↘ │ A │   │   │   │                  │  ← CSS Grid 棋盘
-│  ├───┼───┼───┼───┼───┤                  │     输入格：白色，含 input
-│  │ P │▓▓▓│ P │▓▓▓│▓▓▓│                  │     暗格：深灰 #333，无交互
-│  ├───┼───┼───┼───┼───┤                  │     编号：左上角上标
-│  │ P │▓▓▓│ L │▓▓▓│▓▓▓│                  │
-│  ├───┼───┼───┼───┼───┤                  │
-│  │ L │▓▓▓│ E │▓▓▓│▓▓▓│                  │
-│  ├───┼───┼───┼───┼───┤                  │
-│  │ E │▓▓▓│▓▓▓│▓▓▓│▓▓▓│                  │
-│  └───┴───┴───┴───┴───┘                  │
-│                                         │
-│  提示区：                                │
-│  1. 横向：苹果                           │
-│  2. 纵向：飞机                           │
-│  ...                                    │
-│                                         │
-│  ┌────────────┐  ┌────────────┐         │
-│  │   取  消   │  │   提  交   │         │  ← 底部按钮，min-height: 44px
-│  └────────────┘  └────────────┘         │
-└─────────────────────────────────────────┘
+┌─────────────────────────────────────────────┐
+│  ←  第 X 关 / 共 Y 关         ⏱ 45  剩余:3  │  ← Header：返回/进度/计时器/错误次数
+├─────────────────────────────────────────────┤
+│                                             │
+│  ┌────┬────┬────┬────┬────┐                 │
+│  │1↘ │ T  │    │    │    │                 │  ← 泡泡糖果风格棋盘
+│  ├────┼────┼────┼────┼────┤                 │     输入格：白色圆角卡片，浅粉边框+投影
+│  │    │    │    │    │    │                 │     暗格：透明（融入粉色 board 背景）
+│  ├────┼────┼────┼────┼────┤                 │     编号：左上角上标
+│  │    │    │    │    │    │                 │     所有格为 `<div>`（无 `<input>`），不弹键盘
+│  └────┴────┴────┴────┴────┘                 │     board 背景：极浅粉色 rgba(255,240,245,0.5)
+│                                             │
+│  ┌─────────────────────────────────┐        │
+│  │  [A] [P] [P] [L] [E]  [S] ...   │        │  ← 字母选择面板（粉色圆角按钮）
+│  └─────────────────────────────────┘        │
+│                                             │
+│  ┌─────────────────────────┐ ┌────┐ ┌────┐ │
+│  │ 提示：                  │ │取消│ │提交│ │
+│  │ 1. 横向：苹果           │ └────┘ └────┘ │
+│  │ 2. 纵向：飞机           │               │
+│  └─────────────────────────┘               │
+└─────────────────────────────────────────────┘
 ```
 
-**棋盘单元格尺寸计算：**
+**棋盘单元格说明：**
 
-```js
-// 保证每格 >= 36px，且总宽不超过屏幕宽度
-const availableWidth = Math.min(window.innerWidth, 430) - 32; // 减去左右内边距
-const cellSize = Math.max(36, Math.floor(availableWidth / boardCols));
-```
+- 所有输入格使用 `<div class="cell-input" tabIndex="-1">` 代替 `<input>`
+- 值通过 `textContent` 读写，完全不触发系统键盘
+- 点击字母面板 → `fillCurrentCell(letter)` 填入焦点格；无焦点格时自动找当前单词第一个空格
 
+**布局约束：**
 
-**软键盘遮挡处理：**
-
-```js
-// 监听 input focus 事件，使用 scrollIntoView 确保输入格可见
-inputEl.addEventListener('focus', () => {
-  setTimeout(() => {
-    inputEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }, 300); // 等待软键盘弹起
-});
-```
+- Header、字母面板、Footer 均为 `flex-shrink: 0`
+- 棋盘区域 `flex: 1` + `overflow-y: auto`，超出可滚动
 
 ### 7.3 ResultPage 布局
 

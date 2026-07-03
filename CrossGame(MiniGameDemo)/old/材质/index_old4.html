@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Crossword Adventure</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            /* 高光浅粉活泼背景：利用径向渐变模拟中心高光聚光灯效果 */
+            background: radial-gradient(circle at 50% 40%, #FFF0F5 0%, #FFD1DC 60%, #FFA6C9 100%);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 25px 20px;
+            overflow: hidden;
+            font-family: 'Fredoka One', 'Comic Sans MS', sans-serif;
+        }
+
+        /* 2. 弧形彩虹文字区域 */
+        .title-container {
+            position: relative;
+            width: 340px;
+            height: 110px;
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .rainbow-svg {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+
+        .rainbow-text {
+            font-size: 36px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            fill: url(#rainbowGradient);
+            filter: drop-shadow(2px 3px 0px #ffffff);
+        }
+
+        /* 3. 核心游戏区域 */
+        .game-zone {
+            position: relative;
+            width: 320px;
+            height: 320px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 10px 0;
+        }
+
+        /* 英文填字背景网格 */
+        .crossword-board {
+            width: 260px;
+            height: 260px;
+            background: rgba(255, 255, 255, 0.85);
+            border-radius: 28px;
+            border: 4px solid #FFF;
+            box-shadow: 0 8px 32px rgba(255, 105, 180, 0.15);
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(5, 1fr);
+            gap: 6px;
+            padding: 12px;
+            z-index: 2;
+        }
+
+        .letter-cell {
+            background: #ffffff;
+            border-radius: 10px;
+            border: 2px solid #FFE4E1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: #FF69B4;
+            box-shadow: 0 3px 0 #FFE4E1;
+            opacity: 0.15;
+            transition: all 0.3s ease;
+        }
+
+        /* 正在填字的点亮状态 */
+        .letter-cell.active {
+            opacity: 1;
+            background: #FF69B4;
+            color: #ffffff;
+            border-color: #FF1493;
+            box-shadow: 0 3px 0 #C71585;
+            transform: scale(1.05);
+        }
+
+        /* 4. 动画小动物：使用精美彩色矢量图形，背景100%透明，动物本身100%不透明 */
+        .mascot-svg-container {
+            position: absolute;
+            bottom: -15px;
+            right: -15px;
+            width: 155px;
+            height: 155px;
+            z-index: 10;
+            pointer-events: none;
+            /* 假装填字的摇摆动画 */
+            animation: writingAction 2s ease-in-out infinite;
+            filter: drop-shadow(2px 5px 8px rgba(255, 20, 147, 0.25));
+        }
+
+        /* 5. 底部控制区 */
+        .control-panel {
+            width: 100%;
+            max-width: 320px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        /* 粉色甜美下拉框 */
+        .select-box {
+            width: 85%;
+            position: relative;
+        }
+
+        .pink-select {
+            width: 100%;
+            padding: 12px 20px;
+            font-size: 15px;
+            font-weight: bold;
+            color: #FF69B4;
+            background: #ffffff;
+            border: 3px solid #FFB7CE;
+            border-radius: 30px;
+            appearance: none;
+            -webkit-appearance: none;
+            outline: none;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(255, 183, 206, 0.3);
+            cursor: pointer;
+        }
+
+        .select-box::after {
+            content: '🍬';
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
+            pointer-events: none;
+        }
+
+        /* 可爱艺术字 Start 按键 */
+        .cute-start-btn {
+            width: 85%;
+            padding: 14px 0;
+            font-family: 'Fredoka One', sans-serif;
+            font-size: 26px;
+            color: #ffffff;
+            position: relative;
+            background: linear-gradient(180deg, #FF69B4 0%, #FF1493 100%);
+            border: none;
+            border-radius: 40px;
+            box-shadow: 0 6px 0 #D11174, 0 10px 20px rgba(255, 20, 147, 0.4);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: all 0.1s ease;
+            text-shadow: 1px 2px 2px rgba(0,0,0,0.2);
+        }
+
+        .cute-start-btn::before {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 5%;
+            width: 90%;
+            height: 25%;
+            background: rgba(255,255,255,0.3);
+            border-radius: 20px;
+            pointer-events: none;
+        }
+
+        .cute-start-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #D11174, 0 4px 10px rgba(255, 20, 147, 0.4);
+        }
+
+        .paw-icon {
+            font-size: 24px;
+            display: inline-block;
+        }
+
+        /* 动画特效定义 */
+        @keyframes writingAction {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(-5px, -3px) rotate(-4deg); }
+            75% { transform: translate(3px, -1px) rotate(3deg); }
+            100% { transform: translate(0, 0) rotate(0deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="title-container">
+        <svg class="rainbow-svg" viewBox="0 0 340 110">
+            <defs>
+                <linearGradient id="rainbowGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#FF6B6B" />
+                    <stop offset="25%" stop-color="#FFBE0B" />
+                    <stop offset="50%" stop-color="#00F5D4" />
+                    <stop offset="75%" stop-color="#00BBF9" />
+                    <stop offset="100%" stop-color="#9B5DE5" />
+                </linearGradient>
+                <path id="textArcPath" d="M 20,85 A 160,130 0 0,1 320,85" fill="none" />
+            </defs>
+            <text class="rainbow-text">
+                <textPath href="#textArcPath" startOffset="50%" text-anchor="middle">CROSSWORD</textPath>
+            </text>
+        </svg>
+    </div>
+
+    <div class="game-zone">
+        <div class="crossword-board" id="board"></div>
+        
+        <div class="mascot-svg-container">
+            <svg viewBox="0 0 200 200" width="100%" height="100%">
+                <path d="M 110,130 C 150,130 190,110 180,60 C 170,20 130,40 125,65 C 120,40 140,15 165,10 C 195,5 205,50 185,95 C 165,135 125,150 105,145 Z" fill="#FF8C42" stroke="#5C3A21" stroke-width="4.5" stroke-linejoin="round"/>
+                <path d="M 135,65 C 145,50 160,35 170,40 C 175,55 155,75 140,80 Z" fill="#FFA466"/>
+                
+                <ellipse cx="100" cy="130" rx="40" ry="45" fill="#FF8C42" stroke="#5C3A21" stroke-width="4.5"/>
+                <ellipse cx="100" cy="135" rx="22" ry="28" fill="#FFF5EE"/>
+                
+                <ellipse cx="75" cy="172" rx="14" ry="10" fill="#FF8C42" stroke="#5C3A21" stroke-width="4.5"/>
+                <ellipse cx="75" cy="172" rx="8" ry="5" fill="#FFB077"/>
+                <ellipse cx="125" cy="172" rx="14" ry="10" fill="#FF8C42" stroke="#5C3A21" stroke-width="4.5"/>
+                <ellipse cx="125" cy="172" rx="8" ry="5" fill="#FFB077"/>
+                
+                <ellipse cx="100" cy="80" rx="46" ry="41" fill="#FF8C42" stroke="#5C3A21" stroke-width="4.5"/>
+                
+                <path d="M 65,50 C 55,20 70,15 75,42 Z" fill="#FF8C42" stroke="#5C3A21" stroke-width="4.5"/>
+                <path d="M 67,45 C 60,28 70,25 72,40 Z" fill="#FFB077"/>
+                
+                <path d="M 135,50 C 145,20 130,15 125,42 Z" fill="#FF8C42" stroke="#5C3A21" stroke-width="4.5"/>
+                <path d="M 133,45 C 140,28 130,25 128,40 Z" fill="#FFB077"/>
+                
+                <ellipse cx="66" cy="92" rx="11" ry="8" fill="#FF6B8B" opacity="0.7"/>
+                <ellipse cx="134" cy="92" rx="11" ry="8" fill="#FF6B8B" opacity="0.7"/>
+                
+                <ellipse cx="78" cy="78" rx="8" ry="11" fill="#331A00"/>
+                <circle cx="75.5" cy="73.5" r="4" fill="#FFFFFF"/>
+                <circle cx="81" cy="83" r="1.5" fill="#FFFFFF"/>
+                
+                <ellipse cx="122" cy="78" rx="8" ry="11" fill="#331A00"/>
+                <circle cx="119.5" cy="73.5" r="4" fill="#FFFFFF"/>
+                <circle cx="125" cy="83" r="1.5" fill="#FFFFFF"/>
+                
+                <polygon points="97,88 103,88 100,92" fill="#FF4D6D"/>
+                <path d="M 95,95 Q 100,98 100,95 Q 100,98 105,95" fill="none" stroke="#331A00" stroke-width="3" stroke-linecap="round"/>
+                
+                <g id="pink-bow" transform="translate(116, 36) rotate(12)">
+                    <circle cx="0" cy="0" r="7" fill="#FF4D6D" stroke="#5C3A21" stroke-width="4"/>
+                    <path d="M -5,0 C -25,-16 -25,16 -5,0 Z" fill="#FF758F" stroke="#5C3A21" stroke-width="4" stroke-linejoin="round"/>
+                    <path d="M 5,0 C 25,-16 25,16 5,0 Z" fill="#FF758F" stroke="#5C3A21" stroke-width="4" stroke-linejoin="round"/>
+                    <path d="M -13, -3 Q -8, 0 -13, 3" fill="none" stroke="#FF4D6D" stroke-width="2.5"/>
+                    <path d="M 13, -3 Q 8, 0 13, 3" fill="none" stroke="#FF4D6D" stroke-width="2.5"/>
+                </g>
+                
+                <g id="pencil" transform="translate(42, 110) rotate(-22)">
+                    <rect x="0" y="0" width="16" height="48" fill="#FFD166" stroke="#5C3A21" stroke-width="4"/>
+                    <polygon points="0,0 8,-15 16,0" fill="#EED9B3" stroke="#5C3A21" stroke-width="4"/>
+                    <polygon points="5,-9 8,-15 11,-9" fill="#FF1493"/>
+                    <rect x="0" y="48" width="16" height="8" fill="#FF85A1" stroke="#5C3A21" stroke-width="4"/>
+                    <rect x="0" y="45" width="16" height="3" fill="#CCCCCC"/>
+                </g>
+                
+                <circle cx="65" cy="122" r="7.5" fill="#FF8C42" stroke="#5C3A21" stroke-width="4"/>
+                <circle cx="106" cy="126" r="7.5" fill="#FF8C42" stroke="#5C3A21" stroke-width="4"/>
+            </svg>
+        </div>
+    </div>
+
+    <div class="control-panel">
+        <div class="select-box">
+            <select class="pink-select">
+                <option value="animals">🐾 Cute Animals (CAT)</option>
+                <option value="fruits">🍓 Sweet Fruits (APPLE)</option>
+                <option value="colors">🎨 Magic Colors (PINK)</option>
+            </select>
+        </div>
+
+        <button class="cute-start-btn" onclick="alert('Let\'s Play!')">
+            <span class="paw-icon">🐾</span>
+            <span>START</span>
+            <span class="paw-icon">🐾</span>
+        </button>
+    </div>
+
+    <script>
+        const boardMatrix = [
+            'C', 'A', 'T', '', '',
+            'O', '', 'O', '', '',
+            'W', '', 'G', '', 'A',
+            '', '', '', '', 'P',
+            'A', 'P', 'P', 'L', 'E'
+        ];
+
+        const boardContainer = document.

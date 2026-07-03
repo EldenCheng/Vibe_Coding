@@ -58,6 +58,30 @@
   background: rgba(220, 20, 60, 0.1);
   padding: 6px 12px;
   border-radius: 20px;
+  flex-shrink: 0;
+}
+
+/* ── Timer ── */
+.timer-display {
+  font-size: 18px;
+  font-weight: bold;
+  color: #5D4037;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 6px 12px;
+  border-radius: 20px;
+  flex-shrink: 0;
+  transition: color 0.3s;
+}
+
+.timer-display.urgent {
+  color: #DC143C;
+  animation: timer-shake 0.5s ease-in-out infinite;
+}
+
+@keyframes timer-shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
+  20%, 40%, 60%, 80% { transform: translateX(2px); }
 }
 
 /* ── Main (棋盘区域) ── */
@@ -80,13 +104,13 @@
   padding: 8px 0;
 }
 
-/* ── 棋盘 ── */
+/* ── 棋盘（泡泡糖果风格）── */
 .puzzle-board {
   display: grid;
-  gap: 2px;
-  background: #333;
-  padding: 4px;
-  border-radius: 8px;
+  gap: 3px;
+  background: rgba(255, 240, 245, 0.5);
+  padding: 6px;
+  border-radius: 12px;
   flex-shrink: 0;
 }
 
@@ -97,45 +121,56 @@
   justify-content: center;
   align-items: center;
   position: relative;
-  border-radius: 4px;
 }
 
 .cell.input-cell {
   background: white;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(255, 105, 180, 0.15);
+  border: 1.5px solid #FFD1DC;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.cell.input-cell:focus-within {
+  border-color: #FF69B4;
+  box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.2);
 }
 
 .cell.dark-cell {
-  background: #333;
+  background: transparent;
 }
 
-.cell input {
+.cell-input {
   width: 100%;
   height: 100%;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 14px;
   font-weight: bold;
   font-family: inherit;
-  border: none;
-  outline: none;
-  background: transparent;
-  color: #333;
+  color: #5D4037;
   text-transform: uppercase;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  border-radius: 4px;
 }
 
-.cell input::placeholder {
-  color: #DDD;
+.cell-input:focus {
+  outline: 2px solid #FF69B4;
+  outline-offset: -2px;
+  border-radius: 4px;
+  background: rgba(255, 105, 180, 0.06);
 }
 
-.cell input:focus {
-  background: rgba(255, 105, 180, 0.1);
+.cell.hint-cell {
+  background-color: #FFF0F5 !important;
+  border-color: #FFB6C1;
 }
 
-.hint-cell {
-  background-color: #E8F5E9 !important;
-}
-
-.hint-cell .cell-input {
-  color: #2E7D32 !important;
+.cell-input.hint-cell {
+  color: #C71585 !important;
   font-weight: bold;
   cursor: default;
 }
@@ -147,6 +182,53 @@
   font-size: 8px;
   font-weight: bold;
   color: #FF69B4;
+}
+
+/* ── Letter Selection Panel ── */
+.letter-selection-panel {
+  flex-shrink: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 8px;
+  background: rgba(255, 255, 255, 0.85);
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  min-height: 52px;
+  align-content: center;
+}
+
+.letter-tile {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #FFE4E1;
+  border: 2px solid #FFB6C1;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  font-family: inherit;
+  color: #5D4037;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.letter-tile:active {
+  transform: scale(0.9);
+  background: #FFB6C1;
+}
+
+.letter-tile.used {
+  background: #EEE;
+  border-color: #DDD;
+  color: #CCC;
+  cursor: default;
+  transform: none;
+  pointer-events: none;
 }
 
 /* ── Footer (提示 + 按钮并排) ── */
@@ -162,8 +244,6 @@
 
 .hints-container {
   flex: 1;
-  max-height: 80px;
-  overflow-y: auto;
   background: rgba(255, 255, 255, 0.8);
   border-radius: 12px;
   padding: 12px;

@@ -3,12 +3,11 @@
  *
  * 负责：
  *   - 根据 PuzzleSet 数据渲染填字棋盘
- *   - 区分输入格与暗格
+ *   - 区分输入格与暗格（使用 `<div>` 代替 `<input>`，彻底阻止系统键盘）
  *   - 绘制单词编号上标
  *   - 渲染下方提示列表
- *   - 处理单字符输入与过滤
- *   - 处理软键盘遮挡
  *   - 按单词顺序导航焦点（填完一个单词后跳到下一个单词的第一个空格）
+ *   - 暴露 fillCurrentCell() 供字母面板调用，无焦点格时自动填入当前单词第一个空格
  */
 
 export class PuzzleBoard {
@@ -21,7 +20,7 @@ export class PuzzleBoard {
   /** @type {string} */
   #difficulty = 'easy';
 
-  /** @type {HTMLInputElement[][]} */
+  /** @type {HTMLElement[][]} */
   #inputs = [];
 
   /** @type {number} */
@@ -35,6 +34,15 @@ export class PuzzleBoard {
 
   /** @type {number} 当前正在填的单词索引 */
   #currentWordIndex = 0;
+
+  /** @type {{row: number, col: number}|null} 当前焦点的格子坐标 */
+  #focusedCell = null;
+
+  /** @type {function(string): void|null} 格子字母被清除时的回调 */
+  #onLetterRemoved = null;
+
+  /** @type {Array<{row: number, col: number, letter: string}>} 预填提示格位置 */
+  #hintPositions = [];
 
   /**
    * 创建 PuzzleBoard 实例。
@@ -78,14 +86,13 @@ export class PuzzleBoard {
         if (isInputCell) {
           cell.classList.add('input-cell');
 
-          const input = document.createElement('input');
-          input.type = 'text';
-          input.maxLength = 1;
-          input.className = 'cell-input';
+          const cellInput = document.createElement('div');
+          cellInput.className = 'cell-input';
+          cellInput.tabIndex = -1;
 
-          this.#setupInput(input, row, col);
-          cell.appendChild(input);
-          this.#inputs[row][col] = input;
+          this.#setupCell(cellInput, row, col);
+          cell.appendChild(cellInput);
+          this.#inputs[row][col] = cellInput;
 
           if (numberPositions[row]?.[col]) {
             const numberSpan = document.createElement('span');
@@ -223,8 +230,8 @@ export class PuzzleBoard {
 
     for (let i = afterCharIndex + 1; i < cells.length; i++) {
       const { row, col } = cells[i];
-      const input = this.#inputs[row]?.[col];
-      if (input && !input.readOnly && !input.value) {
+      const cell = this.#inputs[row]?.[col];
+      if (cell && !cell.classList.contains('hint-cell') && !cell.textContent) {
         return { row, col };
       }
     }
@@ -293,37 +300,26 @@ export class PuzzleBoard {
   }
 
   /**
-   * 设置输入框事件处理。
-   * @param {HTMLInputElement} input
+   * 设置格子事件处理（div 版，不弹键盘）。
+   * @param {HTMLElement} cell
    * @param {number} row
    * @param {number} col
    */
-  #setupInput(input, row, col) {
-    input.addEventListener('keydown', (e) => {
-      if (e.key === 'Backspace' || e.key === 'Delete') {
-        input.value = '';
-      } else if (!/^[a-zA-Z]$/.test(e.key)) {
-        e.preventDefault();
+  #setupCell(cell, row, col) {
+    cell.addEventListener('click', () => {
+      this.#focusedCell = { row, col };
+      if (cell.textContent && !cell.classList.contains('hint-cell')) {
+        const oldLetter = cell.textContent;
+        cell.textContent = '';
+        if (this.#onLetterRemoved) {
+          this.#onLetterRemoved(oldLetter);
+        }
       }
-    });
-
-    input.addEventListener('input', (e) => {
-      const value = e.target.value.toUpperCase();
-      e.target.value = value;
-
-      if (value.length === 1) {
-        this.#moveToNext(row, col);
-      }
-    });
-
-    input.addEventListener('click', () => {
       this.#handleCellClick(row, col);
     });
 
-    input.addEventListener('focus', () => {
-      setTimeout(() => {
-        input.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 300);
+    cell.addEventListener('focus', () => {
+      this.#focusedCell = { row, col };
     });
   }
 
@@ -417,25 +413,39 @@ export class PuzzleBoard {
     }
   }
 
+  /** Fisher-Yates 洗牌 */
+  #shuffleArray(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
   /**
    * 在棋盘中预填提示字母。
    * @param {Array} words - 单词列表
    * @param {string} difficulty - 难度级别
    */
   #applyGridHints(words, difficulty) {
-    if (difficulty === 'easy') return;
+    this.#hintPositions = [];
 
     words.forEach((wordData) => {
       const { word, row, col, direction } = wordData;
       const letters = word.toUpperCase().split('');
 
       let hintPositions = [];
-      if (difficulty === 'medium') {
+      if (difficulty === 'easy') {
+        hintPositions = [0, word.length - 1];
+      } else if (difficulty === 'medium') {
         hintPositions = [0];
       } else if (difficulty === 'hard') {
-        const nonFirstIndices = letters.slice(1).map((_, i) => i + 1);
-        const shuffled = nonFirstIndices.sort(() => Math.random() - 0.5);
-        hintPositions = shuffled.slice(0, Math.min(2, shuffled.length));
+        const allIndices = letters.map((_, i) => i);
+        const hintCount = word.length < 4 ? 1
+                        : word.length < 8 ? 2
+                        : 3;
+        hintPositions = this.#shuffleArray(allIndices).slice(0, Math.min(hintCount, word.length - 1));
       }
 
       hintPositions.forEach(pos => {
@@ -443,10 +453,13 @@ export class PuzzleBoard {
         if (direction === 'down') r += pos;
         else c += pos;
 
+        this.#hintPositions.push({ row: r, col: c, letter: letters[pos] });
+
         if (this.#inputs[r] && this.#inputs[r][c]) {
-          this.#inputs[r][c].value = letters[pos];
-          this.#inputs[r][c].readOnly = true;
-          this.#inputs[r][c].classList.add('hint-cell');
+          const cellEl = this.#inputs[r][c];
+          cellEl.textContent = letters[pos];
+          cellEl.classList.add('hint-cell');
+          cellEl.parentElement.classList.add('hint-cell');
         }
       });
     });
@@ -459,7 +472,7 @@ export class PuzzleBoard {
    * @returns {boolean}
    */
   isHintCell(row, col) {
-    return this.#inputs[row]?.[col]?.readOnly === true;
+    return this.#inputs[row]?.[col]?.classList.contains('hint-cell') === true;
   }
 
   /**
@@ -474,7 +487,7 @@ export class PuzzleBoard {
       values[row] = {};
       for (let col = 0; col < boardCols; col++) {
         if (this.#inputs[row]?.[col]) {
-          values[row][col] = this.#inputs[row][col].value || '';
+          values[row][col] = this.#inputs[row][col].textContent || '';
         }
       }
     }
@@ -490,8 +503,8 @@ export class PuzzleBoard {
 
     for (let row = 0; row < boardRows; row++) {
       for (let col = 0; col < boardCols; col++) {
-        if (this.#inputs[row]?.[col] && !this.#inputs[row][col].readOnly) {
-          this.#inputs[row][col].value = '';
+        if (this.#inputs[row]?.[col] && !this.#inputs[row][col].classList.contains('hint-cell')) {
+          this.#inputs[row][col].textContent = '';
         }
       }
     }
@@ -505,5 +518,83 @@ export class PuzzleBoard {
    */
   getPuzzleSet() {
     return this.#puzzleSet;
+  }
+
+  /**
+   * 从字母面板填入字母到当前焦点格。
+   * @param {string} letter - 要填入的字母
+   * @returns {boolean} true 表示成功填入
+   */
+  fillCurrentCell(letter) {
+    let row, col;
+
+    if (this.#focusedCell) {
+      row = this.#focusedCell.row;
+      col = this.#focusedCell.col;
+    } else {
+      const first = this.#findFirstEmptyInWord(this.#currentWordIndex);
+      if (first) {
+        row = first.row;
+        col = first.col;
+      } else {
+        const nextWord = this.#findNextIncompleteWord(this.#currentWordIndex);
+        if (nextWord === -1) return false;
+        this.#currentWordIndex = nextWord;
+        const nextFirst = this.#findFirstEmptyInWord(nextWord);
+        if (!nextFirst) return false;
+        row = nextFirst.row;
+        col = nextFirst.col;
+      }
+    }
+
+    const cell = this.#inputs[row]?.[col];
+    if (!cell || cell.classList.contains('hint-cell')) return false;
+    if (cell.textContent) return false;
+
+    cell.textContent = letter.toUpperCase();
+    this.#moveToNext(row, col);
+    return true;
+  }
+
+  /**
+   * 获取预填提示格位置列表。
+   * @returns {Array<{row: number, col: number, letter: string}>}
+   */
+  getHintPositions() {
+    return this.#hintPositions;
+  }
+
+  /**
+   * 获取当前焦点格坐标。
+   * @returns {{row: number, col: number}|null}
+   */
+  getFocusedCell() {
+    return this.#focusedCell;
+  }
+
+  /**
+   * 设置字母被清除的回调（供字母面板恢复按钮状态）。
+   * @param {function(string): void} callback
+   */
+  setOnLetterRemoved(callback) {
+    this.#onLetterRemoved = callback;
+  }
+
+  /**
+   * 聚焦到当前单词的第一个空格；若当前单词已无空格，跳转到下一个未完成单词。
+   */
+  focusFirstEmptyCell() {
+    let first = this.#findFirstEmptyInWord(this.#currentWordIndex);
+    if (!first) {
+      const nextWord = this.#findNextIncompleteWord(this.#currentWordIndex);
+      if (nextWord !== -1) {
+        this.#currentWordIndex = nextWord;
+        first = this.#findFirstEmptyInWord(nextWord);
+      }
+    }
+    if (first) {
+      this.#focusedCell = first;
+      this.#inputs[first.row][first.col].focus();
+    }
   }
 }

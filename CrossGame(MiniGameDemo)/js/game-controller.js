@@ -14,6 +14,8 @@
 
 import { PuzzleBoard } from './puzzle-board.js';
 import { DataSourceConfig } from './data-source-config.js';
+import { LetterSelectionPanel } from './letter-selection-panel.js';
+import { Timer } from './timer.js';
 import { sampleWithoutReplacement, checkAnswer, qs } from './utils.js';
 
 const STORAGE_KEY = 'crossword-game-progress';
@@ -33,11 +35,28 @@ let gameState = {
 /** @type {PuzzleBoard} */
 let puzzleBoard = null;
 
+/** @type {LetterSelectionPanel} */
+let letterPanel = null;
+
+/** @type {Timer|null} */
+let timer = null;
+
 /** @type {number} */
 const MAX_ERRORS = 3;
 
 async function init() {
   puzzleBoard = new PuzzleBoard(document.getElementById('puzzle-board'));
+  letterPanel = new LetterSelectionPanel(
+    document.getElementById('letter-selection-panel'),
+    puzzleBoard
+  );
+
+  puzzleBoard.setOnLetterRemoved((letter) => {
+    letterPanel.restoreLetter(letter);
+  });
+
+  const timerDisplay = document.getElementById('timer-display');
+  timer = new Timer(timerDisplay, handleTimeout);
 
   const params = new URLSearchParams(window.location.search);
   const scope = params.get('scope');
@@ -149,6 +168,15 @@ function loadLevel(index) {
   }
 
   puzzleBoard.render(puzzleSet, gameState.difficulty);
+  letterPanel.render(puzzleSet, gameState.difficulty, puzzleBoard.getHintPositions());
+  puzzleBoard.focusFirstEmptyCell();
+
+  if (gameState.difficulty === 'hard') {
+    timer.start(120);
+  } else {
+    timer.stop();
+  }
+
   updateProgressText();
   updateErrorCountText();
 }
@@ -206,6 +234,8 @@ function setupEventListeners() {
 
 function handleCancel() {
   puzzleBoard.clearValues();
+  letterPanel.render(puzzleBoard.getPuzzleSet(), gameState.difficulty, puzzleBoard.getHintPositions());
+  puzzleBoard.focusFirstEmptyCell();
 }
 
 function handleSubmit() {
@@ -339,6 +369,18 @@ function triggerWin() {
   }));
   sessionStorage.removeItem('gameState');
   window.location.href = 'result.html';
+}
+
+/**
+ * 计时器超时处理：收集当前所有已填和未填单词中错误的，直接判负。
+ */
+function handleTimeout() {
+  const values = puzzleBoard.getValues();
+  const puzzleSet = puzzleBoard.getPuzzleSet();
+  gameState.wrongWords = collectWrongWords(values, puzzleSet);
+  gameState.errorCount = MAX_ERRORS;
+  updateErrorCountText();
+  triggerFail();
 }
 
 function triggerFail() {
