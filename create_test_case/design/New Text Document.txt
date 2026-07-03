@@ -1,0 +1,3 @@
+图里面没有Reset Button与Growing Button啊, 你是不是看错了? 你给我列出所有在菱形判断框里的文字我看看
+
+从Caterpillar Mode程序入口开始往下数, 第一个菱形里的是Head Button, 然后条件为No方向, 第二个是Mouth Button, 第三个是Watering Button, 第四个是Taken out of Bud Base, 第五个是Put into Bud Base, 第六个是7 interactions, 第七个是8 to 10 sec timeout, 第八个是30 sec timeout
