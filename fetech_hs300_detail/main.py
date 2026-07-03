@@ -12,9 +12,12 @@
 """
 
 import datetime
+import io
 import os
 import sys
 import time
+
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 # ---- 导入各功能模块 ----
 from hs300_fetcher import fetch_hs300_stocks
