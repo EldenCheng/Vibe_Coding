@@ -1,0 +1,4 @@
+1. 编写一个python脚本, 先判断上传的文件是哪种类别, 如果是word, excel, ppt, 暂时先不处理; 如果是pdf文件, 就把文件的每一页转换成图片, 为了之后的扩展性, 不直接在脚本中写死文件的路径, 要使用参数引入, 输出路径也要参数化, 默认值是当前目录下的outputs
+2. 然后参考"api_demo.py"脚本中的内容, 编写另一个python脚本, 用于从指定路径中读取(默认路径也是outputs)并把转换后的每一个图片通过API转换成structured logic的md文件. 为了安全, API的BaseURL与API key不能直接写在脚本中, 要另外从"auth.json"中读取; 也为了以后能方便地更新提示词, 提示词要从"分析提示词.md"中读取; "auth.json"与"分析提示词.md"都放在子目录config里. 另外, 因为分析的内容可能过大, API会截断, 所以上图片到API时要一个图一个图地上传, 完成一个再完成另一个, 然后把内容存放到指定路径的md文件中(默认路径也是outputs)
+3. 编写一个python脚本, 从指定路径读取(默认路径outputs)逐一读取structured logic的md文件, 再整合"生成提示词", 通过API让大模型按顺序生成test case, 然后把生成test case按顺序放到同一个Json文件里. 后面生成的test case追加到Json文件的后面, 为防截断, 让大模型生成test case也要一个一个来. 最后会得到一个包括所有test case的Json文件
+4. 根据Json文件, 生成excel文件
