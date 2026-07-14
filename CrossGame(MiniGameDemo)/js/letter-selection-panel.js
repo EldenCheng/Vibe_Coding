@@ -66,7 +66,7 @@ export class LetterSelectionPanel {
 
       const tileData = [];
       for (const [letter, count] of Object.entries(counts)) {
-        tileData.push({ letter, count, isDecoy: false });
+        tileData.push({ letter, count: difficulty === 'hard' ? Infinity : count, isDecoy: false });
       }
       decoys.forEach(letter => {
         tileData.push({ letter, count: Infinity, isDecoy: true });

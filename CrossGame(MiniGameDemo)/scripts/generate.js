@@ -24,8 +24,7 @@ const __dirname = decodeURI(dirname(new URL(import.meta.url).pathname).replace(/
 const WORD_LIST_PATH = resolve(__dirname, '../广州科教版小学英语三至五年级单词表.json');
 const DATA_DIR = resolve(__dirname, '../data');
 
-const WORDS_PER_PUZZLE = 5;
-const COVERAGE_TARGET = 0.9;
+const WORDS_PER_PUZZLE = 4; // 用于计算目标数量（取中间值）
 const MAX_CONSECUTIVE_FAILURES = 50000;
 
 const OUTPUT_FILE = '小学-填字游戏.json';
@@ -43,14 +42,16 @@ function main() {
       process.exit(1);
     }
 
-    const targetCount = Math.ceil(words.length / WORDS_PER_PUZZLE * COVERAGE_TARGET);
-    console.log(`   📊 单词数 ${words.length}，目标生成 ${targetCount} 组（覆盖率 ${(COVERAGE_TARGET * 100).toFixed(0)}%）`);
+    // 目标数量 = 向上取整（单词总数 / 每组单词数中间值），确保覆盖所有单词
+    const targetCount = Math.ceil(words.length / WORDS_PER_PUZZLE);
+    console.log(`   📊 单词数 ${words.length}，目标生成 ${targetCount} 组`);
 
     mkdirSync(DATA_DIR, { recursive: true });
 
     console.log('\n2/3 生成 PuzzleSet...');
 
-    const puzzleSets = generatePuzzleSets(words, 'easy', targetCount, MAX_CONSECUTIVE_FAILURES);
+    const usedWords = new Set();
+    const puzzleSets = generatePuzzleSets(words, 'easy', targetCount, MAX_CONSECUTIVE_FAILURES, usedWords);
 
     if (puzzleSets.length === 0) {
       console.error('   ❌ 未能生成任何有效 PuzzleSet');
@@ -74,6 +75,24 @@ function main() {
     const allWords = new Set();
     puzzleSets.forEach(p => p.words.forEach(w => allWords.add(w.word)));
     console.log(`   📊 覆盖 ${allWords.size} 个不同单词（总池 ${words.length} 个，覆盖率 ${(allWords.size / words.length * 100).toFixed(1)}%）`);
+    
+    // 检查是否有跨关卡重复
+    const duplicates = [];
+    const seenWords = new Set();
+    puzzleSets.forEach(p => {
+      p.words.forEach(w => {
+        if (seenWords.has(w.word)) {
+          duplicates.push(w.word);
+        } else {
+          seenWords.add(w.word);
+        }
+      });
+    });
+    if (duplicates.length > 0) {
+      console.warn(`   ⚠️ 发现 ${duplicates.length} 个跨关卡重复单词: ${duplicates.join(', ')}`);
+    } else {
+      console.log(`   ✅ 无跨关卡单词重复`);
+    }
 
     console.log('\n=== 数据生成完成！===');
     console.log(`\n生成的文件：`);

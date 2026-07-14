@@ -357,9 +357,9 @@ export function tryPlaceWord(word, placedWords, board) {
  * 难度配置：每组单词数量范围
  */
 const DIFFICULTY_CONFIG = {
-  easy:   { minWords: 4, maxWords: 4 },
-  medium: { minWords: 4, maxWords: 4 },
-  hard:   { minWords: 4, maxWords: 4 },
+  easy:   { minWords: 3, maxWords: 5 },
+  medium: { minWords: 3, maxWords: 5 },
+  hard:   { minWords: 3, maxWords: 5 },
 };
 
 /**
@@ -376,9 +376,10 @@ const DIFFICULTY_CONFIG = {
  * @param {WordEntry[]} wordPool   - 单词池（含 word 和 meaning）
  * @param {'easy'|'medium'|'hard'} difficulty - 难度等级
  * @param {number} maxAttempts     - 最大尝试次数（默认 1000）
+ * @param {Set<string>} [usedWords=new Set()] - 已使用的单词集合（跨关卡去重）
  * @returns {PuzzleSet|null} 成功返回 PuzzleSet，失败返回 null
  */
-export function buildPuzzleSet(wordPool, difficulty, maxAttempts = 1000) {
+export function buildPuzzleSet(wordPool, difficulty, maxAttempts = 1000, usedWords = new Set()) {
   const config = DIFFICULTY_CONFIG[difficulty];
   if (!config) {
     throw new Error(`未知难度级别: ${difficulty}`);
@@ -386,8 +387,12 @@ export function buildPuzzleSet(wordPool, difficulty, maxAttempts = 1000) {
 
   const targetCount = Math.floor(Math.random() * (config.maxWords - config.minWords + 1)) + config.minWords;
 
+  // 过滤掉已使用的单词
+  const availablePool = wordPool.filter(w => !usedWords.has(w.word));
+  if (availablePool.length < targetCount) return null;
+
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    const candidates = sampleWithoutReplacement(wordPool, targetCount);
+    const candidates = sampleWithoutReplacement(availablePool, targetCount);
     if (candidates.length < targetCount) continue;
 
     const board = createBoard();
@@ -417,11 +422,11 @@ export function buildPuzzleSet(wordPool, difficulty, maxAttempts = 1000) {
         });
         placedCount++;
       } else {
-        const replaceCount = Math.min(10, wordPool.length - candidates.length);
+        const replaceCount = Math.min(10, availablePool.length - candidates.length);
         let replaced = false;
 
         for (let r = 0; r < replaceCount; r++) {
-          const poolCopy = wordPool.filter(
+          const poolCopy = availablePool.filter(
             w => !candidates.some(c => c.word === w.word)
           );
           if (poolCopy.length === 0) break;
@@ -533,21 +538,28 @@ export function isConnected(placedWords) {
  * @param {'easy'|'medium'|'hard'} difficulty - 难度等级
  * @param {number} targetCount     - 目标生成数量
  * @param {number} [maxFailures=5000] - 连续失败上限，超过则停止生成
+ * @param {Set<string>} [usedWords=new Set()] - 已使用的单词集合（跨关卡去重）
  * @returns {PuzzleSet[]} 生成的 PuzzleSet 数组
  */
-export function generatePuzzleSets(wordPool, difficulty, targetCount, maxFailures = 5000) {
+export function generatePuzzleSets(wordPool, difficulty, targetCount, maxFailures = 5000, usedWords = new Set()) {
   const puzzleSets = [];
   const usedWordSets = new Set();
   let consecutiveFailures = 0;
 
   while (puzzleSets.length < targetCount && consecutiveFailures < maxFailures) {
-    const puzzle = buildPuzzleSet(wordPool, difficulty);
+    // 检查剩余可用单词是否足够组成一个 puzzle
+    const availableCount = wordPool.filter(w => !usedWords.has(w.word)).length;
+    if (availableCount < 3) break;
+
+    const puzzle = buildPuzzleSet(wordPool, difficulty, 1000, usedWords);
 
     if (puzzle) {
       const wordSetKey = puzzle.words.map(w => w.word).sort().join(',');
 
       if (!usedWordSets.has(wordSetKey)) {
         usedWordSets.add(wordSetKey);
+        // 将本关单词加入已使用集合
+        puzzle.words.forEach(w => usedWords.add(w.word));
         puzzleSets.push(puzzle);
         consecutiveFailures = 0;
       } else {

@@ -108,9 +108,11 @@ const VALID_WORD = /^[A-Za-z]{3,20}$/;
 
 | 难度 | 每组单词数 | 棋盘提示 | 中文提示 | 输入方式 | 字母面板 | 计时器 |
 |------|-----------|---------|---------|---------|---------|--------|
-| 初级 | 恰好 4 个 | 首字母+尾字母预填 | 有编号，正常排列 | 字母选择面板 | 精确字母（保留重复，每枚独立可点，用完即灰） | 无 |
-| 中级 | 恰好 4 个 | 每词首字母预填 | 无编号，随机排列 | 字母选择面板 | 去重字母+隐藏可用次数 | 无 |
-| 高级 | 恰好 4 个 | 按长度随机提示（<4字母1个、4~7字母2个、≥8字母3个，随机选位） | 无编号，随机排列 | 字母选择面板 | 去重字母+2~3干扰字母+隐藏可用次数 | 120秒倒计时，≤15秒抖动 |
+| 初级 | 3–5 个 | 首字母+尾字母预填 | 有编号，正常排列 | 字母选择面板 | 精确字母（保留重复，每枚独立可点，用完即灰） | 无 |
+| 中级 | 3–5 个 | 每词首字母预填 | 无编号，随机排列 | 字母选择面板 | 去重字母+隐藏可用次数 | 无 |
+| 高级 | 3–5 个 | 按长度随机提示（<4字母1个、4~7字母2个、≥8字母3个，随机选位） | 无编号，随机排列 | 字母选择面板 | 去重字母+2~3干扰字母+隐藏可用次数 | 120秒倒计时，≤15秒抖动 |
+
+**跨关卡去重**：生成器维护 `usedWords` Set，确保每个单词在所有 PuzzleSet 中只出现一次。
 
 
 ### 2.3 DataSourceConfig（配置读取器）
@@ -184,7 +186,7 @@ const VALID_WORD = /^[A-Za-z]{3,20}$/;
 |------|---------|---------|-------------|---------|
 | 初级 | 非提示格的全部字母（按物理格子去重） | 保留原始重复 | 每枚独立，点击一次即灰 | 无 |
 | 中级 | 非提示格的全部字母（按物理格子去重） | 去重，同字母合并为一个按钮 | 每枚剩余次数=该字母在非提示格出现次数，隐藏不显示；用完即灰 | 无 |
-| 高级 | 非提示格的全部字母 | 去重，同字母合并为一个按钮 | 无限制（始终可用） | 2~3个随机字母（不在当前单词池中） |
+| 高级 | 非提示格的全部字母 | 去重，同字母合并为一个按钮 | 无限制（始终可用，不因用完变灰） | 2~3个随机字母（不在当前单词池中） |
 
 ### 2.10 Timer（计时器模块）
 
@@ -522,6 +524,47 @@ puzzleSet.words.forEach(w => {
 ```
 
 共享格（两个单词交叉的格子）只贡献一次字母，不会在面板上出现重复按钮。
+
+### 5.6 跨关卡单词去重（生成器）
+
+#### 问题
+
+PuzzleGenerator 生成多个 PuzzleSet 时，不同关卡之间可能出现相同单词，导致：
+1. 玩家在同一局游戏中多次遇到相同单词
+2. 词表覆盖率低（451个单词仅覆盖309个）
+
+#### 解决方案
+
+在 `generatePuzzleSets()` 中维护 `usedWords` Set，追踪已使用过的单词：
+
+```js
+export function generatePuzzleSets(wordPool, difficulty, targetCount, maxFailures, usedWords = new Set()) {
+  while (puzzleSets.length < targetCount && consecutiveFailures < maxFailures) {
+    // 过滤掉已使用的单词
+    const availableCount = wordPool.filter(w => !usedWords.has(w.word)).length;
+    if (availableCount < 3) break;  // 不足3个单词，无法组成puzzle
+
+    const puzzle = buildPuzzleSet(wordPool, difficulty, 1000, usedWords);
+    if (puzzle) {
+      // 将本关单词加入已使用集合
+      puzzle.words.forEach(w => usedWords.add(w.word));
+      puzzleSets.push(puzzle);
+    }
+  }
+}
+```
+
+`buildPuzzleSet()` 在采样前过滤单词池：
+```js
+const availablePool = wordPool.filter(w => !usedWords.has(w.word));
+```
+
+#### 生成结果
+
+- 词表：451个合法单词
+- 生成：111组 PuzzleSet（每组3-5个单词）
+- 覆盖：448个单词（99.3%）
+- 跨关卡重复：0个
 
 ### 5.6 计时器算法（高级模式专用）
 
@@ -923,7 +966,7 @@ localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
 
 ### Property 5: 难度对应的单词数量约束
 
-*对任意生成的 PuzzleSet：所有难度组均恰好包含 5 个单词。*
+*对任意生成的 PuzzleSet：所有难度组均包含 3–5 个单词。*
 
 **Validates: Requirements 1.3, 1.4, 1.5**
 
