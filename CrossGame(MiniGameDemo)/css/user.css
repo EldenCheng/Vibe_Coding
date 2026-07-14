@@ -1,0 +1,375 @@
+/* ── 用户页面样式 ── */
+
+body {
+  background: radial-gradient(circle at 50% 40%, #FFF0F5 0%, #FFD1DC 60%, #FFA6C9 100%);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Fredoka One', 'ZCOOL KuaiLe', 'Microsoft YaHei', sans-serif;
+}
+
+.container {
+  width: 100%;
+  max-width: 430px;
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.user-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.user-avatar {
+  font-size: 64px;
+  line-height: 1;
+  animation: bounce 2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.user-nickname {
+  font-size: 28px;
+  color: #D11174;
+  margin: 0;
+}
+
+/* ── 统计卡片 ── */
+.stats-cards {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  justify-content: center;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 16px;
+  padding: 16px 12px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 4px 12px rgba(255, 20, 147, 0.15);
+}
+
+.stat-icon {
+  font-size: 24px;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: bold;
+  color: #FF69B4;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #999;
+}
+
+/* ── 操作按钮 ── */
+.action-buttons {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.action-btn {
+  padding: 14px 0;
+  border-radius: 30px;
+  font-size: 18px;
+  font-family: inherit;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.action-btn:active {
+  transform: translateY(2px);
+}
+
+.primary-btn {
+  background: linear-gradient(135deg, #FF69B4, #FF1493);
+  color: white;
+  box-shadow: 0 4px 15px rgba(255, 20, 147, 0.3);
+}
+
+.primary-btn:active {
+  box-shadow: 0 2px 8px rgba(255, 20, 147, 0.3);
+}
+
+.secondary-btn {
+  background: white;
+  color: #FF69B4;
+  border: 2px solid #FFB7CE;
+}
+
+.secondary-btn:active {
+  background: #FFF0F5;
+}
+
+.danger-btn {
+  background: white;
+  color: #DC143C;
+  border: 2px solid #FFB7CE;
+}
+
+.danger-btn:active {
+  background: #FFF0F5;
+}
+
+.ghost-btn {
+  background: transparent;
+  color: #FF69B4;
+  border: none;
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+.ghost-btn:hover {
+  opacity: 1;
+}
+
+.bottom-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.bottom-actions .action-btn {
+  flex: 1;
+}
+
+/* ── 弹窗通用样式 ── */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-overlay.hidden {
+  display: none;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 24px;
+  padding: 24px;
+  max-width: 400px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.large-modal {
+  max-width: 480px;
+  max-height: 85vh;
+}
+
+.modal-title {
+  font-size: 22px;
+  color: #D11174;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.modal-text {
+  font-size: 14px;
+  color: #666;
+  text-align: center;
+  margin-bottom: 8px;
+  line-height: 1.6;
+}
+
+.modal-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #FFB7CE;
+  border-radius: 20px;
+  font-size: 16px;
+  font-family: inherit;
+  outline: none;
+  margin: 8px 0;
+  box-sizing: border-box;
+}
+
+.modal-input:focus {
+  border-color: #FF69B4;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.modal-close-top {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-size: 24px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #FF69B4;
+  line-height: 1;
+}
+
+/* ── 错词表格 ── */
+.modal-wrong-words-container {
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+.wrong-words-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'ZCOOL KuaiLe', 'Microsoft YaHei', sans-serif;
+}
+
+.wrong-words-table th {
+  padding: 8px 12px;
+  text-align: left;
+  font-size: 12px;
+  color: #999;
+  border-bottom: 1px solid #FFE4E1;
+  font-weight: normal;
+}
+
+.wrong-words-table td {
+  padding: 10px 12px;
+  font-size: 15px;
+  border-bottom: 1px solid #FFF0F5;
+}
+
+.wrong-words-table .ww-word {
+  color: #D11174;
+  font-family: 'Fredoka One', monospace;
+}
+
+.wrong-words-table .ww-meaning {
+  color: #666;
+}
+
+.wrong-words-table .ww-count {
+  color: #FF69B4;
+  text-align: center;
+  font-weight: bold;
+}
+
+.modal-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.pagination-btn {
+  padding: 8px 20px;
+  border-radius: 20px;
+  border: 1px solid #FFB7CE;
+  background: white;
+  color: #FF69B4;
+  font-size: 14px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.pagination-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.page-info {
+  font-size: 14px;
+  color: #999;
+}
+
+/* ── Toast ── */
+.message-toast {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 16px 24px;
+  border-radius: 12px;
+  font-size: 16px;
+  z-index: 1001;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.message-toast.show {
+  opacity: 1;
+}
+
+/* ── 桌面端适配 ── */
+@media (min-width: 800px) {
+  html {
+    background-color: #FFC0CB;
+    background-image:
+      radial-gradient(#FFF0F5 20%, transparent 20%),
+      radial-gradient(#FFF0F5 20%, transparent 20%);
+    background-size: 60px 60px;
+    background-position: 0 0, 30px 30px;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    overflow: auto;
+  }
+  body {
+    width: 530px;
+    min-height: 880px;
+    margin: 40px 0;
+    background: linear-gradient(135deg, #FFF0F5 0%, #FFE4E1 100%);
+    border: 20px solid #FFFFFF;
+    border-radius: 70px;
+    box-shadow:
+      0 15px 0 #FFB6C1,
+      0 30px 60px rgba(219, 112, 147, 0.35),
+      inset 0 4px 10px rgba(255, 255, 255, 0.8);
+    overflow: hidden;
+    display: block;
+    height: auto;
+    position: relative;
+  }
+  .container {
+    max-width: none;
+    width: 100%;
+    min-height: 880px;
+    border-radius: 42px;
+    border: 6px solid #FFB7CE;
+    box-shadow: inset 0 5px 15px rgba(0, 0, 0, 0.06);
+    padding: 40px 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+  }
+}

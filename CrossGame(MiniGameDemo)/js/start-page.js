@@ -8,11 +8,11 @@
  *   - 从 localStorage 读取进度，在下拉菜单旁显示星星
  *   - 实现填字棋盘风格字母填入动画循环
  *   - 处理游戏启动流程
+ *   - 用户昵称输入 / Cookie 自动登录
  */
 
 import { DataSourceConfig } from './data-source-config.js';
-
-const STORAGE_KEY = 'crossword-game-progress';
+import { UserManager } from './user-manager.js';
 
 // 填字棋盘矩阵（展示填字游戏风格：C-A-T, D-O-G, A-P-P-L-E）
 const boardMatrix = [
@@ -33,6 +33,8 @@ async function init() {
   initAnimation();
   await loadConfig();
   setupEventListeners();
+  setupNicknameModal();
+  setupUserSelectModal();
 }
 
 function initAnimation() {
@@ -98,7 +100,6 @@ async function loadConfig() {
     });
 
     updateStartButton();
-    updateAchievementDisplay();
 
   } catch (err) {
     console.error('配置加载失败:', err);
@@ -123,61 +124,7 @@ function updateStartButton() {
   startBtn.disabled = !isAvailable;
 }
 
-/**
- * 从 localStorage 读取进度，在下拉菜单旁显示星星。
- */
-function updateAchievementDisplay() {
-  const select = document.getElementById('scope-select');
-  const display = document.getElementById('achievement-display');
-  const selectedScope = select.value;
-
-  if (!selectedScope || !display) {
-    if (display) display.innerHTML = '';
-    return;
-  }
-
-  const progress = loadProgress(selectedScope);
-  if (!progress || progress.total === 0) {
-    display.innerHTML = '';
-    return;
-  }
-
-  const used = progress.usedIds.length;
-  const total = progress.total;
-  const percent = total > 0 ? used / total : 0;
-
-  let starsHtml = '';
-  if (percent >= 1) {
-    starsHtml = '⭐⭐⭐';
-  } else if (percent >= 0.6) {
-    starsHtml = '⭐⭐';
-  } else if (percent >= 0.3) {
-    starsHtml = '⭐';
-  } else {
-    starsHtml = '';
-  }
-
-  display.innerHTML = starsHtml
-    ? `<div class="stars">${starsHtml}</div><div class="progress-text">${used} / ${total} 题</div>`
-    : `<div class="progress-text">${used} / ${total} 题</div>`;
-}
-
-/**
- * 从 localStorage 读取指定单词库的进度。
- * @param {string} scope
- * @returns {{ usedIds: number[], total: number }|null}
- */
-function loadProgress(scope) {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-
-    const all = JSON.parse(raw);
-    return all[scope] || null;
-  } catch (e) {
-    return null;
-  }
-}
+// 成就显示（已移到 UserPage，此处不再展示）
 
 function setupEventListeners() {
   const select = document.getElementById('scope-select');
@@ -185,7 +132,6 @@ function setupEventListeners() {
 
   select.addEventListener('change', () => {
     updateStartButton();
-    updateAchievementDisplay();
   });
 
   startBtn.addEventListener('click', handleStartClick);
@@ -206,32 +152,96 @@ async function handleStartClick() {
     return;
   }
 
-  const loadingIndicator = document.getElementById('loading-indicator');
-  loadingIndicator.classList.add('show');
-
-  try {
-    const response = await fetch(path);
-    if (!response.ok) {
-      throw new Error(`加载失败: ${response.status}`);
+  // 检测是否有未过期的 cookie 用户
+  const lastUser = UserManager.getLastUser();
+  if (lastUser) {
+    // 直接使用上次用户
+    proceedToUserPage(lastUser.nickname);
+  } else {
+    // 检查是否有多个用户，展示用户选择
+    const allUsers = UserManager.getAllUsers();
+    const userNames = Object.keys(allUsers);
+    
+    if (userNames.length > 0) {
+      showUserSelectModal(userNames);
+    } else {
+      showNicknameModal();
     }
-
-    const puzzleSets = await response.json();
-
-    if (!Array.isArray(puzzleSets) || puzzleSets.length === 0) {
-      throw new Error('关卡数据为空');
-    }
-
-    sessionStorage.removeItem('gameState');
-
-    const url = `game.html?scope=${encodeURIComponent(selectedScope)}&difficulty=${selectedDifficulty}`;
-    window.location.href = url;
-
-  } catch (err) {
-    console.error('启动失败:', err);
-    showToast('关卡数据加载失败，请检查网络后重试');
-  } finally {
-    loadingIndicator.classList.remove('show');
   }
+}
+
+function showUserSelectModal(userNames) {
+  const modal = document.getElementById('user-select-modal');
+  const list = document.getElementById('user-list');
+  list.innerHTML = '';
+
+  userNames.forEach(name => {
+    const btn = document.createElement('button');
+    btn.className = 'user-select-btn';
+    btn.textContent = name;
+    btn.addEventListener('click', () => {
+      modal.classList.add('hidden');
+      proceedToUserPage(name);
+    });
+    list.appendChild(btn);
+  });
+
+  modal.classList.remove('hidden');
+}
+
+function showNicknameModal() {
+  const modal = document.getElementById('nickname-modal');
+  const input = document.getElementById('nickname-input');
+  input.value = '';
+  document.getElementById('nickname-error').style.display = 'none';
+  modal.classList.remove('hidden');
+  input.focus();
+}
+
+function setupNicknameModal() {
+  const confirmBtn = document.getElementById('nickname-confirm-btn');
+  const input = document.getElementById('nickname-input');
+  const errorEl = document.getElementById('nickname-error');
+
+  const handleConfirm = () => {
+    const nickname = input.value.trim();
+    if (!nickname) {
+      errorEl.textContent = '请输入昵称';
+      errorEl.style.display = '';
+      return;
+    }
+    if (nickname.length > 20) {
+      errorEl.textContent = '昵称不能超过 20 个字符';
+      errorEl.style.display = '';
+      return;
+    }
+
+    const user = UserManager.getUser(nickname);
+    if (!user) {
+      UserManager.createUser(nickname);
+    }
+
+    document.getElementById('nickname-modal').classList.add('hidden');
+    proceedToUserPage(nickname);
+  };
+
+  confirmBtn.addEventListener('click', handleConfirm);
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') handleConfirm();
+  });
+}
+
+function setupUserSelectModal() {
+  document.getElementById('new-user-btn').addEventListener('click', () => {
+    document.getElementById('user-select-modal').classList.add('hidden');
+    showNicknameModal();
+  });
+}
+
+function proceedToUserPage(nickname) {
+  UserManager.setLastUser(nickname);
+  sessionStorage.setItem('crossword-current-user', nickname);
+  window.location.href = `user.html?user=${encodeURIComponent(nickname)}`;
 }
 
 function showToast(message) {

@@ -50,21 +50,25 @@ graph TB
     subgraph 运行时阶段
         DS[data-sources.json<br/>配置文件]
         SP[StartPage<br/>start.html]
+        UP[UserPage<br/>user.html]
         GP[GamePage<br/>game.html]
         RP[ResultPage<br/>result.html]
         GC[GameController<br/>game-controller.js]
         PB[PuzzleBoard<br/>puzzle-board.js]
-        LS[localStorage<br/>进度记录]
+        UM[UserManager<br/>user-manager.js]
+        US[localStorage<br/>用户数据]
         DS --> SP
         DJ --> GC
-        SP -->|用户选择范围| GC
+        SP -->|昵称| UP
+        UP -->|用户| UM
+        UM -->|获取用户数据| US
+        UM -->|生成关卡序列含失败关卡| GC
         GC --> GP
         GP --> PB
         PB --> GC
+        GC -->|错词/进度| UM
         GC -->|胜利/失败| RP
-        GC -->|记录已完成的 puzzleId| LS
-        GC -->|读取进度跳过已做题目| LS
-        RP -->|再来一次| SP
+        RP -->|返回用户页| UP
     end
 ```
 
@@ -162,14 +166,7 @@ const VALID_WORD = /^[A-Za-z]{3,20}$/;
 
 > 背景色继承自 `common.css` 的统一渐变，页面间切换无颜色跳变。桌面端 `body` 作为游戏机外壳包裹内容。
 
-### 2.8 WrongWordsPage（错词回顾页面）
-
-| 属性 | 说明 |
-|------|------|
-| **运行环境** | 浏览器，`wrong-words.html` |
-| **输入** | sessionStorage 传递的错词数据（`wrongWords`） |
-| **输出** | 错词列表显示、关闭后返回 StartPage |
-| **职责** | 从 sessionStorage 读取失败关卡中答错的单词列表；渲染英文单词 + 中文意思；点击关闭按钮后清除 sessionStorage 并返回 StartPage |
+> **v0.13.0**：错词回顾功能已合并至 UserPage 的错词表弹窗和游戏中 WrongWordModal，删除独立的 wrong-words 页面。
 
 ### 2.9 LetterSelectionPanel（字母选择面板）
 
@@ -222,7 +219,12 @@ CrossGame(小程序)/
 │   ├── data-source-config.js              # DataSourceConfig 模块
 │   ├── puzzle-board.js                    # PuzzleBoard 组件
 │   ├── game-controller.js                 # GameController 模块
-│   ├── wrong-words-page.js                # WrongWordsPage 逻辑
+│   ├── letter-selection-panel.js          # 字母选择面板
+│   ├── timer.js                           # 计时器模块
+│   ├── user-manager.js                    # 用户管理器
+│   ├── wrong-word-modal.js                # 游戏中错词弹窗组件
+│   ├── user-page.js                       # 用户页面逻辑
+│   ├── result-page.js                     # 结果页面逻辑
 │   └── utils.js                           # 通用工具函数（大小写转换、随机抽取等）
 │
 ├── css/
@@ -230,7 +232,7 @@ CrossGame(小程序)/
 │   ├── start.css                          # StartPage 专属样式
 │   ├── game.css                           # GamePage 专属样式
 │   ├── result.css                         # ResultPage 专属样式
-│   └── wrong-words.css                    # WrongWordsPage 专属样式
+│   └── user.css                           # UserPage 专属样式
 │
 ├── assets/
 │   ├── Logo.png                           # 应用 Logo
@@ -238,9 +240,9 @@ CrossGame(小程序)/
 │   └── mascot.png                         # 松鼠吉祥物 PNG（持有铅笔，带粉色蝴蝶结）
 │
 ├── start.html                             # StartPage
+├── user.html                              # UserPage（用户中心）
 ├── game.html                              # GamePage
 ├── result.html                            # ResultPage
-├── wrong-words.html                       # WrongWordsPage（错词回顾）
 │
 ├── 广州科教版小学英语三至五年级单词表.json   # 原始词表（仅供脚本读取）
 ├── 项目设计文档.md                          # 中文项目设计文档（本文档）
@@ -863,37 +865,44 @@ function hasAutoCompleteWord(placedWords) {
 
 | 状态类型 | 存储位置 | 说明 |
 |---------|---------|------|
-| 页面间传递的启动参数 | URL Query String | `scope`（难度由运行时统一管理） |
-| 跨页面持久的游戏进度 | `localStorage` | 每个单词库已使用的 puzzleId 列表（持久化，清除浏览器缓存才重置） |
-| 当前局游戏状态 | `sessionStorage` | `levels`, `currentLevelIndex`, `errorCount`（关闭浏览器即清除） |
-| 失败关卡的错词 | `sessionStorage` | `wrongWords`: `{ word, meaning }[]`（失败时写入，错词页读取后清除） |
+| 页面间传递的启动参数 | URL Query String | `scope`, `user` |
+| 用户数据（持久） | `localStorage` key `crossword-users` | 所有用户昵称、进度、错词表 |
+| Cookie 自动登录 | `localStorage` key `crossword-last-user` | `{ nickname, expires }`，7 天有效期 |
+| 当前局游戏状态 | `sessionStorage` | `gameState`（`levels`, `currentLevelIndex`, `errorCount`） |
 | 页面内临时 UI 状态 | JS 模块内存变量 | 当前棋盘输入值、动画计时器 |
 
 ### 8.2 GameController 状态机
 
 ```mermaid
 stateDiagram-v2
-    [*] --> 加载中 : 用户点击 START
-    加载中 --> 关卡进行中 : PuzzleSet 加载成功
-    加载中 --> StartPage : 加载失败 / 关卡数不足
+    [*] --> StartPage : 打开应用
+    StartPage --> 昵称输入 : 点击 START（无 cookie）
+    StartPage --> 用户选择 : 点击 START（有多个用户）
+    StartPage --> UserPage : 点击 START（有 cookie 用户）
+    昵称输入 --> UserPage : 确认昵称
+    用户选择 --> UserPage : 选择用户
+    UserPage --> GameController加载中 : 点击继续/开始
+    GameController加载中 --> 关卡进行中 : PuzzleSet 加载成功 + 关卡序列生成
+    GameController加载中 --> UserPage : 加载失败 / 关卡数不足
     关卡进行中 --> 关卡进行中 : 取消（清空输入）
     关卡进行中 --> 关卡进行中 : 提交有空格（提示）
-    关卡进行中 --> 关卡进行中 : 提交错误 且 ErrorCount < 3
+    关卡进行中 --> 错词弹窗 : 提交有错词（非最终关 + 错词<3 + 总机会<3）
+    关卡进行中 --> 失败结果页 : 提交有错词（错词≥3 或 总机会≥3）
     关卡进行中 --> 下一关加载中 : 提交全部正确 且 非最终关
     关卡进行中 --> 胜利结果页 : 提交全部正确 且 最终关
-    关卡进行中 --> 失败结果页 : 提交错误 且 ErrorCount = 3
+    错词弹窗 --> 下一关加载中 : 关闭弹窗
     下一关加载中 --> 关卡进行中 : 新棋盘渲染完成
-    胜利结果页 --> StartPage : 动画结束 / 点击再来一次
-    失败结果页 --> 错词回顾页 : 动画结束 / 点击再来一次
-    错词回顾页 --> StartPage : 点击关闭按钮
+    胜利结果页 --> UserPage : 动画结束 / 点击按钮
+    失败结果页 --> UserPage : 动画结束 / 点击按钮
 ```
 
 ### 8.3 ErrorCount 生命周期
 
-- 初始值：0（游戏开始时从 sessionStorage 读取，若不存在则为 0）
-- 增加条件：提交后存在错误字母（且当前 ErrorCount < 3）
+- 初始值：0（游戏开始时设为 0）
+- 增加条件：提交后存在错误单词，每错 1 个单词 `errorCount++`
 - **不会重置**的操作：点击取消、进入下一关
-- 重置条件：返回 StartPage（无论胜利/失败/主动退出）
+- 重置条件：返回 UserPage（无论胜利/失败/主动退出）
+- **特殊规则**：单关错词 ≥3 或累计 ErrorCount ≥3 立即触发游戏结束
 
 ### 8.4 关卡序列管理（localStorage 进度）
 
@@ -1066,6 +1075,35 @@ localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
 ## Error Handling
 
 *（错误处理策略）*
+
+### 2.11 UserManager（用户管理器）
+
+| 属性 | 说明 |
+|------|------|
+| **运行环境** | 浏览器，`user-manager.js` |
+| **输入** | 用户昵称、PuzzleSet 数组 |
+| **输出** | 用户数据、关卡序列列表 |
+| **职责** | 管理用户的增删改查；维护每个用户的进度（已通过/不通过关卡）和错词表；Cookie 7 天自动登录；**生成本局关卡序列**（3 关中强制混入 1 道不通过的关卡）；每个错词记录错误次数 |
+
+### 2.12 WrongWordModal（错词弹窗）
+
+| 属性 | 说明 |
+|------|------|
+| **运行环境** | 浏览器，`wrong-word-modal.js` |
+| **输入** | 错词列表（`{word, meaning}[]`）、扣减次数 |
+| **输出** | 关闭后触发回调 |
+| **职责** | 游戏中每关提交后，若有错词则弹出 Modal 展示本关错词列表（含单词和中文）；显示本次扣减的机会次数；用户关闭后自动进入下一关 |
+
+### 2.13 UserPage（用户页面）
+
+| 属性 | 说明 |
+|------|------|
+| **运行环境** | 浏览器，`user.html` + `user-page.js` |
+| **输入** | URL 参数 `user` |
+| **输出** | 跳转至 `game.html` / 管理操作 |
+| **职责** | 展示用户统计数据（已通过关数、不通过关数、错词总数）；提供"继续游戏"、"错词表"、"重置"、"删除用户"、"切换用户"按钮；错词表以大弹窗展示，含排序和分页 |
+
+---
 
 ## 10. 错误处理策略
 

@@ -2,23 +2,22 @@
  * game-controller.js — GameController 模块
  *
  * 负责：
- *   - 加载单个 PuzzleSet JSON 文件（包含所有难度的题目）
- *   - 从 localStorage 读取进度，跳过已使用的题目
- *   - 随机抽取 3 题作为一局游戏
- *   - 每关完成后将 puzzleId 记入 localStorage
- *   - 维护 ErrorCount
- *   - 执行答案比对（不区分大小写）
- *   - 触发胜利/失败流程
- *   - 更新进度文字和星星
+ *   - 加载单个 PuzzleSet JSON 文件
+ *   - 读取当前用户，通过 UserManager 获取关卡序列
+ *   - 按单词逐一比对答案，错词记录到用户档案
+ *   - 每关错词扣减对应次数，3 次机会用完则游戏结束
+ *   - 自动进入下一关，失败关卡标记为"不通过"
+ *   - 计时器超时处理
  */
 
 import { PuzzleBoard } from './puzzle-board.js';
 import { DataSourceConfig } from './data-source-config.js';
 import { LetterSelectionPanel } from './letter-selection-panel.js';
 import { Timer } from './timer.js';
+import { WrongWordModal } from './wrong-word-modal.js';
+import { UserManager } from './user-manager.js';
 import { sampleWithoutReplacement, checkAnswer, qs } from './utils.js';
 
-const STORAGE_KEY = 'crossword-game-progress';
 const LEVELS_PER_GAME = 3;
 
 /** @type {Object} */
@@ -30,6 +29,7 @@ let gameState = {
   errorCount: 0,
   totalLevels: 0,
   puzzleSets: [],
+  currentUser: '',
 };
 
 /** @type {PuzzleBoard} */
@@ -51,6 +51,11 @@ async function init() {
     puzzleBoard
   );
 
+  const wrongWordsModal = new WrongWordModal(
+    document.getElementById('wrong-word-modal')
+  );
+  window.__wrongWordsModal = wrongWordsModal;
+
   puzzleBoard.setOnLetterRemoved((letter) => {
     letterPanel.restoreLetter(letter);
   });
@@ -61,8 +66,9 @@ async function init() {
   const params = new URLSearchParams(window.location.search);
   const scope = params.get('scope');
   const difficulty = params.get('difficulty') || 'easy';
+  const user = params.get('user') || sessionStorage.getItem('crossword-current-user') || '';
 
-  if (!scope) {
+  if (!scope || !user) {
     showToast('参数错误，返回首页');
     setTimeout(() => goToStart(), 2000);
     return;
@@ -71,6 +77,7 @@ async function init() {
   gameState.scope = scope;
   gameState.difficulty = difficulty;
   gameState.errorCount = 0;
+  gameState.currentUser = user;
 
   try {
     await loadPuzzleSets();
@@ -112,8 +119,7 @@ async function loadPuzzleSets() {
 }
 
 /**
- * 从 localStorage 读取进度，随机选取 3 个未使用的 puzzleId。
- * 如果全部用完，则重新开始循环（随机选取 3 个）。
+ * 通过 UserManager 生成含不通过关卡的序列。
  */
 function initLevelSequence() {
   const allPuzzles = gameState.puzzleSets;
@@ -122,27 +128,23 @@ function initLevelSequence() {
     throw new Error('关卡数据不足，无法开始游戏');
   }
 
-  const progress = loadProgress(gameState.scope);
-  const usedIds = progress ? progress.usedIds : [];
+  const levelIds = UserManager.generateLevelSequence(
+    gameState.currentUser,
+    gameState.scope,
+    allPuzzles
+  );
 
-  // 找出未使用的题目
-  const unusedPuzzles = allPuzzles.filter(p => !usedIds.includes(p.id));
-
-  let selectedPuzzles;
-  if (unusedPuzzles.length >= LEVELS_PER_GAME) {
-    // 从未使用的题目中随机抽取
-    selectedPuzzles = sampleWithoutReplacement(unusedPuzzles, LEVELS_PER_GAME);
-  } else {
-    // 全部用完，重新循环：从未使用的题目 + 随机补充
-    const remaining = sampleWithoutReplacement(unusedPuzzles, unusedPuzzles.length);
-    const extraCount = LEVELS_PER_GAME - unusedPuzzles.length;
-    const extra = sampleWithoutReplacement(allPuzzles, extraCount);
-    selectedPuzzles = [...remaining, ...extra];
+  // 保证刚好 3 关
+  while (levelIds.length < LEVELS_PER_GAME) {
+    const unused = allPuzzles.filter(p => !levelIds.includes(p.id));
+    if (unused.length === 0) break;
+    const pick = unused[Math.floor(Math.random() * unused.length)];
+    levelIds.push(pick.id);
   }
 
-  gameState.levels = selectedPuzzles.map(p => p.id);
+  gameState.levels = levelIds.slice(0, LEVELS_PER_GAME);
   gameState.currentLevelIndex = 0;
-  gameState.totalLevels = selectedPuzzles.length;
+  gameState.totalLevels = gameState.levels.length;
 
   saveGameState();
 }
@@ -201,15 +203,15 @@ function updateAchievementBadge() {
   const badge = document.getElementById('achievement-badge');
   if (!badge) return;
 
-  const progress = loadProgress(gameState.scope);
-  if (!progress || progress.total === 0) {
+  const user = UserManager.getUser(gameState.currentUser);
+  if (!user) {
     badge.innerHTML = '';
     return;
   }
 
-  const used = progress.usedIds.length;
-  const total = progress.total;
-  const percent = total > 0 ? used / total : 0;
+  const passed = user.progress.passedLevels.length;
+  const total = gameState.puzzleSets.length;
+  const percent = total > 0 ? passed / total : 0;
 
   if (percent >= 1) {
     badge.textContent = '⭐⭐⭐';
@@ -247,12 +249,15 @@ function handleSubmit() {
     return;
   }
 
-  const allCorrect = checkAllAnswers(values, puzzleSet);
+  // 按单词逐一检查，收集错词
+  const wrongWords = collectWrongWords(values, puzzleSet);
 
-  if (allCorrect) {
-    handleCorrectAnswer();
+  if (wrongWords.length === 0) {
+    // 全部正确
+    handleAllCorrect();
   } else {
-    handleIncorrectAnswer();
+    // 有错词
+    handleWithWrongWords(wrongWords, puzzleSet);
   }
 }
 
@@ -267,52 +272,9 @@ function hasEmptyCells(values) {
   return false;
 }
 
-function checkAllAnswers(values, puzzleSet) {
-  for (const word of puzzleSet.words) {
-    const { word: correctWord, row, col, direction } = word;
-
-    for (let i = 0; i < correctWord.length; i++) {
-      const r = direction === 'across' ? row : row + i;
-      const c = direction === 'across' ? col + i : col;
-
-      if (puzzleBoard.isHintCell(r, c)) continue;
-
-      const userValue = (values[r]?.[c] || '').toUpperCase();
-      if (userValue !== correctWord[i].toUpperCase()) {
-        return false;
-      }
-    }
-  }
-
-  return true;
-}
-
 /**
- * 答对时：将当前 puzzleId 记入 localStorage，然后进入下一关或胜利。
- */
-function handleCorrectAnswer() {
-  // 将当前 puzzleId 记入进度
-  saveProgress(gameState.scope, gameState.levels[gameState.currentLevelIndex]);
-
-  if (gameState.currentLevelIndex >= gameState.totalLevels - 1) {
-    triggerWin();
-  } else {
-    showToast('回答正确！');
-    setTimeout(() => {
-      loadLevel(gameState.currentLevelIndex + 1);
-      updateAchievementBadge();
-    }, 1000);
-  }
-}
-
-/**
- * 收集当前关卡中用户填错的单词。
- * 遍历每个单词的每个字母，跳过预填提示格，对比用户输入值和正确答案。
- * 只要某个单词有任意一个字母填错，就把该单词（含中文意思）收集进来。
- *
- * @param {Object} values - 当前棋盘所有格子的值 { row: { col: value } }
- * @param {Object} puzzleSet - 当前关卡的 PuzzleSet 数据
- * @returns {{ word: string, meaning: string }[]} 错误单词列表（已去重）
+ * 收集当前关卡中用户填错的单词
+ * @returns {{ word: string, meaning: string }[]}
  */
 function collectWrongWords(values, puzzleSet) {
   const wrongWords = [];
@@ -344,22 +306,63 @@ function collectWrongWords(values, puzzleSet) {
   return wrongWords;
 }
 
-function handleIncorrectAnswer() {
-  if (gameState.errorCount >= MAX_ERRORS - 1) {
-    // 最后一次机会用尽，收集当前关的错词
-    const values = puzzleBoard.getValues();
-    const puzzleSet = puzzleBoard.getPuzzleSet();
-    gameState.wrongWords = collectWrongWords(values, puzzleSet);
+/**
+ * 全部正确 → 标记通过（移除失败标记），移除本关单词的错词记录，进入下一关或胜利
+ */
+function handleAllCorrect() {
+  const puzzleId = gameState.levels[gameState.currentLevelIndex];
+  UserManager.markLevelPassed(gameState.currentUser, puzzleId);
 
-    gameState.errorCount = MAX_ERRORS;
-    updateErrorCountText();
-    triggerFail();
+  // 从用户错词表中移除本关所有单词（因为全都答对了）
+  const puzzleSet = puzzleBoard.getPuzzleSet();
+  const correctWords = puzzleSet.words.map(w => w.word.toUpperCase());
+  UserManager.removeWrongWords(gameState.currentUser, correctWords);
+
+  if (gameState.currentLevelIndex >= gameState.totalLevels - 1) {
+    triggerWin();
   } else {
-    gameState.errorCount++;
-    updateErrorCountText();
-    const remaining = MAX_ERRORS - gameState.errorCount;
-    showToast(`答案有误，请再检查一下！（剩余机会：${remaining} 次）`);
+    showToast('回答正确！');
+    setTimeout(() => {
+      loadLevel(gameState.currentLevelIndex + 1);
+      updateAchievementBadge();
+    }, 1000);
   }
+}
+
+/**
+ * 有错词 → 扣减次数 + 记录错词 + 标记关卡不通过 + 展示弹窗
+ */
+function handleWithWrongWords(wrongWords, puzzleSet) {
+  const puzzleId = gameState.levels[gameState.currentLevelIndex];
+  const wrongCount = wrongWords.length;
+
+  // 扣减机会
+  gameState.errorCount += wrongCount;
+  updateErrorCountText();
+
+  // 记录错词到用户档案
+  UserManager.addWrongWords(gameState.currentUser, wrongWords);
+
+  // 标记关卡不通过
+  UserManager.markLevelFailed(gameState.currentUser, puzzleId);
+
+  // 判断是否游戏结束（单关 3+ 错词 或 总机会 ≥3）
+  if (wrongCount >= 3 || gameState.errorCount >= MAX_ERRORS) {
+    gameState.errorCount = Math.min(gameState.errorCount, MAX_ERRORS);
+    triggerFail();
+    return;
+  }
+
+  // 展示错词弹窗，关闭后自动进入下一关
+  const modal = window.__wrongWordsModal;
+  modal.show(wrongWords, wrongCount, () => {
+    if (gameState.currentLevelIndex >= gameState.totalLevels - 1) {
+      // 最后一关虽有错词，但未达到失败条件 → 仍需回到用户页
+      goToUserPage();
+    } else {
+      loadLevel(gameState.currentLevelIndex + 1);
+    }
+  });
 }
 
 function triggerWin() {
@@ -368,7 +371,7 @@ function triggerWin() {
     errorCount: gameState.errorCount,
   }));
   sessionStorage.removeItem('gameState');
-  window.location.href = 'result.html';
+  window.location.href = `result.html?user=${encodeURIComponent(gameState.currentUser)}`;
 }
 
 /**
@@ -377,7 +380,15 @@ function triggerWin() {
 function handleTimeout() {
   const values = puzzleBoard.getValues();
   const puzzleSet = puzzleBoard.getPuzzleSet();
-  gameState.wrongWords = collectWrongWords(values, puzzleSet);
+  const wrongWords = collectWrongWords(values, puzzleSet);
+
+  // 记录错词
+  UserManager.addWrongWords(gameState.currentUser, wrongWords);
+
+  // 标记关卡不通过
+  const puzzleId = gameState.levels[gameState.currentLevelIndex];
+  UserManager.markLevelFailed(gameState.currentUser, puzzleId);
+
   gameState.errorCount = MAX_ERRORS;
   updateErrorCountText();
   triggerFail();
@@ -387,69 +398,25 @@ function triggerFail() {
   sessionStorage.setItem('gameResult', JSON.stringify({
     result: 'fail',
     errorCount: gameState.errorCount,
+    user: gameState.currentUser,
   }));
 
-  // 将错词数据写入 sessionStorage，供错词页读取
-  if (gameState.wrongWords && gameState.wrongWords.length > 0) {
-    sessionStorage.setItem('wrongWords', JSON.stringify(gameState.wrongWords));
-  }
-
   sessionStorage.removeItem('gameState');
-  window.location.href = 'result.html';
+  window.location.href = `result.html?user=${encodeURIComponent(gameState.currentUser)}`;
 }
 
 function saveGameState() {
   sessionStorage.setItem('gameState', JSON.stringify(gameState));
 }
 
-/**
- * 从 localStorage 读取指定单词库的进度。
- * @param {string} scope
- * @returns {{ usedIds: number[], total: number }|null}
- */
-function loadProgress(scope) {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-
-    const all = JSON.parse(raw);
-    return all[scope] || null;
-  } catch (e) {
-    return null;
-  }
-}
-
-/**
- * 将完成的 puzzleId 记入 localStorage 进度。
- * 如果该 scope 尚无记录，则创建新记录。
- * @param {string} scope
- * @param {number} puzzleId
- */
-function saveProgress(scope, puzzleId) {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    let all = raw ? JSON.parse(raw) : {};
-
-    if (!all[scope]) {
-      all[scope] = { usedIds: [], total: gameState.puzzleSets.length };
-    }
-
-    if (!all[scope].usedIds.includes(puzzleId)) {
-      all[scope].usedIds.push(puzzleId);
-    }
-
-    // 更新 total（以防数据文件更新）
-    all[scope].total = gameState.puzzleSets.length;
-
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
-  } catch (e) {
-    console.warn('保存进度失败:', e);
-  }
-}
-
 function goToStart() {
   sessionStorage.removeItem('gameState');
   window.location.href = 'start.html';
+}
+
+function goToUserPage() {
+  sessionStorage.removeItem('gameState');
+  window.location.href = `user.html?user=${encodeURIComponent(gameState.currentUser)}`;
 }
 
 function showToast(message) {

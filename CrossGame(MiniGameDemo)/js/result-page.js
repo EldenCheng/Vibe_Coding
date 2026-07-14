@@ -6,13 +6,17 @@
  *   - 根据结果显示胜利/失败动画和文字
  *   - 启动自动跳转计时器
  *   - 处理"再来一次"按钮点击
- *   - 失败时跳转到错词页（wrong-words.html）
+ *   - 跳转到用户页面
  */
 
 let autoReturnTimer = null;
 let gameResult = 'fail';
+let currentUser = '';
 
 function init() {
+  const params = new URLSearchParams(window.location.search);
+  currentUser = params.get('user') || '';
+
   const result = loadGameResult();
   gameResult = result.result;
 
@@ -85,19 +89,16 @@ function handleRetry() {
 }
 
 /**
- * 根据游戏结果决定跳转目标：
- * - 失败 → wrong-words.html（错词页）
- * - 胜利 → start.html
+ * 无论胜利还是失败，都跳转到用户页面
  */
 function navigateNext() {
   sessionStorage.removeItem('gameResult');
   sessionStorage.removeItem('gameState');
 
-  if (gameResult === 'fail') {
-    window.location.href = 'wrong-words.html';
-  } else {
-    window.location.href = 'start.html';
-  }
+  const url = currentUser
+    ? `user.html?user=${encodeURIComponent(currentUser)}`
+    : 'start.html';
+  window.location.href = url;
 }
 
 document.addEventListener('DOMContentLoaded', init);

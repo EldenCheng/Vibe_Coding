@@ -306,3 +306,82 @@
   background: linear-gradient(135deg, #FF69B4 0%, #FF1493 100%);
   color: white;
 }
+
+/* ── 错词弹窗 ── */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-overlay.hidden {
+  display: none;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 24px;
+  padding: 28px 24px;
+  max-width: 360px;
+  width: 90%;
+  position: relative;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.modal-title {
+  font-size: 22px;
+  color: #D11174;
+  margin: 0;
+}
+
+.modal-wrong-words-list {
+  list-style: none;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+.modal-wrong-word-item {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid #FFF0F5;
+  font-size: 16px;
+}
+
+.modal-wrong-word-item .word-en {
+  color: #D11174;
+  font-weight: bold;
+  font-family: 'Fredoka One', monospace;
+}
+
+.modal-wrong-word-item .word-zh {
+  color: #666;
+}
+
+.modal-chances-info {
+  font-size: 14px;
+  color: #DC143C;
+  margin: 0;
+}
+
+.modal-close-btn {
+  width: 100%;
+  min-height: 44px;
+  font-size: 16px;
+  font-family: inherit;
+  border-radius: 30px;
+  cursor: pointer;
+}
