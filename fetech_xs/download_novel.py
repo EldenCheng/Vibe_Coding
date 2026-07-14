@@ -105,7 +105,7 @@ def fetch_book_info(session, chapters_url):
 def extract_chapters(soup, source_id):
     """
     解析 <ul class="mulu_list"> 中的章节链接
-    过滤掉卷标（如"第一部 黄昏篇"），只保留含"章"字的正式章节
+    过滤掉卷标（如"第一部 黄昏篇"），保留所有正式章节
     返回按顺序排列的章节列表
     """
     chapters = []
@@ -116,8 +116,8 @@ def extract_chapters(soup, source_id):
             continue
         title = a.get_text(strip=True)
         href = a.get("href", "")
-        # 跳过不含"章"的链接（卷标/分卷标题）
-        if "章" not in title:
+        # 跳过卷标（如"第一部 黄昏篇"），只保留正式章节
+        if re.match(r'^第[^章]+[部卷篇集]', title):
             continue
         # 提取章节 hash（URL 中的十六进制部分）
         m = re.search(r"/book/\d+/([a-f0-9]+)\.html", href)
