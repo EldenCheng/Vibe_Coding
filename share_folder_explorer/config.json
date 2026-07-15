@@ -1,0 +1,12 @@
+{
+    "share_path": "\\\\192.168.8.199\\upload",
+    "domain": "wesoft.com",
+    "server": {
+        "host": "0.0.0.0",
+        "port": 80
+    },
+    "session": {
+        "max_age_hours": 24,
+        "cleanup_interval_minutes": 60
+    }
+}

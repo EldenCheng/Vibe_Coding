@@ -1,0 +1,3 @@
+flask
+smbprotocol
+cryptography

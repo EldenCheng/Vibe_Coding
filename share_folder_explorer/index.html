@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Share Folder Explorer</title>
+    <style>
+        /* ── CSS Reset & Variables ─────────────────────────────────── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --primary:      #2563eb;
+            --primary-dark: #1d4ed8;
+            --danger:       #ef4444;
+            --success:      #10b981;
+            --bg:           #f1f5f9;
+            --surface:      #ffffff;
+            --border:       #e2e8f0;
+            --text:         #1e293b;
+            --text-muted:   #64748b;
+            --radius:       12px;
+            --radius-sm:    8px;
+            --shadow:       0 1px 3px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.06);
+            --shadow-lg:    0 8px 32px rgba(0,0,0,.12);
+            --safe-bottom:  env(safe-area-inset-bottom, 0px);
+        }
+
+        html, body {
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                         "Helvetica Neue", Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── Utility ───────────────────────────────────────────────── */
+        .hidden { display: none !important; }
+
+        /* ── Toast notification ────────────────────────────────────── */
+        #toast {
+            position: fixed;
+            bottom: calc(80px + var(--safe-bottom));
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: #1e293b;
+            color: #fff;
+            padding: .6rem 1.2rem;
+            border-radius: 99px;
+            font-size: .875rem;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity .25s, transform .25s;
+            z-index: 9999;
+            pointer-events: none;
+        }
+        #toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        #toast.error { background: var(--danger); }
+
+        /* ── Loading overlay ───────────────────────────────────────── */
+        #loading {
+            position: fixed; inset: 0;
+            background: rgba(255,255,255,.7);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 8000;
+            backdrop-filter: blur(2px);
+        }
+        .spinner {
+            width: 36px; height: 36px;
+            border: 3px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin .7s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── Login View ────────────────────────────────────────────── */
+        #login-view {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+        .login-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            padding: 2rem 1.75rem;
+            width: 100%;
+            max-width: 400px;
+        }
+        .login-card h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: .25rem;
+        }
+        .login-card .subtitle {
+            color: var(--text-muted);
+            font-size: .875rem;
+            margin-bottom: 1.75rem;
+        }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label {
+            display: block;
+            font-size: .875rem;
+            font-weight: 600;
+            margin-bottom: .4rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+        .form-group input {
+            width: 100%;
+            padding: .75rem 1rem;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 1rem;
+            outline: none;
+            transition: border-color .2s;
+            background: var(--bg);
+        }
+        .form-group input:focus { border-color: var(--primary); background: #fff; }
+        .btn-login {
+            width: 100%;
+            padding: .875rem;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: .5rem;
+            transition: background .2s;
+        }
+        .btn-login:hover { background: var(--primary-dark); }
+        .btn-login:active { opacity: .85; }
+        #login-error {
+            color: var(--danger);
+            font-size: .875rem;
+            margin-top: .875rem;
+            padding: .6rem .875rem;
+            background: #fef2f2;
+            border-radius: var(--radius-sm);
+            border: 1px solid #fecaca;
+        }
+
+        /* ── Explorer Layout ───────────────────────────────────────── */
+        #explorer-view {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            height: 100dvh;   /* dynamic viewport height for mobile */
+        }
+
+        /* Top app bar */
+        .app-bar {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: .75rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            flex-shrink: 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .app-bar-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .app-bar .user-badge {
+            font-size: .8rem;
+            color: var(--text-muted);
+            background: var(--bg);
+            padding: .3rem .7rem;
+            border-radius: 99px;
+            border: 1px solid var(--border);
+            white-space: nowrap;
+        }
+        .icon-btn {
+            width: 40px; height: 40px;
+            border: none;
+            background: transparent;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            transition: background .15s;
+            flex-shrink: 0;
+        }
+        .icon-btn:hover { background: var(--bg); color: var(--text); }
+
+        /* Breadcrumb */
+        .breadcrumb-bar {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: .5rem 1rem;
+            overflow-x: auto;
+            white-space: nowrap;
+            flex-shrink: 0;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        .breadcrumb-bar::-webkit-scrollbar { display: none; }
+        .breadcrumb-bar span {
+            font-size: .8rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: .2rem .4rem;
+            border-radius: 4px;
+            transition: background .15s;
+        }
+        .breadcrumb-bar span:hover { background: var(--bg); color: var(--text); }
+        .breadcrumb-bar .sep { color: #cbd5e1; margin: 0 .1rem; pointer-events: none; cursor: default; }
+        .breadcrumb-bar span.current { color: var(--text); font-weight: 600; pointer-events: none; cursor: default; }
+
+        /* File list area */
+        .file-area {
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: .75rem .75rem calc(80px + var(--safe-bottom)) .75rem;
+        }
+
+        /* ── File Cards (mobile default) ──────────────────────────── */
+        .file-list { display: flex; flex-direction: column; gap: .4rem; }
+
+        .file-item {
+            background: var(--surface);
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: .75rem;
+            padding: .75rem 1rem;
+            cursor: pointer;
+            transition: background .15s, box-shadow .15s;
+            -webkit-tap-highlight-color: transparent;
+            position: relative;
+        }
+        .file-item:hover { background: #f8fafc; box-shadow: var(--shadow); }
+        .file-item:active { background: #f1f5f9; }
+        .file-item.is-file { cursor: default; }
+
+        .file-icon {
+            font-size: 1.75rem;
+            flex-shrink: 0;
+            width: 40px;
+            text-align: center;
+            line-height: 1;
+        }
+        .file-info { flex: 1; min-width: 0; }
+        .file-name {
+            font-size: .95rem;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .file-meta {
+            font-size: .75rem;
+            color: var(--text-muted);
+            margin-top: .15rem;
+        }
+        .file-actions {
+            display: flex;
+            gap: .35rem;
+            flex-shrink: 0;
+        }
+        .act-btn {
+            padding: .35rem .65rem;
+            border: none;
+            border-radius: 6px;
+            font-size: .75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity .15s;
+            white-space: nowrap;
+        }
+        .act-btn:active { opacity: .7; }
+        .act-dl  { background: #dbeafe; color: #1d4ed8; }
+        .act-del { background: #fee2e2; color: #dc2626; }
+
+        /* ── Bottom toolbar (mobile) ───────────────────────────────── */
+        .bottom-bar {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: .5rem;
+            padding: .6rem .75rem calc(.6rem + var(--safe-bottom)) .75rem;
+            z-index: 200;
+        }
+        .bottom-btn {
+            flex: 1;
+            padding: .7rem .5rem;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: .875rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: .4rem;
+            transition: opacity .15s;
+        }
+        .bottom-btn:active { opacity: .75; }
+        .btn-new-folder { background: #dbeafe; color: var(--primary-dark); }
+        .btn-upload     { background: #d1fae5; color: #065f46; }
+
+        /* ── Desktop overrides (≥768px) ───────────────────────────── */
+        @media (min-width: 768px) {
+            body { background: var(--bg); }
+
+            #explorer-view {
+                max-width: 1200px;
+                margin: 0 auto;
+                height: 100vh;
+                box-shadow: var(--shadow-lg);
+            }
+
+            .app-bar { padding: .875rem 1.5rem; }
+            .app-bar-title { font-size: 1.1rem; }
+
+            .breadcrumb-bar { padding: .5rem 1.5rem; }
+
+            .file-area {
+                padding: 1rem 1.5rem calc(1rem + 60px) 1.5rem;
+            }
+
+            /* Switch to table on desktop */
+            .file-list { display: table; width: 100%; border-collapse: collapse; gap: 0; }
+            .file-list-head {
+                display: table-header-group;
+            }
+            .file-list-head .file-item {
+                background: var(--bg);
+                font-size: .8rem;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: .05em;
+                color: var(--text-muted);
+                cursor: default;
+                border-radius: 0;
+                border: none;
+                border-bottom: 2px solid var(--border);
+                padding: .6rem 1rem;
+            }
+            .file-list-head .file-item:hover { background: var(--bg); box-shadow: none; }
+            .file-list-body { display: table-row-group; }
+            .file-item {
+                display: table-row;
+                border-radius: 0;
+                border: none;
+                border-bottom: 1px solid var(--border);
+                padding: 0;
+            }
+            .file-item > * { display: table-cell; vertical-align: middle; padding: .7rem 1rem; }
+            .file-item:hover { background: #f8fafc; }
+
+            .file-icon { width: 48px; font-size: 1.4rem; }
+            .file-name  { font-size: .9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 340px; }
+            .file-meta  { font-size: .8rem; white-space: nowrap; }
+            .col-size   { width: 90px; }
+            .col-date   { width: 160px; }
+            .col-action { width: 130px; }
+            .file-info  { display: table-cell; vertical-align: middle; }
+
+            /* On desktop the file-info cell shows name only; meta moves to own cells */
+            .file-meta-desktop { display: table-cell; vertical-align: middle; }
+            .file-meta-mobile  { display: none; }
+
+            .bottom-bar { padding: .6rem 1.5rem; }
+            .bottom-btn { flex: 0 0 auto; padding: .6rem 1.25rem; }
+        }
+
+        @media (max-width: 767px) {
+            .file-list-head    { display: none; }
+            .file-meta-desktop { display: none; }
+            .file-meta-mobile  { display: block; }
+            .file-info { min-width: 0; }
+        }
+
+        /* ── Confirm dialog ────────────────────────────────────────── */
+        .dialog-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,.45);
+            display: flex; align-items: flex-end; justify-content: center;
+            z-index: 5000;
+            padding-bottom: var(--safe-bottom);
+        }
+        @media (min-width: 768px) {
+            .dialog-overlay { align-items: center; }
+        }
+        .dialog-box {
+            background: var(--surface);
+            border-radius: var(--radius) var(--radius) 0 0;
+            padding: 1.5rem 1.5rem calc(1.5rem + var(--safe-bottom));
+            width: 100%;
+            max-width: 420px;
+        }
+        @media (min-width: 768px) {
+            .dialog-box { border-radius: var(--radius); padding: 1.5rem; }
+        }
+        .dialog-box h3 { font-size: 1rem; margin-bottom: .5rem; }
+        .dialog-box p  { font-size: .9rem; color: var(--text-muted); margin-bottom: 1.25rem; }
+        .dialog-box input {
+            width: 100%; padding: .7rem .9rem;
+            border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+            font-size: 1rem; outline: none; margin-bottom: 1rem;
+        }
+        .dialog-box input:focus { border-color: var(--primary); }
+        .dialog-actions { display: flex; gap: .5rem; }
+        .dialog-actions button {
+            flex: 1; padding: .75rem; border: none; border-radius: var(--radius-sm);
+            font-size: .9rem; font-weight: 700; cursor: pointer;
+        }
+        .btn-cancel  { background: var(--bg); color: var(--text-muted); }
+        .btn-confirm { background: var(--primary); color: #fff; }
+        .btn-confirm-danger { background: var(--danger); color: #fff; }
+
+    </style>
+</head>
+
+<body>
+
+<!-- ── Toast ──────────────────────────────────────────────────────── -->
+<div id="toast"></div>
+
+<!-- ── Loading ────────────────────────────────────────────────────── -->
+<div id="loading" class="hidden"><div class="spinner"></div></div>
+
+<!-- ── Login View ─────────────────────────────────────────────────── -->
+<div id="login-view">
+    <div class="login-card">
+        <h1>📁 Share Explorer</h1>
+        <p class="subtitle">请输入工作机的用户名（不包括域名）与密码</p>
+        <div class="form-group">
+            <label>用户名</label>
+            <input type="text" id="username" placeholder="e.g. jdoe" autocomplete="username"
+                   autocorrect="off" autocapitalize="none" spellcheck="false">
+        </div>
+        <div class="form-group">
+            <label>密码</label>
+            <input type="password" id="password" autocomplete="current-password">
+        </div>
+        <button class="btn-login" id="login-btn">登录</button>
+        <p id="login-error" class="hidden"></p>
+    </div>
+</div>
+
+<!-- ── Explorer View ──────────────────────────────────────────────── -->
+<div id="explorer-view" class="hidden">
+
+    <!-- App Bar -->
+    <div class="app-bar">
+        <span class="app-bar-title">📁 Share Explorer</span>
+        <span class="user-badge" id="user-display"></span>
+        <button class="icon-btn" id="switch-user-btn" title="切换用户 / 登出">⇄</button>
+    </div>
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb-bar" id="breadcrumb"></div>
+
+    <!-- File area -->
+    <div class="file-area" id="file-area">
+        <!-- Desktop table header (hidden on mobile via CSS) -->
+        <div class="file-list" id="file-list">
+            <div class="file-list-head">
+                <div class="file-item">
+                    <span class="file-icon"></span>
+                    <span class="file-info">名称</span>
+                    <span class="file-meta-desktop col-size">大小</span>
+                    <span class="file-meta-desktop col-date">修改时间</span>
+                    <span class="file-meta-desktop col-action">操作</span>
+                </div>
+            </div>
+            <div class="file-list-body" id="file-list-body"></div>
+        </div>
+    </div>
+
+    <!-- Bottom toolbar -->
+    <div class="bottom-bar">
+        <button class="bottom-btn btn-new-folder" id="new-dir-btn">📂 新建文件夹</button>
+        <button class="bottom-btn btn-upload"     id="upload-btn">⬆ 上传文件</button>
+        <input type="file" id="file-input" class="hidden" multiple>
+    </div>
+
+</div>
+
+<!-- ── Dialog ─────────────────────────────────────────────────────── -->
+<div id="dialog-overlay" class="dialog-overlay hidden">
+    <div class="dialog-box">
+        <h3 id="dialog-title"></h3>
+        <p  id="dialog-msg"></p>
+        <input type="text" id="dialog-input" class="hidden" placeholder="">
+        <div class="dialog-actions">
+            <button class="btn-cancel"  id="dialog-cancel">取消</button>
+            <button class="btn-confirm" id="dialog-ok">确定</button>
+        </div>
+    </div>
+</div>
+
+
+<script>
+'use strict';
+
+// ── State ──────────────────────────────────────────────────────────
+let currentToken    = localStorage.getItem('session_token');
+let currentUsername = '';
+let currentPath     = '/';
+
+// ── DOM refs ───────────────────────────────────────────────────────
+const loginView    = document.getElementById('login-view');
+const explorerView = document.getElementById('explorer-view');
+const fileListBody = document.getElementById('file-list-body');
+const breadcrumb   = document.getElementById('breadcrumb');
+const userDisplay  = document.getElementById('user-display');
+const loadingEl    = document.getElementById('loading');
+const toastEl      = document.getElementById('toast');
+
+// ── Toast ──────────────────────────────────────────────────────────
+let toastTimer;
+function showToast(msg, isError = false) {
+    clearTimeout(toastTimer);
+    toastEl.textContent = msg;
+    toastEl.className   = isError ? 'show error' : 'show';
+    toastTimer = setTimeout(() => { toastEl.className = ''; }, 3000);
+}
+
+// ── Loading ────────────────────────────────────────────────────────
+function setLoading(on) { loadingEl.classList.toggle('hidden', !on); }
+
+// ── Dialog (replaces alert/prompt/confirm) ─────────────────────────
+function showDialog({ title, msg = '', input = false, placeholder = '', danger = false }) {
+    return new Promise(resolve => {
+        const overlay  = document.getElementById('dialog-overlay');
+        const titleEl  = document.getElementById('dialog-title');
+        const msgEl    = document.getElementById('dialog-msg');
+        const inputEl  = document.getElementById('dialog-input');
+        const okBtn    = document.getElementById('dialog-ok');
+        const cancelBtn = document.getElementById('dialog-cancel');
+
+        titleEl.textContent = title;
+        msgEl.textContent   = msg;
+        inputEl.value       = '';
+        inputEl.placeholder = placeholder;
+        inputEl.classList.toggle('hidden', !input);
+        okBtn.className     = danger ? 'btn-confirm-danger' : 'btn-confirm';
+
+        overlay.classList.remove('hidden');
+        if (input) setTimeout(() => inputEl.focus(), 80);
+
+        const finish = (result) => {
+            overlay.classList.add('hidden');
+            okBtn.removeEventListener('click', onOk);
+            cancelBtn.removeEventListener('click', onCancel);
+            inputEl.removeEventListener('keydown', onKey);
+            resolve(result);
+        };
+        const onOk     = () => finish(input ? (inputEl.value.trim() || null) : true);
+        const onCancel = () => finish(null);
+        const onKey    = (e) => { if (e.key === 'Enter') onOk(); if (e.key === 'Escape') onCancel(); };
+
+        okBtn.addEventListener('click', onOk);
+        cancelBtn.addEventListener('click', onCancel);
+        inputEl.addEventListener('keydown', onKey);
+    });
+}
+
+// ── API helper ─────────────────────────────────────────────────────
+async function api(method, url, body, isForm = false) {
+    const headers = { 'Authorization': `Bearer ${currentToken}` };
+    if (!isForm && body) headers['Content-Type'] = 'application/json';
+    const res = await fetch(url, {
+        method,
+        headers,
+        body: isForm ? body : (body ? JSON.stringify(body) : undefined),
+    });
+    return res;
+}
+
+// ── Init ───────────────────────────────────────────────────────────
+async function init() {
+    if (currentToken) {
+        try {
+            const res = await fetch('/api/auth/session', {
+                headers: { 'Authorization': `Bearer ${currentToken}` }
+            });
+            if (res.ok) {
+                const data = await res.json();
+                currentUsername = data.username;
+                showExplorer();
+                return;
+            }
+        } catch (_) { /* fall through */ }
+    }
+    showLogin();
+}
+
+function showLogin() {
+    loginView.classList.remove('hidden');
+    explorerView.classList.add('hidden');
+}
+
+function showExplorer() {
+    loginView.classList.add('hidden');
+    explorerView.classList.remove('hidden');
+    userDisplay.textContent = currentUsername;
+    loadFiles('/');
+}
+
+// ── Login ──────────────────────────────────────────────────────────
+async function login() {
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+    const errorEl  = document.getElementById('login-error');
+    errorEl.classList.add('hidden');
+
+    if (!username || !password) {
+        errorEl.textContent = '请输入用户名和密码';
+        errorEl.classList.remove('hidden');
+        return;
+    }
+
+    setLoading(true);
+    try {
+        // 1. Transport key
+        const keyRes = await fetch('/api/auth/key');
+        if (!keyRes.ok) throw new Error('获取密钥失败');
+        const { key_id, key } = await keyRes.json();
+
+        // 2. XOR encrypt
+        const payload     = `${username}:${password}`;
+        const data        = new TextEncoder().encode(payload);
+        const keyBytes    = new Uint8Array(key.match(/.{2}/g).map(b => parseInt(b, 16)));
+        const encrypted   = data.map((b, i) => b ^ keyBytes[i % keyBytes.length]);
+        const ciphertext  = Array.from(encrypted).map(b => b.toString(16).padStart(2, '0')).join('');
+
+        // 3. Login
+        const res = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ key_id, ciphertext }),
+        });
+
+        if (res.ok) {
+            const d = await res.json();
+            currentToken    = d.token;
+            currentUsername = d.username;
+            localStorage.setItem('session_token', currentToken);
+            showExplorer();
+        } else {
+            const err = await res.json().catch(() => ({}));
+            errorEl.textContent = err.error || '登录失败';
+            errorEl.classList.remove('hidden');
+        }
+    } catch (e) {
+        errorEl.textContent = e.message || '登录时发生错误';
+        errorEl.classList.remove('hidden');
+    } finally {
+        setLoading(false);
+    }
+}
+
+async function switchUser() {
+    const ok = await showDialog({ title: '确认登出', msg: '确定要切换用户/登出吗？', danger: true });
+    if (!ok) return;
+    await api('POST', '/api/auth/switch');
+    localStorage.removeItem('session_token');
+    currentToken = null;
+    location.reload();
+}
+
+// ── File Operations ────────────────────────────────────────────────
+async function loadFiles(path) {
+    currentPath = path;
+    updateBreadcrumb();
+    setLoading(true);
+    try {
+        const res = await api('GET', `/api/files/list?path=${encodeURIComponent(path)}`);
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.error || '加载文件列表失败');
+        }
+        const files = await res.json();
+        renderFileList(files);
+    } catch (e) {
+        showToast(e.message, true);
+    } finally {
+        setLoading(false);
+    }
+}
+
+function getFileIcon(name, isDir) {
+    if (isDir) return '📁';
+    const ext = name.split('.').pop().toLowerCase();
+    const map = {
+        pdf: '📄', doc: '📝', docx: '📝', xls: '📊', xlsx: '📊',
+        ppt: '📋', pptx: '📋', txt: '📃', md: '📃',
+        jpg: '🖼', jpeg: '🖼', png: '🖼', gif: '🖼', webp: '🖼', svg: '🖼',
+        mp4: '🎬', mov: '🎬', avi: '🎬', mkv: '🎬',
+        mp3: '🎵', wav: '🎵', flac: '🎵',
+        zip: '🗜', rar: '🗜', '7z': '🗜', gz: '🗜', tar: '🗜',
+        exe: '⚙️', msi: '⚙️', bat: '⚙️',
+        py: '🐍', js: '📜', ts: '📜', html: '🌐', css: '🎨', json: '🔧',
+    };
+    return map[ext] || '📄';
+}
+
+function renderFileList(files) {
+    fileListBody.innerHTML = '';
+
+    // ".." back entry
+    if (currentPath !== '/') {
+        fileListBody.appendChild(makeFileItem({
+            name: '..', is_dir: true, size: 0, mtime: 0, isBack: true
+        }));
+    }
+
+    // Sort: dirs first, then by name
+    files.sort((a, b) => {
+        if (a.is_dir !== b.is_dir) return a.is_dir ? -1 : 1;
+        return a.name.localeCompare(b.name);
+    });
+
+    files.forEach(f => fileListBody.appendChild(makeFileItem(f)));
+}
+
+function makeFileItem(f) {
+    const el       = document.createElement('div');
+    const icon     = f.isBack ? '↩' : getFileIcon(f.name, f.is_dir);
+    const size     = f.is_dir ? '—' : formatSize(f.size);
+    const date     = f.mtime ? new Date(f.mtime * 1000).toLocaleString('zh-CN', {
+        year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit'
+    }) : '';
+
+    el.className = `file-item${f.is_dir ? '' : ' is-file'}`;
+
+    const actionsHtml = f.isBack ? '' : `
+        <span class="file-actions">
+            ${!f.is_dir ? `<button class="act-btn act-dl"  onclick="event.stopPropagation();downloadFile(${JSON.stringify(f.name)})">下载</button>` : ''}
+            <button class="act-btn act-del" onclick="event.stopPropagation();deleteItem(${JSON.stringify(f.name)}, ${f.is_dir})">删除</button>
+        </span>`;
+
+    el.innerHTML = `
+        <span class="file-icon">${icon}</span>
+        <span class="file-info">
+            <span class="file-name">${escapeHtml(f.isBack ? '返回上级' : f.name)}</span>
+            <span class="file-meta file-meta-mobile">${f.is_dir ? '' : size + ' · '}${date}</span>
+        </span>
+        <span class="file-meta file-meta-desktop col-size">${f.is_dir ? '—' : size}</span>
+        <span class="file-meta file-meta-desktop col-date">${date}</span>
+        <span class="file-meta-desktop col-action">${actionsHtml}</span>
+    `;
+
+    if (f.is_dir) {
+        el.addEventListener('click', () => f.isBack ? navigateUp() : navigateTo(f.name));
+    }
+
+    return el;
+}
+
+function navigateTo(name) {
+    const newPath = (currentPath === '/' ? '' : currentPath) + '/' + name;
+    loadFiles(newPath.replace(/\/+/g, '/'));
+}
+
+function navigateUp() {
+    const parts = currentPath.split('/').filter(Boolean);
+    parts.pop();
+    loadFiles('/' + parts.join('/'));
+}
+
+function updateBreadcrumb() {
+    breadcrumb.innerHTML = '';
+    const parts = currentPath.split('/').filter(Boolean);
+
+    const root = document.createElement('span');
+    root.textContent = '根目录';
+    root.onclick = () => loadFiles('/');
+    breadcrumb.appendChild(root);
+
+    let acc = '';
+    parts.forEach((p, i) => {
+        const sep = document.createElement('span');
+        sep.className = 'sep';
+        sep.textContent = ' / ';
+        breadcrumb.appendChild(sep);
+
+        acc += '/' + p;
+        const span = document.createElement('span');
+        span.textContent = p;
+        if (i === parts.length - 1) {
+            span.className = 'current';
+        } else {
+            const captured = acc;
+            span.onclick = () => loadFiles(captured);
+        }
+        breadcrumb.appendChild(span);
+    });
+
+    // Scroll breadcrumb to end so current dir is visible
+    breadcrumb.scrollLeft = breadcrumb.scrollWidth;
+}
+
+async function newDir() {
+    const name = await showDialog({
+        title: '新建文件夹',
+        input: true,
+        placeholder: '输入文件夹名称',
+    });
+    if (!name) return;
+
+    const targetPath = (currentPath === '/' ? '' : currentPath) + '/' + name;
+    setLoading(true);
+    try {
+        const res = await api('POST', '/api/files/mkdir', { path: targetPath });
+        if (res.ok) {
+            showToast('文件夹已创建');
+            loadFiles(currentPath);
+        } else {
+            const err = await res.json().catch(() => ({}));
+            showToast(err.error || '创建失败', true);
+        }
+    } catch (e) {
+        showToast(e.message, true);
+    } finally {
+        setLoading(false);
+    }
+}
+
+async function uploadFile() {
+    const fileInput = document.getElementById('file-input');
+    fileInput.value = '';
+    fileInput.click();
+}
+
+async function handleFileInputChange() {
+    const fileInput = document.getElementById('file-input');
+    const files = Array.from(fileInput.files);
+    if (!files.length) return;
+
+    setLoading(true);
+    let successCount = 0;
+    let failCount    = 0;
+
+    for (const file of files) {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('path', currentPath);
+        try {
+            const res = await api('POST', '/api/files/upload', formData, true);
+            if (res.ok) successCount++;
+            else failCount++;
+        } catch (_) { failCount++; }
+    }
+
+    setLoading(false);
+
+    if (failCount === 0) {
+        showToast(`已上传 ${successCount} 个文件`);
+    } else {
+        showToast(`${successCount} 个成功，${failCount} 个失败`, true);
+    }
+    loadFiles(currentPath);
+}
+
+async function downloadFile(name) {
+    const targetPath = (currentPath === '/' ? '' : currentPath) + '/' + name;
+    window.location.href = `/api/files/download?path=${encodeURIComponent(targetPath)}`;
+}
+
+async function deleteItem(name, isDir) {
+    const ok = await showDialog({
+        title: '确认删除',
+        msg: `确定要删除 "${name}" 吗？此操作无法撤销。`,
+        danger: true,
+    });
+    if (!ok) return;
+
+    const targetPath = (currentPath === '/' ? '' : currentPath) + '/' + name;
+    setLoading(true);
+    try {
+        const res = await api('POST', '/api/files/delete', { path: targetPath, is_dir: isDir });
+        if (res.ok) {
+            showToast('已删除');
+            loadFiles(currentPath);
+        } else {
+            const err = await res.json().catch(() => ({}));
+            showToast(err.error || '删除失败', true);
+        }
+    } catch (e) {
+        showToast(e.message, true);
+    } finally {
+        setLoading(false);
+    }
+}
+
+// ── Utilities ──────────────────────────────────────────────────────
+function formatSize(bytes) {
+    if (!bytes) return '0 B';
+    const k = 1024, sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return (bytes / Math.pow(k, i)).toFixed(i ? 1 : 0) + ' ' + sizes[i];
+}
+
+function escapeHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+              .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// ── Event Listeners ────────────────────────────────────────────────
+document.getElementById('login-btn').addEventListener('click', login);
+document.getElementById('password').addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
+document.getElementById('switch-user-btn').addEventListener('click', switchUser);
+document.getElementById('new-dir-btn').addEventListener('click', newDir);
+document.getElementById('upload-btn').addEventListener('click', uploadFile);
+document.getElementById('file-input').addEventListener('change', handleFileInputChange);
+
+// Start
+init();
+</script>
+</body>
+</html>
