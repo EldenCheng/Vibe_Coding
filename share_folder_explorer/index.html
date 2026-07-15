@@ -434,6 +434,117 @@
         .btn-confirm { background: var(--primary); color: #fff; }
         .btn-confirm-danger { background: var(--danger); color: #fff; }
 
+        /* ── Action Sheet ──────────────────────────────────────────── */
+        #action-sheet-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,.45);
+            display: flex; align-items: flex-end; justify-content: center;
+            z-index: 6000;
+            padding-bottom: var(--safe-bottom);
+            opacity: 0;
+            transition: opacity .2s;
+            pointer-events: none;
+        }
+        #action-sheet-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .action-sheet {
+            background: var(--surface);
+            border-radius: var(--radius) var(--radius) 0 0;
+            width: 100%;
+            max-width: 480px;
+            padding: 0 0 calc(.5rem + var(--safe-bottom));
+            transform: translateY(100%);
+            transition: transform .25s cubic-bezier(.32,.72,0,1);
+        }
+        #action-sheet-overlay.open .action-sheet {
+            transform: translateY(0);
+        }
+        .action-sheet-header {
+            padding: 1rem 1.25rem .75rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .action-sheet-header .as-filename {
+            font-size: .95rem;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .action-sheet-header .as-filemeta {
+            font-size: .78rem;
+            color: var(--text-muted);
+            margin-top: .2rem;
+        }
+        .action-sheet-item {
+            display: flex;
+            align-items: center;
+            gap: .875rem;
+            padding: .95rem 1.25rem;
+            cursor: pointer;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            font-size: .95rem;
+            font-weight: 500;
+            color: var(--text);
+            transition: background .12s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .action-sheet-item:active { background: var(--bg); }
+        .action-sheet-item .as-icon {
+            width: 36px; height: 36px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+        .as-dl   .as-icon { background: #dbeafe; }
+        .as-del  .as-icon { background: #fee2e2; }
+        .as-del  { color: var(--danger); }
+        .action-sheet-cancel {
+            margin: .25rem .75rem .25rem;
+            padding: .875rem;
+            border: none;
+            border-radius: var(--radius-sm);
+            background: var(--bg);
+            font-size: .95rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            cursor: pointer;
+            width: calc(100% - 1.5rem);
+            -webkit-tap-highlight-color: transparent;
+        }
+        .action-sheet-cancel:active { opacity: .7; }
+
+        /* On desktop show action sheet centered, not bottom-sheet */
+        @media (min-width: 768px) {
+            #action-sheet-overlay {
+                align-items: center;
+            }
+            .action-sheet {
+                border-radius: var(--radius);
+                max-width: 340px;
+                margin-bottom: 0;
+                padding-bottom: .5rem;
+                transform: scale(.95);
+                transition: transform .18s, opacity .18s;
+                opacity: 0;
+            }
+            #action-sheet-overlay.open .action-sheet {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Hide desktop inline action buttons on mobile */
+        @media (max-width: 767px) {
+            .file-actions { display: none !important; }
+            .file-item.is-file { cursor: pointer; }
+        }
+
     </style>
 </head>
 
@@ -516,6 +627,25 @@
     </div>
 </div>
 
+<!-- ── Action Sheet ────────────────────────────────────────────────── -->
+<div id="action-sheet-overlay">
+    <div class="action-sheet">
+        <div class="action-sheet-header">
+            <div class="as-filename" id="as-filename"></div>
+            <div class="as-filemeta" id="as-filemeta"></div>
+        </div>
+        <button class="action-sheet-item as-dl" id="as-download-btn">
+            <span class="as-icon">⬇️</span>
+            下载文件
+        </button>
+        <button class="action-sheet-item as-del" id="as-delete-btn">
+            <span class="as-icon">🗑️</span>
+            删除文件
+        </button>
+        <button class="action-sheet-cancel" id="as-cancel-btn">取消</button>
+    </div>
+</div>
+
 
 <script>
 'use strict';
@@ -581,6 +711,43 @@ function showDialog({ title, msg = '', input = false, placeholder = '', danger =
         cancelBtn.addEventListener('click', onCancel);
         inputEl.addEventListener('keydown', onKey);
     });
+}
+
+// ── Action Sheet ───────────────────────────────────────────────────
+let _asCleanup = null;
+
+function showActionSheet(filename, metaText, onDownload, onDelete) {
+    const overlay    = document.getElementById('action-sheet-overlay');
+    const dlBtn      = document.getElementById('as-download-btn');
+    const delBtn     = document.getElementById('as-delete-btn');
+    const cancelBtn  = document.getElementById('as-cancel-btn');
+    const fnEl       = document.getElementById('as-filename');
+    const fmEl       = document.getElementById('as-filemeta');
+
+    fnEl.textContent = filename;
+    fmEl.textContent = metaText;
+
+    // show with animation
+    overlay.classList.add('open');
+
+    const close = () => {
+        overlay.classList.remove('open');
+        dlBtn.removeEventListener('click', handleDl);
+        delBtn.removeEventListener('click', handleDel);
+        cancelBtn.removeEventListener('click', close);
+        overlay.removeEventListener('click', handleBg);
+    };
+
+    const handleDl  = () => { close(); onDownload(); };
+    const handleDel = () => { close(); onDelete(); };
+    const handleBg  = (e) => { if (e.target === overlay) close(); };
+
+    dlBtn.addEventListener('click', handleDl);
+    delBtn.addEventListener('click', handleDel);
+    cancelBtn.addEventListener('click', close);
+    overlay.addEventListener('click', handleBg);
+
+    _asCleanup = close;
 }
 
 // ── API helper ─────────────────────────────────────────────────────
@@ -753,12 +920,6 @@ function makeFileItem(f) {
 
     el.className = `file-item${f.is_dir ? '' : ' is-file'}`;
 
-    const actionsHtml = f.isBack ? '' : `
-        <span class="file-actions">
-            ${!f.is_dir ? `<button class="act-btn act-dl"  onclick="event.stopPropagation();downloadFile(${JSON.stringify(f.name)})">下载</button>` : ''}
-            <button class="act-btn act-del" onclick="event.stopPropagation();deleteItem(${JSON.stringify(f.name)}, ${f.is_dir})">删除</button>
-        </span>`;
-
     el.innerHTML = `
         <span class="file-icon">${icon}</span>
         <span class="file-info">
@@ -767,11 +928,34 @@ function makeFileItem(f) {
         </span>
         <span class="file-meta file-meta-desktop col-size">${f.is_dir ? '—' : size}</span>
         <span class="file-meta file-meta-desktop col-date">${date}</span>
-        <span class="file-meta-desktop col-action">${actionsHtml}</span>
+        <span class="file-meta-desktop col-action">
+            ${(!f.isBack && !f.is_dir) ? '<button class="act-btn act-dl" data-action="dl">下载</button>' : ''}
+            ${(!f.isBack) ? '<button class="act-btn act-del" data-action="del">删除</button>' : ''}
+        </span>
     `;
 
     if (f.is_dir) {
+        // Directories always navigate on click
         el.addEventListener('click', () => f.isBack ? navigateUp() : navigateTo(f.name));
+    } else if (!f.isBack) {
+        // Files: row click opens Action Sheet
+        el.addEventListener('click', (e) => {
+            // If the click came from an inline action button, let the button handle it
+            if (e.target.closest('[data-action]')) return;
+            const metaText = [size, date].filter(Boolean).join('  ·  ');
+            showActionSheet(
+                f.name,
+                metaText,
+                () => downloadFile(f.name),
+                () => deleteItem(f.name, false)
+            );
+        });
+
+        // Desktop inline buttons — direct listeners, no propagation issues
+        const dlBtn  = el.querySelector('[data-action="dl"]');
+        const delBtn = el.querySelector('[data-action="del"]');
+        if (dlBtn)  dlBtn.addEventListener('click',  (e) => { e.stopPropagation(); downloadFile(f.name); });
+        if (delBtn) delBtn.addEventListener('click', (e) => { e.stopPropagation(); deleteItem(f.name, false); });
     }
 
     return el;
@@ -884,7 +1068,28 @@ async function handleFileInputChange() {
 
 async function downloadFile(name) {
     const targetPath = (currentPath === '/' ? '' : currentPath) + '/' + name;
-    window.location.href = `/api/files/download?path=${encodeURIComponent(targetPath)}`;
+    setLoading(true);
+    try {
+        const res = await api('GET', `/api/files/download?path=${encodeURIComponent(targetPath)}`);
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.error || '下载失败');
+        }
+        // Trigger browser download without page navigation
+        const blob = await res.blob();
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement('a');
+        a.href     = url;
+        a.download = name;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 10000);
+    } catch (e) {
+        showToast(e.message, true);
+    } finally {
+        setLoading(false);
+    }
 }
 
 async function deleteItem(name, isDir) {

@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Matrix 自动化生成与管理工具</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        /* 滚动条美化 */
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen p-4 md:p-8 flex items-center justify-center">
+
+    <div class="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <div class="lg:col-span-2 bg-white p-6 md:p-8 rounded-xl shadow-sm border border-slate-200/80 flex flex-col justify-between">
+            <div>
+                <div class="mb-6 border-b border-slate-100 pb-4">
+                    <h1 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+                        <span class="text-indigo-600">📊</span> Test Matrix 自动化生成
+                    </h1>
+                    <p class="text-xs text-slate-400 mt-1">输入项目信息并上传 Spec 规则，一键构建测试矩阵网格</p>
+                </div>
+
+                <div class="mb-5">
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">项目名称</label>
+                    <input type="text" id="projectName" placeholder="请输入项目名称 (例如: Project_Alpha_V1)" 
+                           class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none text-sm transition-all text-slate-700">
+                </div>
+
+                <div class="mb-5">
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">上传 Spec 文件</label>
+                    <div class="flex gap-2 flex-wrap sm:flex-nowrap">
+                        <input type="text" id="filePathInput" placeholder="请输入文件路径，或点击右侧浏览..." 
+                               class="flex-1 min-w-[200px] px-4 py-2 border border-slate-300 rounded-lg bg-slate-50 text-sm text-slate-600 outline-none">
+                        
+                        <input type="file" id="realFileInput" class="hidden" onchange="handleFileSelect(this)">
+                        
+                        <div class="flex gap-2 w-full sm:w-auto justify-end">
+                            <button onclick="document.getElementById('realFileInput').click()" title="浏览文件"
+                                    class="px-3.5 py-2 bg-slate-100 text-slate-600 font-bold rounded-lg hover:bg-slate-200 active:bg-slate-300 transition-colors text-sm border border-slate-200 cursor-pointer">
+                                ...
+                            </button>
+                            <button onclick="uploadFile()" 
+                                    class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 active:bg-indigo-800 font-medium transition-colors text-sm shadow-sm cursor-pointer whitespace-nowrap">
+                                上传
+                            </button>
+                            <button onclick="clearFileSelection()" 
+                                    class="px-4 py-2 border border-slate-300 text-slate-600 rounded-lg hover:bg-slate-50 active:bg-slate-100 transition-colors text-sm cursor-pointer whitespace-nowrap">
+                                取消
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="fileTagContainer" class="mt-2.5 flex items-center min-h-[32px]">
+                        <span id="emptyFileTip" class="text-xs text-slate-400 italic">暂未上传任何文件</span>
+                        <span id="fileTag" class="hidden inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-100 shadow-xs">
+                          <span class="mr-1.5">📄</span>
+                          <span id="uploadedFileName" class="max-w-[240px] truncate">project_spec.xlsx</span>
+                          <button onclick="removeUploadedFile()" class="ml-2 inline-flex text-indigo-400 hover:text-rose-500 font-bold text-sm cursor-pointer transition-colors" title="删除文件">×</button>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">临时提示词</label>
+                    <textarea id="promptArea" rows="5" 
+                              placeholder="请简单介绍一下项目的基本情况, 能让AI更好地理解spec的内容, 比如:&#13;&#10; 1. Spec里包含有多少个Mode, Mode的名称是什么(4个Mode, Mode A, Mode B...). &#13;&#10; 2. Spec里有多少个Input, input的名字是什么(有2个Input, Head Button, Chest Button...).&#13;&#10; 3. Spec里有什么特别的标记方法吗? 比如方框的颜色这些(蓝色=Animation 橙色=Global interrupt...)" 
+                              class="w-full px-4 py-3 border border-slate-300 rounded-lg text-sm text-slate-600 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none resize-none leading-relaxed transition-all"></textarea>
+                </div>
+            </div>
+
+            <div>
+                <div class="flex justify-end gap-3 pb-4 border-b border-slate-100 mb-4">
+                    <button onclick="triggerAction('cancel')" 
+                            class="px-5 py-2 border border-slate-300 text-slate-600 rounded-lg hover:bg-slate-50 active:bg-slate-100 transition-colors text-sm font-medium cursor-pointer">
+                        取消重置
+                    </button>
+                    <button onclick="triggerAction('generate')" 
+                            class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 active:bg-indigo-800 font-semibold transition-colors text-sm shadow-sm cursor-pointer">
+                        生成 Matrix
+                    </button>
+                </div>
+
+                <div class="p-3 bg-slate-900 rounded-lg border border-slate-800 flex items-center gap-3 shadow-inner">
+                    <span id="statusDot" class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.7)]"></span>
+                    <p id="statusMessage" class="text-xs text-slate-300 font-mono tracking-wide truncate flex-1">
+                        Ready: 系统就绪，等待操作...
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200/80 flex flex-col">
+            <div class="mb-4 pb-3 border-b border-slate-100 flex justify-between items-center">
+                <div>
+                    <h2 class="text-md font-bold text-slate-800 flex items-center gap-2">
+                        📂 已生成的 Test Matrix
+                    </h2>
+                    <p class="text-[11px] text-slate-400 mt-0.5">展示最新及历史生成的矩阵结果</p>
+                </div>
+                <span id="matrixCount" class="bg-slate-100 text-slate-600 text-xs px-2 py-0.5 rounded-full font-semibold">
+                    3 个文件
+                </span>
+            </div>
+
+            <div id="matrixList" class="space-y-2.5 max-h-[460px] overflow-y-auto pr-1 custom-scroll flex-1">
+                
+                <div class="group relative flex items-center justify-between p-3 bg-indigo-50/60 border border-indigo-100 rounded-lg hover:bg-indigo-50 transition-all shadow-2xs">
+                    <div class="flex items-start gap-2.5 min-w-0 pr-4">
+                        <span class="text-lg mt-0.5">📊</span>
+                        <div class="min-w-0">
+                            <a href="#" onclick="mockDownload('Project_Alpha_V2_Matrix.xlsx')" class="text-xs font-semibold text-slate-800 hover:text-indigo-600 block truncate" title="点击下载">
+                                Project_Alpha_V2_Matrix.xlsx
+                            </a>
+                            <span class="text-[10px] text-slate-400 block mt-0.5">今天 16:12 · 42 KB</span>
+                        </div>
+                    </div>
+                    <span class="flex h-2 w-2 relative mr-4 shrink-0">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" title="最新生成"></span>
+                    </span>
+                    <button onclick="deleteMatrix(this, 'Project_Alpha_V2_Matrix.xlsx')" class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-rose-500 font-bold text-base px-1.5 cursor-pointer opacity-40 group-hover:opacity-100 transition-opacity" title="删除">
+                        ×
+                    </button>
+                </div>
+
+                <div class="group relative flex items-center justify-between p-3 bg-slate-50 border border-slate-100 rounded-lg hover:bg-slate-100/80 hover:border-slate-200 transition-all">
+                    <div class="flex items-start gap-2.5 min-w-0 pr-4">
+                        <span class="text-lg mt-0.5 text-slate-400">📊</span>
+                        <div class="min-w-0">
+                            <a href="#" onclick="mockDownload('BETA_Display_Spec_Matrix.xlsx')" class="text-xs font-medium text-slate-700 hover:text-indigo-600 block truncate">
+                                BETA_Display_Spec_Matrix.xlsx
+                            </a>
+                            <span class="text-[10px] text-slate-400 block mt-0.5">昨天 10:45 · 38 KB</span>
+                        </div>
+                    </div>
+                    <button onclick="deleteMatrix(this, 'BETA_Display_Spec_Matrix.xlsx')" class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-rose-500 font-bold text-base px-1.5 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity" title="删除">
+                        ×
+                    </button>
+                </div>
+
+                <div class="group relative flex items-center justify-between p-3 bg-slate-50 border border-slate-100 rounded-lg hover:bg-slate-100/80 hover:border-slate-200 transition-all">
+                    <div class="flex items-start gap-2.5 min-w-0 pr-4">
+                        <span class="text-lg mt-0.5 text-slate-400">📊</span>
+                        <div class="min-w-0">
+                            <a href="#" onclick="mockDownload('Audio_Core_v1.1_Matrix.xlsx')" class="text-xs font-medium text-slate-700 hover:text-indigo-600 block truncate">
+                                Audio_Core_v1.1_Matrix.xlsx
+                            </a>
+                            <span class="text-[10px] text-slate-400 block mt-0.5">3天前 · 55 KB</span>
+                        </div>
+                    </div>
+                    <button onclick="deleteMatrix(this, 'Audio_Core_v1.1_Matrix.xlsx')" class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-rose-500 font-bold text-base px-1.5 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity" title="删除">
+                        ×
+                    </button>
+                </div>
+
+            </div>
+            
+            <div id="emptyListTip" class="hidden flex-1 flex flex-col items-center justify-center py-12 text-slate-400">
+                <span class="text-3xl mb-2">📁</span>
+                <p class="text-xs italic">暂无历史生成的 Test Matrix</p>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let selectedFile = null;
+
+        // 1. 同步所选文件至虚拟输入框
+        function handleFileSelect(input) {
+            if (input.files && input.files[0]) {
+                selectedFile = input.files[0];
+                document.getElementById('filePathInput').value = "D:\\Workspace\\Spec\\" + selectedFile.name;
+                updateStatus("已读取本地路径，请点击“上传”确认。", "info");
+            }
+        }
+
+        // 2. 点击上传按钮
+        function uploadFile() {
+            const pathValue = document.getElementById('filePathInput').value.trim();
+            if (!pathValue) {
+                updateStatus("错误: 请先浏览或输入正确的 Spec 文件路径！", "error");
+                return;
+            }
+            const fileName = selectedFile ? selectedFile.name : pathValue.split('\\').pop().split('/').pop();
+            document.getElementById('emptyFileTip').classList.add('hidden');
+            document.getElementById('uploadedFileName').innerText = fileName;
+            document.getElementById('fileTag').classList.remove('hidden');
+            updateStatus("成功: 「" + fileName + "」已加载至预备区。", "success");
+        }
+
+        // 3. 取消文件选择
+        function clearFileSelection() {
+            document.getElementById('filePathInput').value = "";
+            document.getElementById('realFileInput').value = "";
+            selectedFile = null;
+            updateStatus("已取消文件路径选择。", "info");
+        }
+
+        // 4. 清除已经上传好的文件
+        function removeUploadedFile() {
+            document.getElementById('fileTag').classList.add('hidden');
+            document.getElementById('emptyFileTip').classList.remove('hidden');
+            clearFileSelection();
+            updateStatus("已移除预备区的 Spec 文件。", "info");
+        }
+
+        // 5. 点击“生成 Matrix”及“取消”
+        function triggerAction(type) {
+            const projectName = document.getElementById('projectName').value.trim();
+
+            if (type === 'cancel') {
+                document.getElementById('projectName').value = "";
+                document.getElementById('promptArea').value = "";
+                removeUploadedFile();
+                updateStatus("所有配置项均已重置复位。", "info");
+            } else if (type === 'generate') {
+                if (!projectName) {
+                    updateStatus("生成失败: 请填写“项目名称”以便为 Matrix 命名！", "error");
+                    return;
+                }
+                
+                updateStatus(`正在解析 [${projectName}] 的 Spec 标志物...`, "progress");
+                
+                // 模拟 1.5 秒后动态往右侧列表顶部插入“最新生成的 Test Matrix”
+                setTimeout(() => {
+                    addNewMatrixToList(projectName);
+                    updateStatus(`成功: 矩阵 [${projectName}_Matrix.xlsx] 已生成并推送到历史列表！`, "success");
+                }, 1500);
+            }
+        }
+
+        // 6. 动态向右侧列表添加新项，并将前一个“最新”标志去掉
+        function addNewMatrixToList(name) {
+            const listContainer = document.getElementById('matrixList');
+            const emptyTip = document.getElementById('emptyListTip');
+            
+            // 如果此前是空状态，隐藏空提示
+            emptyTip.classList.add('hidden');
+            listContainer.classList.remove('hidden');
+
+            // 移除当前列表里所有其他的“最新(绿色呼吸灯)”标志，让它们变成普通历史
+            const activeDots = listContainer.querySelectorAll('.relative.inline-flex.rounded-full.bg-emerald-500');
+            activeDots.forEach(dot => {
+                const parent = dot.parentElement;
+                if (parent) parent.remove(); // 隐藏旧的闪烁外圈
+            });
+            const activeItems = listContainer.querySelectorAll('.bg-indigo-50\\/60');
+            activeItems.forEach(item => {
+                item.className = "group relative flex items-center justify-between p-3 bg-slate-50 border border-slate-100 rounded-lg hover:bg-slate-100/80 hover:border-slate-200 transition-all";
+                item.querySelector('span').classList.add('text-slate-400');
+                item.querySelector('a').className = "text-xs font-medium text-slate-700 hover:text-indigo-600 block truncate";
+            });
+
+            // 构建全新节点
+            const fileName = `${name}_Matrix.xlsx`;
+            const newItem = document.createElement('div');
+            newItem.className = "group relative flex items-center justify-between p-3 bg-indigo-50/60 border border-indigo-100 rounded-lg hover:bg-indigo-50 transition-all shadow-2xs";
+            newItem.innerHTML = `
+                <div class="flex items-start gap-2.5 min-w-0 pr-4">
+                    <span class="text-lg mt-0.5">📊</span>
+                    <div class="min-w-0">
+                        <a href="#" onclick="mockDownload('${fileName}')" class="text-xs font-semibold text-slate-800 hover:text-indigo-600 block truncate" title="点击下载">
+                            ${fileName}
+                        </a>
+                        <span class="text-[10px] text-slate-400 block mt-0.5">刚刚 · 12 KB</span>
+                    </div>
+                </div>
+                <span class="flex h-2 w-2 relative mr-4 shrink-0">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" title="最新生成"></span>
+                </span>
+                <button onclick="deleteMatrix(this, '${fileName}')" class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-rose-500 font-bold text-base px-1.5 cursor-pointer opacity-40 group-hover:opacity-100 transition-opacity" title="删除">
+                    ×
+                </button>
+            `;
+
+            // 插入到最顶部
+            listContainer.insertBefore(newItem, listContainer.firstChild);
+            updateBadgeCount();
+        }
+
+        // 7. 删除矩阵项
+        function deleteMatrix(button, name) {
+            if(confirm(`确定要删除 ${name} 吗？该操作不可撤销。`)) {
+                const listItem = button.parentElement;
+                listItem.remove();
+                updateStatus(`已成功删除文件: ${name}`, "info");
+                updateBadgeCount();
+            }
+        }
+
+        // 8. 更新右侧数量角标
+        function updateBadgeCount() {
+            const listContainer = document.getElementById('matrixList');
+            const countBadge = document.getElementById('matrixCount');
+            const emptyTip = document.getElementById('emptyListTip');
+            const total = listContainer.children.length;
+
+            countBadge.innerText = `${total} 个文件`;
+            
+            if (total === 0) {
+                emptyTip.classList.remove('hidden');
+                listContainer.classList.add('hidden');
+            }
+        }
+
+        // 9. 模拟下载动作
+        function mockDownload(name) {
+            updateStatus(`正在下载文件: ${name} ...`, "success");
+            alert(`💾 正在为您拉起浏览器下载：\n${name}`);
+        }
+
+        // 10. 统一后台滚动控制台日志
+        function updateStatus(msg, type) {
+            const msgEl = document.getElementById('statusMessage');
+            const dotEl = document.getElementById('statusDot');
+            const timeStamp = new Date().toLocaleTimeString();
+
+            msgEl.innerText = `[${timeStamp}] ${msg}`;
+            dotEl.className = "w-2 h-2 rounded-full"; // 重置样式
+            
+            if (type === 'success') {
+                dotEl.classList.add('bg-emerald-400', 'shadow-[0_0_8px_rgba(52,211,153,0.7)]');
+            } else if (type === 'error') {
+                dotEl.classList.add('bg-rose-500', 'shadow-[0_0_8px_rgba(244,63,94,0.7)]', 'animate-pulse');
+            } else if (type === 'progress') {
+                dotEl.classList.add('bg-amber-400', 'shadow-[0_0_8px_rgba(251,191,36,0.7)]', 'animate-ping');
+            } else {
+                dotEl.classList.add('bg-sky-400', 'shadow-[0_0_8px_rgba(56,189,248,0.7)]');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -8,14 +8,14 @@ This is a collection of independent Python scripts and one static HTML/JS game, 
 
 ### Projects and How to Run Them
 
-| Directory | Purpose | Run Command | Dependencies |
-|-----------|---------|-------------|--------------|
-| `fetch_hs300/` | Fetch HS300 component stock data from East Money API, output CSV + HTML | `python fetch_hs300.py` | stdlib only (`urllib`, `json`, `csv`) |
-| `fetech_hs300_detail/` | Fetch detailed quarterly financial data for HS300 stocks | `python main.py` | `requests` (install via pip) |
-| `fetech_xs/` | Download novel chapters from a specific site, build EPUB | `python download_novel.py` | `requests`, `beautifulsoup4`, `lxml`, `ebooklib` (see `requirements.txt`) |
-| `generate_html_for_gif/` | Generate HTML pages from GIF filenames | `python generate_html.py` | stdlib only |
-| `create_test_case/` | Generate QA test matrices for hardware product (not software tests) | `python generate_test_matrix_v2.py` | `openpyxl` (install via pip) |
-| `QWen3.6Plus_MiniGame/` | Tic-tac-toe game (HTML/JS/CSS) | Open `index.html` in browser | None |
+| Directory                | Purpose                                                                 | Run Command                         | Dependencies                                                              |
+| ------------------------ | ----------------------------------------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------- |
+| `fetch_hs300/`           | Fetch HS300 component stock data from East Money API, output CSV + HTML | `python fetch_hs300.py`             | stdlib only (`urllib`, `json`, `csv`)                                     |
+| `fetech_hs300_detail/`   | Fetch detailed quarterly financial data for HS300 stocks                | `python main.py`                    | `requests` (install via pip)                                              |
+| `fetech_xs/`             | Download novel chapters from a specific site, build EPUB                | `python download_novel.py`          | `requests`, `beautifulsoup4`, `lxml`, `ebooklib` (see `requirements.txt`) |
+| `generate_html_for_gif/` | Generate HTML pages from GIF filenames                                  | `python generate_html.py`           | stdlib only                                                               |
+| `create_test_case/`      | Generate QA test matrices for hardware product (not software tests)     | `python generate_test_matrix_v2.py` | `openpyxl` (install via pip)                                              |
+| `QWen3.6Plus_MiniGame/`  | Tic-tac-toe game (HTML/JS/CSS)                                          | Open `index.html` in browser        | None                                                                      |
 
 **Important:** Always run scripts from within their own directory. Each project expects to find its config files (e.g., `config.py`, `config.json`) in the same directory.
 
@@ -34,6 +34,7 @@ This is a collection of independent Python scripts and one static HTML/JS game, 
 ### Network-Dependent Projects
 
 `fetch_hs300/`, `fetech_hs300_detail/`, and `fetech_xs/` make HTTP requests to external APIs:
+
 - **Rate limiting:** `fetech_hs300_detail/` includes random delays (5–10 seconds) between requests. `fetech_xs/` includes random delays (10–15 seconds via `config.json`). Do not remove these delays.
 - **API changes:** The East Money API endpoints and field names may change. If a project fails with API errors, check `config.py` for the current URL and parameters.
 - **fetech_xs config:** `config.json` controls request delay, retry, and headers. Modify only if you understand the scraping implications.
@@ -41,6 +42,7 @@ This is a collection of independent Python scripts and one static HTML/JS game, 
 ### Output Files
 
 Several projects generate output files in their own directory:
+
 - `fetch_hs300/` → `沪深300_YYYY-MM-DD.csv` and `.html`
 - `fetech_hs300_detail/` → `OriginalData/` subdirectory with CSVs and quarterly HTML reports
 - `fetech_xs/` → novel chapters in a book-named directory, plus EPUB
@@ -73,3 +75,23 @@ Several projects generate output files in their own directory:
 - `fetech_xs/版本变更.md` — Version changelog for the novel downloader.
 - `fetech_xs/使用指南.md` — Detailed usage guide with examples (Chinese).
 - `QWen3.6Plus_MiniGame/计划书.md` — Game design notes.
+
+
+
+## Requirements
+
+- 在编写代码之前, 先将设计好软件结构, 编码过程等等的项目资料, 并将这些资料统一存放在一个项目设计文档.md的文件里, 并且如果设计有变更, 也要根据变更的内容先更新这份文档
+
+- 每一个项目都维护一个版本变更.md文件, 记录版本间的变化
+
+- 不要主动为我决定任何事, 如果有不确定的东西, 问问我的意见
+
+- 我也不是全能的, 如果我的要求中有不常理的; 或者我提出的实现方法中, 你有更好的实现办法, 提出来问问我, 让我再决定
+
+- 编写python时合理拆分模块, 实现关键功能的地方加上中文注释
+
+
+
+## Others
+
+- 本机python运行命令是"py"

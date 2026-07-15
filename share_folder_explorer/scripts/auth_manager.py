@@ -32,6 +32,7 @@ class AuthManager:
 
         self.server = parts[0]   # e.g. 192.168.8.199
         self.share = parts[1]    # e.g. upload
+        self.unc_root = f"\\\\{self.server}\\{self.share}"  # e.g. \\192.168.8.199\upload
 
         # 当前注册的 smbclient session 对应的 credential_id
         # smbprotocol 同一 server 同一时刻只支持一套凭据，
@@ -197,11 +198,7 @@ class AuthManager:
 
     def get_smb_handler(self, credential_id: int) -> SMBHandler:
         with self._lock:
-            if credential_id == self._active_credential_id:
-                # 当前 session 就是此用户，直接复用
-                return SMBHandler(self.server, self.share)
-
-            # 需要切换用户：从 DB 取出加密密码重新注册
+            # 先从 DB 取出凭据（无论是否需要切换，重连时都要用）
             with get_connection() as conn:
                 cursor = conn.cursor()
                 cursor.execute(
@@ -214,8 +211,23 @@ class AuthManager:
                 username = row["username"]
                 password = decrypt_with_fernet(row["encrypted_password"])
 
-            self._register_session(username, password)
-            self._active_credential_id = credential_id
+            need_register = False
+
+            if credential_id != self._active_credential_id:
+                # 不同用户，必须切换
+                need_register = True
+            else:
+                # 同一用户，探活：尝试一次轻量 stat 操作
+                try:
+                    smbclient.stat(self.unc_root)
+                except Exception:
+                    # 连接已断开，需要重新注册
+                    need_register = True
+
+            if need_register:
+                self._register_session(username, password)
+                self._active_credential_id = credential_id
+
             return SMBHandler(self.server, self.share)
 
     # ------------------------------------------------------------------ #

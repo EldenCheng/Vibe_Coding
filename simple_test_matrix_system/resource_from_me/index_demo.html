@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Matrix 自动化生成工具</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        /* 额外微调以确保字体和现代感 */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex items-center justify-center p-4">
+
+    <div class="w-full max-w-3xl bg-white p-8 rounded-xl shadow-md border border-slate-100 transition-all">
+        
+        <div class="mb-8 border-b border-slate-100 pb-4">
+            <h1 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+                <span class="text-indigo-600">📊</span> Test Matrix 自动化生成工具
+            </h1>
+            <p class="text-xs text-slate-400 mt-1">上传项目 Spec 文件，快速生成测试矩阵网格（内部专用）</p>
+        </div>
+
+        <div class="mb-6">
+            <label class="block text-sm font-semibold text-slate-700 mb-2">项目名称</label>
+            <input type="text" id="projectName" placeholder="请输入项目名称 (例如: Project_Alpha_V1)" 
+                   class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none text-sm transition-all text-slate-700">
+        </div>
+
+        <div class="mb-6">
+            <label class="block text-sm font-semibold text-slate-700 mb-2">上传 Spec 文件</label>
+            <div class="flex gap-2">
+                <input type="text" id="filePathInput" placeholder="请输入文件路径，或点击右侧浏览..." 
+                       class="flex-1 px-4 py-2.5 border border-slate-300 rounded-lg bg-slate-50 text-sm text-slate-600 outline-none">
+                
+                <input type="file" id="realFileInput" class="hidden" onchange="handleFileSelect(this)">
+                
+                <button onclick="document.getElementById('realFileInput').click()" title="浏览文件"
+                        class="px-4 py-2.5 bg-slate-100 text-slate-600 font-bold rounded-lg hover:bg-slate-200 active:bg-slate-300 transition-colors text-sm border border-slate-200 cursor-pointer">
+                    ...
+                </button>
+                
+                <button onclick="uploadFile()" 
+                        class="px-5 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 active:bg-indigo-800 font-medium transition-colors text-sm shadow-sm cursor-pointer">
+                    上传
+                </button>
+                
+                <button onclick="clearFileSelection()" 
+                        class="px-4 py-2.5 border border-slate-300 text-slate-600 rounded-lg hover:bg-slate-50 active:bg-slate-100 transition-colors text-sm cursor-pointer">
+                    取消
+                </button>
+            </div>
+
+            <div id="fileTagContainer" class="mt-3 flex items-center min-h-[32px]">
+                <span id="emptyFileTip" class="text-xs text-slate-400 italic">暂未上传任何文件</span>
+                
+                <span id="fileTag" class="hidden inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-indigo-50 text-indigo-700 border border-indigo-100 shadow-xs">
+                    <span class="mr-1.5">📄</span>
+                    <span id="uploadedFileName" class="max-w-[300px] truncate">project_spec.xlsx</span>
+                    <button onclick="removeUploadedFile()" class="ml-2.5 inline-flex text-indigo-400 hover:text-rose-500 font-bold text-sm cursor-pointer transition-colors" title="删除文件">×</button>
+                </span>
+            </div>
+        </div>
+
+        <div class="mb-8">
+            <label class="block text-sm font-semibold text-slate-700 mb-2">临时提示词</label>
+            <textarea id="promptArea" rows="5" 
+                      placeholder="请简单介绍一下项目的基本情况, 能让AI更好地理解spec的内容, 比如:&#13;&#10; 1. Spec里包含有多少个Mode, Mode的名称是什么(4个Mode, Mode A, Mode B...). &#13;&#10; 2. Spec里有多少个Input, input的名字是什么(有2个Input, Head Button, Chest Button...).&#13;&#10; 3. Spec里有什么特别的标记方法吗? 比如方框的颜色这些(蓝色=Animation 橙色=Global interrupt...)" 
+                      class="w-full px-4 py-3 border border-slate-300 rounded-lg text-sm text-slate-600 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none resize-none leading-relaxed transition-all"></textarea>
+        </div>
+
+        <div class="flex justify-end gap-3 pb-6 border-b border-slate-100">
+            <button onclick="triggerAction('cancel')" 
+                    class="px-5 py-2 border border-slate-300 text-slate-600 rounded-lg hover:bg-slate-50 active:bg-slate-100 transition-colors text-sm font-medium cursor-pointer">
+                取消
+            </button>
+            <button onclick="triggerAction('generate')" 
+                    class="px-7 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 active:bg-indigo-800 font-semibold transition-colors text-sm shadow-sm cursor-pointer">
+                生成 Matrix
+            </button>
+        </div>
+
+        <div class="mt-5">
+            <div class="p-3.5 bg-slate-900 rounded-lg border border-slate-800 flex items-center gap-3 shadow-inner">
+                <span id="statusDot" class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.7)] animate-pulse"></span>
+                <p id="statusMessage" class="text-xs text-slate-300 font-mono tracking-wide truncate flex-1">
+                    Ready: 系统已就绪，等待操作...
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let selectedFile = null;
+
+        // 1. 当用户通过浏览器选择文件后，将路径和名字同步到输入框
+        function handleFileSelect(input) {
+            if (input.files && input.files[0]) {
+                selectedFile = input.files[0];
+                document.getElementById('filePathInput').value = "C:\\FakePath\\" + selectedFile.name;
+                updateStatus("已选择文件: " + selectedFile.name + " ，请点击“上传”按钮进行确认。", "info");
+            }
+        }
+
+        // 2. 点击“上传”按键
+        function uploadFile() {
+            const pathValue = document.getElementById('filePathInput').value.trim();
+            
+            if (!pathValue) {
+                updateStatus("错误: 请先输入文件路径或点击 '...' 浏览选择文件！", "error");
+                return;
+            }
+
+            // 获取文件名（无论是真实选择的还是用户手动输入伪造的路径）
+            const fileName = selectedFile ? selectedFile.name : pathValue.split('\\').pop().split('/').pop();
+
+            // 显示标签，隐藏提示
+            document.getElementById('emptyFileTip').classList.add('hidden');
+            document.getElementById('uploadedFileName').innerText = fileName;
+            document.getElementById('fileTag').classList.remove('hidden');
+
+            updateStatus("成功: 文件「" + fileName + "」上传并解析成功！", "success");
+        }
+
+        // 3. 点击“取消”上传按键（清空输入框）
+        function clearFileSelection() {
+            document.getElementById('filePathInput').value = "";
+            document.getElementById('realFileInput').value = "";
+            selectedFile = null;
+            updateStatus("已取消当前的文件路径选择。", "info");
+        }
+
+        // 4. 点击“X”图标删除已经上传好的文件
+        function removeUploadedFile() {
+            document.getElementById('fileTag').classList.add('hidden');
+            document.getElementById('emptyFileTip').classList.remove('hidden');
+            clearFileSelection();
+            updateStatus("已移除已上传的文件。", "info");
+        }
+
+        // 5. 生成与取消按钮的业务逻辑模拟
+        function triggerAction(type) {
+            const projectName = document.getElementById('projectName').value.trim();
+
+            if (type === 'cancel') {
+                updateStatus("操作已取消。当前输入及配置已被重置复位。", "info");
+                // 模拟清空
+                document.getElementById('projectName').value = "";
+                document.getElementById('promptArea').value = "";
+                removeUploadedFile();
+            } else if (type === 'generate') {
+                if (!projectName) {
+                    updateStatus("提示失败: 请输入“项目名称”后再尝试生成！", "error");
+                    return;
+                }
+                
+                // 模拟后台滚动更新消息的过程
+                updateStatus("正在建立任务 [" + projectName + "] ...", "progress");
+                
+                setTimeout(() => {
+                    updateStatus("正在读取 Spec 标志物 (处理临时提示词规则) ...", "progress");
+                }, 1000);
+
+                setTimeout(() => {
+                    updateStatus("成功: Test Matrix 报表已生成！请前往后台目录查看。", "success");
+                }, 2500);
+            }
+        }
+
+        // 6. 统一的状态栏更新函数
+        function updateStatus(msg, type) {
+            const msgEl = document.getElementById('statusMessage');
+            const dotEl = document.getElementById('statusDot');
+            const timeStamp = new Date().toLocaleTimeString();
+
+            // 只保留最新的消息
+            msgEl.innerText = `[${timeStamp}] ${msg}`;
+
+            // 根据不同的状态切换底部控制台的圆点颜色和特效
+            dotEl.className = "w-2 h-2 rounded-full"; // 重置
+            if (type === 'success') {
+                dotEl.classList.add('bg-emerald-400', 'shadow-[0_0_8px_rgba(52,211,153,0.7)]');
+            } else if (type === 'error') {
+                dotEl.classList.add('bg-rose-500', 'shadow-[0_0_8px_rgba(244,63,94,0.7)]', 'animate-ping');
+            } else if (type === 'progress') {
+                dotEl.classList.add('bg-amber-400', 'shadow-[0_0_8px_rgba(251,191,36,0.7)]', 'animate-spin');
+            } else {
+                dotEl.classList.add('bg-sky-400', 'shadow-[0_0_8px_rgba(56,189,248,0.7)]');
+            }
+        }
+    </script>
+</body>
+</html>

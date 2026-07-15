@@ -1,16 +1,19 @@
 import os
 import json
+import logging
 import threading
 import time
 import datetime
-from flask import Flask, request, jsonify, send_from_directory, send_file
+from flask import Flask, request, jsonify, send_from_directory, send_file, after_this_request
 from werkzeug.utils import secure_filename
-
 
 from scripts.db import init_db
 from scripts.auth_manager import AuthManager
 from scripts.crypto_utils import generate_transport_key_pair, decrypt_transport_data, clear_old_transport_keys
 from scripts.smb_handler import SMBHandler
+
+# Suppress noisy smbprotocol socket-close messages
+logging.getLogger("smbprotocol.connection").setLevel(logging.ERROR)
 
 # Load config
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -148,21 +151,32 @@ def download_file():
     user = get_authenticated_user()
     if not user:
         return jsonify({"error": "Not authenticated"}), 401
-    
+
     remote_path = request.args.get('path')
-    temp_local = os.path.join(BASE_DIR, 'data', f"download_{os.path.basename(remote_path)}")
-    
+    if not remote_path:
+        return jsonify({"error": "Missing path"}), 400
+
+    filename = os.path.basename(remote_path.replace('\\', '/'))
+    temp_local = os.path.join(BASE_DIR, 'data', f"dl_{filename}")
+
     try:
         handler = auth_manager.get_smb_handler(user['credential_id'])
         handler.download_file(remote_path, temp_local)
-        return send_file(temp_local, as_attachment=True)
+        # send_file with as_attachment; delete temp file after response using after_this_request
+        @after_this_request
+        def remove_temp(response):
+            try:
+                os.remove(temp_local)
+            except OSError:
+                pass
+            return response
+        return send_file(temp_local, as_attachment=True, download_name=filename)
     except Exception as e:
+        try:
+            os.remove(temp_local)
+        except OSError:
+            pass
         return jsonify({"error": str(e)}), 500
-    finally:
-        # Note: In a real app, we might want to cleanup temp_local after response
-        # but send_file might close the file handle. For simplicity, we'll leave it.
-        # A better way is to use a generator.
-        pass
 
 @app.route('/api/files/delete', methods=['POST'])
 def delete_item():
