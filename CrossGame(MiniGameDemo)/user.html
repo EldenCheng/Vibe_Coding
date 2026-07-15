@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>用户中心</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/common.css">
+  <link rel="stylesheet" href="css/user.css">
+</head>
+<body>
+  <div class="container">
+    <div class="user-header">
+      <div class="user-avatar">🐿️</div>
+      <h1 class="user-nickname" id="user-nickname"></h1>
+    </div>
+
+    <div class="stats-cards">
+      <div class="stat-card">
+        <div class="stat-icon">📊</div>
+        <div class="stat-value" id="stat-passed">0</div>
+        <div class="stat-label">已通过</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">❌</div>
+        <div class="stat-value" id="stat-failed">0</div>
+        <div class="stat-label">不通过</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📝</div>
+        <div class="stat-value" id="stat-wrong-words">0</div>
+        <div class="stat-label">错词数</div>
+      </div>
+    </div>
+
+    <div class="action-buttons">
+      <button id="continue-btn" class="action-btn primary-btn">
+        开始游戏
+      </button>
+
+      <button id="wrong-words-btn" class="action-btn secondary-btn" style="display:none">
+        📖 错词表
+      </button>
+
+      <div class="bottom-actions">
+        <button id="reset-btn" class="action-btn danger-btn" style="display:none">
+          重置
+        </button>
+        <button id="delete-btn" class="action-btn danger-btn">
+          删除用户
+        </button>
+      </div>
+
+      <button id="switch-user-btn" class="action-btn ghost-btn">
+        切换用户
+      </button>
+    </div>
+  </div>
+
+  <!-- 错词表弹窗 -->
+  <div id="wrong-words-modal" class="modal-overlay hidden">
+    <div class="modal-content large-modal">
+      <button id="modal-close-top" class="modal-close-top">ⓧ</button>
+      <h2 class="modal-title">错词表</h2>
+      <div class="modal-wrong-words-container">
+        <table class="wrong-words-table">
+          <thead>
+            <tr>
+              <th>单词</th>
+              <th>中文</th>
+              <th>错误次数</th>
+            </tr>
+          </thead>
+          <tbody id="wrong-words-table-body"></tbody>
+        </table>
+      </div>
+      <div class="modal-pagination" id="modal-pagination" style="display:none">
+        <button id="prev-page-btn" class="pagination-btn">上一页</button>
+        <span id="page-info" class="page-info">第 1 页</span>
+        <button id="next-page-btn" class="pagination-btn">下一页</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 重置确认弹窗 -->
+  <div id="reset-confirm-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <h2 class="modal-title">确认重置</h2>
+      <p class="modal-text">重置后将清除您的所有闯关记录，从第一关重新开始。</p>
+      <p class="modal-text">您的错词记录不会受到影响。</p>
+      <div class="modal-actions">
+        <button id="reset-confirm-btn" class="action-btn danger-btn">确认重置</button>
+        <button id="reset-cancel-btn" class="action-btn ghost-btn">取消</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 删除确认弹窗 -->
+  <div id="delete-confirm-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <h2 class="modal-title">确认删除</h2>
+      <p class="modal-text">此操作将删除您的所有记录，包括错词和闯关进度。</p>
+      <p class="modal-text">请输入昵称以确认：</p>
+      <input type="text" id="delete-nickname-input" class="modal-input" placeholder="请输入昵称">
+      <p id="delete-error" class="error-message" style="display:none">昵称不匹配</p>
+      <div class="modal-actions">
+        <button id="delete-confirm-btn" class="action-btn danger-btn">确认删除</button>
+        <button id="delete-cancel-btn" class="action-btn ghost-btn">取消</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="message-toast" class="message-toast"></div>
+
+  <script type="module" src="js/user-page.js"></script>
+</body>
+</html>

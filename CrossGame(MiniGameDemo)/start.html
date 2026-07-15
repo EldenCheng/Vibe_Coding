@@ -64,6 +64,28 @@
     <button id="start-btn" class="cute-start-btn" disabled aria-label="START"></button>
   </div>
 
+  <!-- 昵称输入弹窗 -->
+  <div id="nickname-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <h2 class="modal-title">请输入你的昵称</h2>
+      <p class="modal-text">输入昵称后开始游戏</p>
+      <input type="text" id="nickname-input" class="modal-input" placeholder="输入昵称" maxlength="20">
+      <p id="nickname-error" class="error-message" style="display:none"></p>
+      <div class="modal-actions">
+        <button id="nickname-confirm-btn" class="action-btn primary-btn">确认</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 用户选择弹窗（多用户） -->
+  <div id="user-select-modal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <h2 class="modal-title">选择用户</h2>
+      <div id="user-list" class="user-list"></div>
+      <button id="new-user-btn" class="action-btn ghost-btn">+ 新用户</button>
+    </div>
+  </div>
+
   <div id="loading-indicator" class="loading-indicator">
     <div class="spinner"></div>
     <span>加载中...</span>
