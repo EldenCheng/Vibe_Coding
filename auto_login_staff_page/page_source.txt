@@ -1,0 +1,2034 @@
+<html lang="en"><head><style data-merge-styles="true"></style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Staff Portal</title>
+    <link rel="stylesheet" href="styles.css?v=62">
+    <link rel="stylesheet" href="chatbot.css?v=1">
+    <!-- Critical mobile login styles - inline to avoid FOUC -->
+    <style>
+        @media (max-width: 768px) {
+            body.mobile-login-active {
+                background: #f5f7fa !important;
+                padding: 0 !important;
+            }
+            body.mobile-login-active header {
+                display: none !important;
+            }
+            body.mobile-login-active .container {
+                max-width: 100%;
+                padding: 0;
+                margin: 0;
+            }
+            body.mobile-login-active #loginScreen {
+                background: #f5f7fa;
+                border-radius: 0;
+                box-shadow: none;
+                padding: 0;
+                min-height: 100vh;
+                min-height: 100dvh;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: flex-start;
+                padding-top: 20vh;
+                padding-top: 20dvh;
+            }
+        }
+    </style>
+<input type="hidden" id="_o_dbjbempljhcmhlfpfacalomonjpalpko" data-inspect-config="7"><script type="text/javascript" src="chrome-extension://odphnbhiddhdpoccbialllejaajemdio/scripts/inspector.js"></script><script charset="utf-8" src="chrome-extension://pngicgippofneelinabebobnkpmdiphn/js/btype.js"></script><script type="text/javascript" charset="utf-8" src="chrome-extension://pngicgippofneelinabebobnkpmdiphn/js/chrome.js"></script><style>/* cyrillic-ext */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/montserrat/v31/JTUSjIg1_i6t8kCHKm459WRhyzbi.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/montserrat/v31/JTUSjIg1_i6t8kCHKm459W1hyzbi.woff2) format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/montserrat/v31/JTUSjIg1_i6t8kCHKm459WZhyzbi.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/montserrat/v31/JTUSjIg1_i6t8kCHKm459Wdhyzbi.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/montserrat/v31/JTUSjIg1_i6t8kCHKm459Wlhyw.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/montserrat/v31/JTUSjIg1_i6t8kCHKm459WRhyzbi.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/montserrat/v31/JTUSjIg1_i6t8kCHKm459W1hyzbi.woff2) format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/montserrat/v31/JTUSjIg1_i6t8kCHKm459WZhyzbi.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/montserrat/v31/JTUSjIg1_i6t8kCHKm459Wdhyzbi.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/montserrat/v31/JTUSjIg1_i6t8kCHKm459Wlhyw.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/montserrat/v31/JTUSjIg1_i6t8kCHKm459WRhyzbi.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/montserrat/v31/JTUSjIg1_i6t8kCHKm459W1hyzbi.woff2) format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/montserrat/v31/JTUSjIg1_i6t8kCHKm459WZhyzbi.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/montserrat/v31/JTUSjIg1_i6t8kCHKm459Wdhyzbi.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/montserrat/v31/JTUSjIg1_i6t8kCHKm459Wlhyw.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3GUBGEe.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3iUBGEe.woff2) format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* greek-ext */
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3CUBGEe.woff2) format('woff2');
+  unicode-range: U+1F00-1FFF;
+}
+/* greek */
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3-UBGEe.woff2) format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* math */
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMawCUBGEe.woff2) format('woff2');
+  unicode-range: U+0302-0303, U+0305, U+0307-0308, U+0310, U+0312, U+0315, U+031A, U+0326-0327, U+032C, U+032F-0330, U+0332-0333, U+0338, U+033A, U+0346, U+034D, U+0391-03A1, U+03A3-03A9, U+03B1-03C9, U+03D1, U+03D5-03D6, U+03F0-03F1, U+03F4-03F5, U+2016-2017, U+2034-2038, U+203C, U+2040, U+2043, U+2047, U+2050, U+2057, U+205F, U+2070-2071, U+2074-208E, U+2090-209C, U+20D0-20DC, U+20E1, U+20E5-20EF, U+2100-2112, U+2114-2115, U+2117-2121, U+2123-214F, U+2190, U+2192, U+2194-21AE, U+21B0-21E5, U+21F1-21F2, U+21F4-2211, U+2213-2214, U+2216-22FF, U+2308-230B, U+2310, U+2319, U+231C-2321, U+2336-237A, U+237C, U+2395, U+239B-23B7, U+23D0, U+23DC-23E1, U+2474-2475, U+25AF, U+25B3, U+25B7, U+25BD, U+25C1, U+25CA, U+25CC, U+25FB, U+266D-266F, U+27C0-27FF, U+2900-2AFF, U+2B0E-2B11, U+2B30-2B4C, U+2BFE, U+3030, U+FF5B, U+FF5D, U+1D400-1D7FF, U+1EE00-1EEFF;
+}
+/* symbols */
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMaxKUBGEe.woff2) format('woff2');
+  unicode-range: U+0001-000C, U+000E-001F, U+007F-009F, U+20DD-20E0, U+20E2-20E4, U+2150-218F, U+2190, U+2192, U+2194-2199, U+21AF, U+21E6-21F0, U+21F3, U+2218-2219, U+2299, U+22C4-22C6, U+2300-243F, U+2440-244A, U+2460-24FF, U+25A0-27BF, U+2800-28FF, U+2921-2922, U+2981, U+29BF, U+29EB, U+2B00-2BFF, U+4DC0-4DFF, U+FFF9-FFFB, U+10140-1018E, U+10190-1019C, U+101A0, U+101D0-101FD, U+102E0-102FB, U+10E60-10E7E, U+1D2C0-1D2D3, U+1D2E0-1D37F, U+1F000-1F0FF, U+1F100-1F1AD, U+1F1E6-1F1FF, U+1F30D-1F30F, U+1F315, U+1F31C, U+1F31E, U+1F320-1F32C, U+1F336, U+1F378, U+1F37D, U+1F382, U+1F393-1F39F, U+1F3A7-1F3A8, U+1F3AC-1F3AF, U+1F3C2, U+1F3C4-1F3C6, U+1F3CA-1F3CE, U+1F3D4-1F3E0, U+1F3ED, U+1F3F1-1F3F3, U+1F3F5-1F3F7, U+1F408, U+1F415, U+1F41F, U+1F426, U+1F43F, U+1F441-1F442, U+1F444, U+1F446-1F449, U+1F44C-1F44E, U+1F453, U+1F46A, U+1F47D, U+1F4A3, U+1F4B0, U+1F4B3, U+1F4B9, U+1F4BB, U+1F4BF, U+1F4C8-1F4CB, U+1F4D6, U+1F4DA, U+1F4DF, U+1F4E3-1F4E6, U+1F4EA-1F4ED, U+1F4F7, U+1F4F9-1F4FB, U+1F4FD-1F4FE, U+1F503, U+1F507-1F50B, U+1F50D, U+1F512-1F513, U+1F53E-1F54A, U+1F54F-1F5FA, U+1F610, U+1F650-1F67F, U+1F687, U+1F68D, U+1F691, U+1F694, U+1F698, U+1F6AD, U+1F6B2, U+1F6B9-1F6BA, U+1F6BC, U+1F6C6-1F6CF, U+1F6D3-1F6D7, U+1F6E0-1F6EA, U+1F6F0-1F6F3, U+1F6F7-1F6FC, U+1F700-1F7FF, U+1F800-1F80B, U+1F810-1F847, U+1F850-1F859, U+1F860-1F887, U+1F890-1F8AD, U+1F8B0-1F8BB, U+1F8C0-1F8C1, U+1F900-1F90B, U+1F93B, U+1F946, U+1F984, U+1F996, U+1F9E9, U+1FA00-1FA6F, U+1FA70-1FA7C, U+1FA80-1FA89, U+1FA8F-1FAC6, U+1FACE-1FADC, U+1FADF-1FAE9, U+1FAF0-1FAF8, U+1FB00-1FBFF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3OUBGEe.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3KUBGEe.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBA.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 500;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3GUBGEe.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 500;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3iUBGEe.woff2) format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* greek-ext */
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 500;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3CUBGEe.woff2) format('woff2');
+  unicode-range: U+1F00-1FFF;
+}
+/* greek */
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 500;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3-UBGEe.woff2) format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* math */
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 500;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMawCUBGEe.woff2) format('woff2');
+  unicode-range: U+0302-0303, U+0305, U+0307-0308, U+0310, U+0312, U+0315, U+031A, U+0326-0327, U+032C, U+032F-0330, U+0332-0333, U+0338, U+033A, U+0346, U+034D, U+0391-03A1, U+03A3-03A9, U+03B1-03C9, U+03D1, U+03D5-03D6, U+03F0-03F1, U+03F4-03F5, U+2016-2017, U+2034-2038, U+203C, U+2040, U+2043, U+2047, U+2050, U+2057, U+205F, U+2070-2071, U+2074-208E, U+2090-209C, U+20D0-20DC, U+20E1, U+20E5-20EF, U+2100-2112, U+2114-2115, U+2117-2121, U+2123-214F, U+2190, U+2192, U+2194-21AE, U+21B0-21E5, U+21F1-21F2, U+21F4-2211, U+2213-2214, U+2216-22FF, U+2308-230B, U+2310, U+2319, U+231C-2321, U+2336-237A, U+237C, U+2395, U+239B-23B7, U+23D0, U+23DC-23E1, U+2474-2475, U+25AF, U+25B3, U+25B7, U+25BD, U+25C1, U+25CA, U+25CC, U+25FB, U+266D-266F, U+27C0-27FF, U+2900-2AFF, U+2B0E-2B11, U+2B30-2B4C, U+2BFE, U+3030, U+FF5B, U+FF5D, U+1D400-1D7FF, U+1EE00-1EEFF;
+}
+/* symbols */
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 500;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMaxKUBGEe.woff2) format('woff2');
+  unicode-range: U+0001-000C, U+000E-001F, U+007F-009F, U+20DD-20E0, U+20E2-20E4, U+2150-218F, U+2190, U+2192, U+2194-2199, U+21AF, U+21E6-21F0, U+21F3, U+2218-2219, U+2299, U+22C4-22C6, U+2300-243F, U+2440-244A, U+2460-24FF, U+25A0-27BF, U+2800-28FF, U+2921-2922, U+2981, U+29BF, U+29EB, U+2B00-2BFF, U+4DC0-4DFF, U+FFF9-FFFB, U+10140-1018E, U+10190-1019C, U+101A0, U+101D0-101FD, U+102E0-102FB, U+10E60-10E7E, U+1D2C0-1D2D3, U+1D2E0-1D37F, U+1F000-1F0FF, U+1F100-1F1AD, U+1F1E6-1F1FF, U+1F30D-1F30F, U+1F315, U+1F31C, U+1F31E, U+1F320-1F32C, U+1F336, U+1F378, U+1F37D, U+1F382, U+1F393-1F39F, U+1F3A7-1F3A8, U+1F3AC-1F3AF, U+1F3C2, U+1F3C4-1F3C6, U+1F3CA-1F3CE, U+1F3D4-1F3E0, U+1F3ED, U+1F3F1-1F3F3, U+1F3F5-1F3F7, U+1F408, U+1F415, U+1F41F, U+1F426, U+1F43F, U+1F441-1F442, U+1F444, U+1F446-1F449, U+1F44C-1F44E, U+1F453, U+1F46A, U+1F47D, U+1F4A3, U+1F4B0, U+1F4B3, U+1F4B9, U+1F4BB, U+1F4BF, U+1F4C8-1F4CB, U+1F4D6, U+1F4DA, U+1F4DF, U+1F4E3-1F4E6, U+1F4EA-1F4ED, U+1F4F7, U+1F4F9-1F4FB, U+1F4FD-1F4FE, U+1F503, U+1F507-1F50B, U+1F50D, U+1F512-1F513, U+1F53E-1F54A, U+1F54F-1F5FA, U+1F610, U+1F650-1F67F, U+1F687, U+1F68D, U+1F691, U+1F694, U+1F698, U+1F6AD, U+1F6B2, U+1F6B9-1F6BA, U+1F6BC, U+1F6C6-1F6CF, U+1F6D3-1F6D7, U+1F6E0-1F6EA, U+1F6F0-1F6F3, U+1F6F7-1F6FC, U+1F700-1F7FF, U+1F800-1F80B, U+1F810-1F847, U+1F850-1F859, U+1F860-1F887, U+1F890-1F8AD, U+1F8B0-1F8BB, U+1F8C0-1F8C1, U+1F900-1F90B, U+1F93B, U+1F946, U+1F984, U+1F996, U+1F9E9, U+1FA00-1FA6F, U+1FA70-1FA7C, U+1FA80-1FA89, U+1FA8F-1FAC6, U+1FACE-1FADC, U+1FADF-1FAE9, U+1FAF0-1FAF8, U+1FB00-1FBFF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 500;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3OUBGEe.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 500;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3KUBGEe.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 500;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBA.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 700;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3GUBGEe.woff2) format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 700;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3iUBGEe.woff2) format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* greek-ext */
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 700;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3CUBGEe.woff2) format('woff2');
+  unicode-range: U+1F00-1FFF;
+}
+/* greek */
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 700;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3-UBGEe.woff2) format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* math */
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 700;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMawCUBGEe.woff2) format('woff2');
+  unicode-range: U+0302-0303, U+0305, U+0307-0308, U+0310, U+0312, U+0315, U+031A, U+0326-0327, U+032C, U+032F-0330, U+0332-0333, U+0338, U+033A, U+0346, U+034D, U+0391-03A1, U+03A3-03A9, U+03B1-03C9, U+03D1, U+03D5-03D6, U+03F0-03F1, U+03F4-03F5, U+2016-2017, U+2034-2038, U+203C, U+2040, U+2043, U+2047, U+2050, U+2057, U+205F, U+2070-2071, U+2074-208E, U+2090-209C, U+20D0-20DC, U+20E1, U+20E5-20EF, U+2100-2112, U+2114-2115, U+2117-2121, U+2123-214F, U+2190, U+2192, U+2194-21AE, U+21B0-21E5, U+21F1-21F2, U+21F4-2211, U+2213-2214, U+2216-22FF, U+2308-230B, U+2310, U+2319, U+231C-2321, U+2336-237A, U+237C, U+2395, U+239B-23B7, U+23D0, U+23DC-23E1, U+2474-2475, U+25AF, U+25B3, U+25B7, U+25BD, U+25C1, U+25CA, U+25CC, U+25FB, U+266D-266F, U+27C0-27FF, U+2900-2AFF, U+2B0E-2B11, U+2B30-2B4C, U+2BFE, U+3030, U+FF5B, U+FF5D, U+1D400-1D7FF, U+1EE00-1EEFF;
+}
+/* symbols */
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 700;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMaxKUBGEe.woff2) format('woff2');
+  unicode-range: U+0001-000C, U+000E-001F, U+007F-009F, U+20DD-20E0, U+20E2-20E4, U+2150-218F, U+2190, U+2192, U+2194-2199, U+21AF, U+21E6-21F0, U+21F3, U+2218-2219, U+2299, U+22C4-22C6, U+2300-243F, U+2440-244A, U+2460-24FF, U+25A0-27BF, U+2800-28FF, U+2921-2922, U+2981, U+29BF, U+29EB, U+2B00-2BFF, U+4DC0-4DFF, U+FFF9-FFFB, U+10140-1018E, U+10190-1019C, U+101A0, U+101D0-101FD, U+102E0-102FB, U+10E60-10E7E, U+1D2C0-1D2D3, U+1D2E0-1D37F, U+1F000-1F0FF, U+1F100-1F1AD, U+1F1E6-1F1FF, U+1F30D-1F30F, U+1F315, U+1F31C, U+1F31E, U+1F320-1F32C, U+1F336, U+1F378, U+1F37D, U+1F382, U+1F393-1F39F, U+1F3A7-1F3A8, U+1F3AC-1F3AF, U+1F3C2, U+1F3C4-1F3C6, U+1F3CA-1F3CE, U+1F3D4-1F3E0, U+1F3ED, U+1F3F1-1F3F3, U+1F3F5-1F3F7, U+1F408, U+1F415, U+1F41F, U+1F426, U+1F43F, U+1F441-1F442, U+1F444, U+1F446-1F449, U+1F44C-1F44E, U+1F453, U+1F46A, U+1F47D, U+1F4A3, U+1F4B0, U+1F4B3, U+1F4B9, U+1F4BB, U+1F4BF, U+1F4C8-1F4CB, U+1F4D6, U+1F4DA, U+1F4DF, U+1F4E3-1F4E6, U+1F4EA-1F4ED, U+1F4F7, U+1F4F9-1F4FB, U+1F4FD-1F4FE, U+1F503, U+1F507-1F50B, U+1F50D, U+1F512-1F513, U+1F53E-1F54A, U+1F54F-1F5FA, U+1F610, U+1F650-1F67F, U+1F687, U+1F68D, U+1F691, U+1F694, U+1F698, U+1F6AD, U+1F6B2, U+1F6B9-1F6BA, U+1F6BC, U+1F6C6-1F6CF, U+1F6D3-1F6D7, U+1F6E0-1F6EA, U+1F6F0-1F6F3, U+1F6F7-1F6FC, U+1F700-1F7FF, U+1F800-1F80B, U+1F810-1F847, U+1F850-1F859, U+1F860-1F887, U+1F890-1F8AD, U+1F8B0-1F8BB, U+1F8C0-1F8C1, U+1F900-1F90B, U+1F93B, U+1F946, U+1F984, U+1F996, U+1F9E9, U+1FA00-1FA6F, U+1FA70-1FA7C, U+1FA80-1FA89, U+1FA8F-1FAC6, U+1FACE-1FADC, U+1FADF-1FAE9, U+1FAF0-1FAF8, U+1FB00-1FBFF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 700;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3OUBGEe.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 700;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3KUBGEe.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 700;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBA.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+</style><style type="text/css">.gwd-row {
+  display: flex;
+  flex-direction: row;
+}
+.gwd-inline-row {
+  display: inline-flex;
+  flex-direction: row;
+}
+.gwd-column {
+  display: flex;
+  flex-direction: column;
+}
+.gwd-inline-column {
+  display: inline-flex;
+  flex-direction: column;
+}
+.gwd-align {
+  align-content: center;
+  align-items: center;
+}
+.gwd-jcc {
+  justify-content: center;
+}
+.gwd-jic {
+  justify-items: center;
+}
+.gwd-button {
+  outline: none;
+  border: none;
+}
+.bjg-bar-button {
+  font-size: 0;
+}
+.bjg-hover-bg {
+  background: #fffbef;
+}
+.bjg-bar-button:hover {
+  background: #fffbef;
+  cursor: pointer;
+}
+.bjg-bar-button:hover .bjg-window {
+  display: block;
+}
+.mainbar-fold .bjg-bar-button,
+.mainbar-fold #top_coupon_btn,
+.mainbar-fold .rinfo-btn,
+.mainbar-fold .gwd-bottom-tmall {
+  display: none!important;
+}
+.gwd-font12 {
+  font-size: 12px;
+}
+.gwd-font14 {
+  font-size: 14px;
+}
+.gwd-red {
+  color: #ff3532;
+}
+.gwd-red-bg {
+  background: #ff3532;
+}
+.gwd-hui333 {
+  color: #333333;
+}
+.gwd-hui999 {
+  color: #999999;
+}
+.gwd-font10 {
+  font-size: 12px;
+  transform: scale(0.8333);
+  transform-origin: bottom center;
+}
+.gwd-font11 {
+  font-size: 12px;
+  transform: scale(0.91666);
+  transform-origin: bottom center;
+}
+.gwd-font9 {
+  font-size: 12px;
+  transform: scale(0.75);
+  transform-origin: bottom center;
+}
+.gwd-hoverable:hover {
+  background: #edf1f2;
+}
+.right-info > * {
+  border-left: 1px solid #edf1f2;
+}
+.gwd-red-after-visit:hover {
+  color: #e03024 !important;
+}
+.gwd-button:hover {
+  filter: brightness(1.1);
+}
+.gwd-button {
+  padding-top: 1px;
+  padding-bottom: 1px;
+}
+.gwd-button:active {
+  filter: brightness(0.9);
+}
+.gwd-fadeout-5s {
+  opacity: 0;
+  transition: opacity 5s;
+}
+.gwd-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  border-radius: 17px;
+}
+.gwd-scrollbar::-webkit-scrollbar-thumb {
+  border-radius: 17px;
+  background: #999;
+}
+#gwdang_main,
+.gwdang-main,
+.bjgext-detail {
+  font-size: 12px;
+}
+#gwdang_main button,
+.gwdang-main button,
+.bjgext-detail button {
+  text-align: center;
+}
+.gwd-width-100 {
+  width: 100%;
+}
+.gwd-overlay {
+  font-family: "Microsoft YaHei", "Arial", "SimSun", serif;
+  font-size: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 999999999;
+}
+.gwd-font-pfm {
+  font-family: 'PingFangSC-Medium';
+  font-weight: normal!important;
+}
+@font-face {
+  font-family: 'PingFangSC-Medium';
+  src: local('PingFangSC-Medium');
+}
+.gwd-font-pfm {
+  font-family: local('PingFangSC-Medium'), system-ui;
+  font-weight: bold;
+}
+#gwd_minibar svg,
+.gwdang-main svg,
+#bjgext_mb_bg svg,
+#bjgext_mainbar svg {
+  fill: transparent;
+}
+.gwd-common-font {
+  font-family: 'PingFang SC', 'Microsoft YaHei', '\5FAE\8F6F\96C5\9ED1', 'Hiragino Sans GB', 'WenQuanYi Micro Hei';
+}
+</style><style type="text/css">.gwd-row[data-v-07d1070f] {
+  display: flex;
+  flex-direction: row;
+}
+.gwd-inline-row[data-v-07d1070f] {
+  display: inline-flex;
+  flex-direction: row;
+}
+.gwd-column[data-v-07d1070f] {
+  display: flex;
+  flex-direction: column;
+}
+.gwd-inline-column[data-v-07d1070f] {
+  display: inline-flex;
+  flex-direction: column;
+}
+.gwd-align[data-v-07d1070f] {
+  align-content: center;
+  align-items: center;
+}
+.gwd-jcc[data-v-07d1070f] {
+  justify-content: center;
+}
+.gwd-jic[data-v-07d1070f] {
+  justify-items: center;
+}
+.gwd-button[data-v-07d1070f] {
+  outline: none;
+  border: none;
+}
+.bjg-bar-button[data-v-07d1070f] {
+  font-size: 0;
+}
+.bjg-hover-bg[data-v-07d1070f] {
+  background: #fffbef;
+}
+.bjg-bar-button[data-v-07d1070f]:hover {
+  background: #fffbef;
+  cursor: pointer;
+}
+.bjg-bar-button:hover .bjg-window[data-v-07d1070f] {
+  display: block;
+}
+.mainbar-fold .bjg-bar-button[data-v-07d1070f],
+.mainbar-fold #top_coupon_btn[data-v-07d1070f],
+.mainbar-fold .rinfo-btn[data-v-07d1070f],
+.mainbar-fold .gwd-bottom-tmall[data-v-07d1070f] {
+  display: none!important;
+}
+.gwd-font12[data-v-07d1070f] {
+  font-size: 12px;
+}
+.gwd-font14[data-v-07d1070f] {
+  font-size: 14px;
+}
+.gwd-red[data-v-07d1070f] {
+  color: #ff3532;
+}
+.gwd-red-bg[data-v-07d1070f] {
+  background: #ff3532;
+}
+.gwd-hui333[data-v-07d1070f] {
+  color: #333333;
+}
+.gwd-hui999[data-v-07d1070f] {
+  color: #999999;
+}
+.gwd-font10[data-v-07d1070f] {
+  font-size: 12px;
+  transform: scale(0.8333);
+  transform-origin: bottom center;
+}
+.gwd-font11[data-v-07d1070f] {
+  font-size: 12px;
+  transform: scale(0.91666);
+  transform-origin: bottom center;
+}
+.gwd-font9[data-v-07d1070f] {
+  font-size: 12px;
+  transform: scale(0.75);
+  transform-origin: bottom center;
+}
+.gwd-hoverable[data-v-07d1070f]:hover {
+  background: #edf1f2;
+}
+.right-info > *[data-v-07d1070f] {
+  border-left: 1px solid #edf1f2;
+}
+.gwd-red-after-visit[data-v-07d1070f]:hover {
+  color: #e03024 !important;
+}
+.gwd-button[data-v-07d1070f]:hover {
+  filter: brightness(1.1);
+}
+.gwd-button[data-v-07d1070f] {
+  padding-top: 1px;
+  padding-bottom: 1px;
+}
+.gwd-button[data-v-07d1070f]:active {
+  filter: brightness(0.9);
+}
+.gwd-fadeout-5s[data-v-07d1070f] {
+  opacity: 0;
+  transition: opacity 5s;
+}
+.gwd-scrollbar[data-v-07d1070f]::-webkit-scrollbar {
+  width: 6px;
+  border-radius: 17px;
+}
+.gwd-scrollbar[data-v-07d1070f]::-webkit-scrollbar-thumb {
+  border-radius: 17px;
+  background: #999;
+}
+#gwdang_main[data-v-07d1070f],
+.gwdang-main[data-v-07d1070f],
+.bjgext-detail[data-v-07d1070f] {
+  font-size: 12px;
+}
+#gwdang_main button[data-v-07d1070f],
+.gwdang-main button[data-v-07d1070f],
+.bjgext-detail button[data-v-07d1070f] {
+  text-align: center;
+}
+.gwd-width-100[data-v-07d1070f] {
+  width: 100%;
+}
+.gwd-overlay[data-v-07d1070f] {
+  font-family: "Microsoft YaHei", "Arial", "SimSun", serif;
+  font-size: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 999999999;
+}
+.gwd-font-pfm[data-v-07d1070f] {
+  font-family: 'PingFangSC-Medium';
+  font-weight: normal!important;
+}
+@font-face {
+  font-family: 'PingFangSC-Medium';
+  src: local('PingFangSC-Medium');
+}
+.gwd-font-pfm[data-v-07d1070f] {
+  font-family: local('PingFangSC-Medium'), system-ui;
+  font-weight: bold;
+}
+#gwd_minibar svg[data-v-07d1070f],
+.gwdang-main svg[data-v-07d1070f],
+#bjgext_mb_bg svg[data-v-07d1070f],
+#bjgext_mainbar svg[data-v-07d1070f] {
+  fill: transparent;
+}
+.gwd-common-font[data-v-07d1070f] {
+  font-family: 'PingFang SC', 'Microsoft YaHei', '\5FAE\8F6F\96C5\9ED1', 'Hiragino Sans GB', 'WenQuanYi Micro Hei';
+}
+.gwd-taobao[data-v-07d1070f] {
+  margin-top: 20px;
+}
+.gwd-taobao span[data-v-07d1070f] {
+  color: #ff4400;
+}
+.gwd-jd[data-v-07d1070f] {
+  margin-top: 20px;
+}
+.gwd-jd span[data-v-07d1070f] {
+  color: #e2231a;
+}
+a[data-v-07d1070f] {
+  white-space: nowrap;
+  position: relative;
+  height: 24px;
+  font-family: 'Microsoft YaHei';
+}
+a[data-v-07d1070f]:hover {
+  text-decoration: none;
+  cursor: pointer;
+}
+a:hover .gwd-tooltip[data-v-07d1070f] {
+  display: block;
+}
+.gwd-coupon[data-v-07d1070f] {
+  height: 24px;
+  box-sizing: border-box;
+  min-width: 106px;
+}
+.gwd-coupon[data-v-07d1070f] {
+  background-size: contain;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+.gwd-coupon[data-v-07d1070f]:before,
+.gwd-coupon[data-v-07d1070f]:after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 9px;
+  background-size: contain;
+}
+.gwd-coupon[data-v-07d1070f]:before {
+  left: 0;
+}
+.gwd-coupon[data-v-07d1070f]:after {
+  right: 0;
+  transform: rotate(180deg);
+}
+.gwd-coupon.gwd-taobao[data-v-07d1070f] {
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAA0CAYAAAAjfRLqAAAAAXNSR0IArs4c6QAAAU5JREFUeF7tlNENgDAQhdrd3H+lc4cmGgX8r5YHca+eFgAtsOdaA+IJRb5AQcsDoOHvmekPTbMq5ilosXwiekETrYqZClosn4he0ESrYqaCFssnohc00aqYqaDF8onoBU20KmYqaLF8InpBE62KmQpaLJ+IXtBEq2KmghbLJ6IXNNGqmKmgxfKJ6AVNtCpmKmixfCJ6QROtipkKWiyfiF7QRKtipoIWyyeiFzTRqpipoMXyiegFTbQqZiposXwiekETrYqZClosn4he0ESrYqaCFssnohc00aqYqaDF8onoBU20KmYqaLF8InpBE62KmQpaLJ+IXtBEq2KmghbLJ6IXNNGqmKmgxfKJ6AVNtCpmKmixfCJ6QROtipkKWiyfiF7QRKtipoL+m/yZv9341fvuuVYLvTp5H3tygYJ+ct3zd/eTOdxuH57rWAt8coEbbyjDgopRg1YAAAAASUVORK5CYII=);
+}
+.gwd-coupon.gwd-taobao[data-v-07d1070f]:before,
+.gwd-coupon.gwd-taobao[data-v-07d1070f]:after {
+  background-repeat: no-repeat;
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAA0CAYAAACHO2h8AAAAAXNSR0IArs4c6QAAAZJJREFUSEvtlz9OAkEUh79NsNJiOy038QDuEUggxM6INWCrDRRSwwE0UtqtiR7A3mKPwBH2CF7AZM2bAeJkIeyb3U004TU0w5f3Z37vNxtQUwTCybvkVXkNgT79E3MzumjDQwJnkbrSYmknITymcB6rYAZkGt4m4og5OSMkM4EpYgNawUJaZEDIewan5Ut0QKurIKm0TUaSWcnYBloCcSVQ3mFMwMKUJKUpwk6tQ0KANMTWMn2F3kiBAXf8xyEMZ9CfqCBy2AV9fIHAPMIF1SYR5ch/J16UiPTn7lld3Bok0ogIuDK3ejiHwUwFcyXSNeNPEeG+ZZjfkrH7Zr8sVRugGa3ll0R8I1rzU7/ZRS0jERlXTO8WpknJ7thjxfGLYJ9S1S4qgmTkNxMvmTQkkdq0drCjbResGYmsfO0v2pFsSKWTFLUmdjSYqwT7H+xI9rTHa237PqrJjuzL4X4B12NVww92tL9d9maLHYmXtRAPir2fx85HTS121B9bsSre1+uiG7Kj/T3deaLe77UKiWz++gOA98aFVwFZGwAAAABJRU5ErkJggg==);
+}
+.gwd-coupon.gwd-taobao[data-v-07d1070f]:hover {
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAA0CAYAAAAjfRLqAAAAAXNSR0IArs4c6QAAAVNJREFUeF7tlMENgzAUxZLd2H+NXrvB7w6RQMU290D8bLFXTwuAFthzrQHxhCJfoKDlAdDw93w//aFpVsU8BS2WT0QvaKJVMVNBi+UT0QuaaFXMVNBi+UT0giZaFTMVtFg+Eb2giVbFTAUtlk9EL2iiVTFTQYvlE9ELmmhVzFTQYvlE9IImWhUzFbRYPhG9oIlWxUwFLZZPRC9oolUxU0GL5RPRC5poVcxU0GL5RPSCJloVMxW0WD4RvaCJVsVMBS2WT0QvaKJVMVNBi+UT0QuaaFXMVNBi+UT0giZaFTMVtFg+Eb2giVbFTAUtlk9EL2iiVTFTQYvlE9ELmmhVzFTQYvlE9IImWhUzFbRYPhG9oIlWxUwFLZZPRC9oolUxU0GL5RPRC5poVcxU0G+TP/O2Gz963z3XaqFHJ+9jdy5Q0Heue/7ufjKH2+3Dcx1rgb9c4AdcEryACPINxAAAAABJRU5ErkJggg==);
+}
+.gwd-coupon.gwd-taobao[data-v-07d1070f]:hover:before,
+.gwd-coupon.gwd-taobao[data-v-07d1070f]:hover:after {
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAA0CAYAAACHO2h8AAAAAXNSR0IArs4c6QAAAYtJREFUSEvtl79Kw2AUxX+BuCiULroVstfBVadIOwgd3NqxOOii4GAfwDoLdqpjcVdfwKF7HZydHH0JIXJvk+pHWujNH6nQC9mSk/Pde849iUdB5QlO1CTKi1cS0ONnZmIuo/oBnA9gp2YGTB9tqwL9Jwh2TWAKpA0PCdjgmoguwkzADDUDisGq+HwAVYYT0xEdoFgKYyBURsJsyZoH9Abs5QKKGlziMWC7BveTJblMb5tOrcEIj0CPJCUSOOxkAEosslmBTg9apyaQH0YJ0MM7iI4ylCvIwixiHPlv4mmLSH9ObsyHS4DEGgEex6rq9hW0eyYw1yJNHf9YGz58NTV+sbJvX0wboByvRUcEfCFey+Z+3UW+WuRODRt24GJgb7aTImJY0ZNx3bo6krG3zkzTSmiXZJHCvLaOo3kCK8cica6tYhzJhjQmSXrVZtiO/yGOjJ8yfxJHXX1L1qklFKN1HC10v8aRZJnPSOOovg/951WIIzGqXMZMS3utsBQxdcW9udj/tRxEZo9+AyVqv4MZSS3ZAAAAAElFTkSuQmCC);
+}
+.gwd-coupon.gwd-jd[data-v-07d1070f] {
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAKoAAAAsCAYAAAD1nyNHAAAAAXNSR0IArs4c6QAAAR1JREFUeF7tnbERgFAMhcz+2+k0VnGF33kcWFvwAmfrXD1dAHCBee9nAZwhyi9QqPIAKPNnd/uiUmyJOQtVLJ80vVBJtsSshSqWT5peqCRbYtZCFcsnTS9Uki0xa6GK5ZOmFyrJlpi1UMXySdMLlWRLzFqoYvmk6YVKsiVmLVSxfNL0QiXZErMWqlg+aXqhkmyJWQtVLJ80vVBJtsSshSqWT5peqCRbYtZCFcsnTS9Uki0xa6GK5ZOmFyrJlpi1UMXySdMLlWRLzFqoYvmk6YVKsiVmLVSxfNL0QiXZErMWqlg+aXqhkmyJWQtVLJ80vVBJtsSshSqWT5peqCRbYtZCFcsnTe/3PSRbYtZC/V9+v086cDAH7/RKF/j9Ah900KcI8oZhhwAAAABJRU5ErkJggg==);
+}
+.gwd-coupon.gwd-jd[data-v-07d1070f]:before,
+.gwd-coupon.gwd-jd[data-v-07d1070f]:after {
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAAsCAYAAABovuiKAAAAAXNSR0IArs4c6QAAAdVJREFUSEvNVlFO20AQfbOzayEhUUepgkIicFBKCmoljpAb0CNwA7gBuUG4AUfhCCvb6jdH4DPFldhqXCWya/Exi5G6n5b9/ObNmzdL6OmQ4LwUZXgv3scAudMZaH8/ilyHEX8egsdjNVgNtMnzFUCZAa5AlPJoBD4cqcBqoO3Z+HJpGI+UOLjFIh6o2cHk+7d4oMr7y8DWwzkkXyMYbYrimog+UcAKQCr6iE6a0+matF9soD0tIHs6g+nDR1qBm6xbjMwgrbWhJNFWhq5GiYOdzdRgO0NuvM+Y7UMAljGCt5wdvE8rts9gRnJxriqvBdSbs3+XP+9ew+squrSqKB8DKANCJqz45Bh8cKAvbRe1xoAnR+A0VYHIy63292ZItzhT+2dLvRu1Eem4K60qigeJWjGjPLTTCcxgoNKp5aNfeX5LZNbR7W/+ettBrfD/hL/PDNun6BGRgQWQsXXrEMKlxImdTvUatXa/c3XUajOp1X4JfTMcgphVbD7O2TH+edPZsq7tfK4u7+8lQnY+QgqDNYiyd18idiv7v4naKi9vAuGe9vbgvsxVFqg1kukPIInFH3XUTifgmOlvOjvmJtIxpLs4V7f9TR+phGm83O89O5ZF87s/IaG3Cf8Fdl8AAAAASUVORK5CYII=);
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+.gwd-coupon.gwd-jd[data-v-07d1070f]:hover {
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAKoAAAAsCAYAAAD1nyNHAAAAAXNSR0IArs4c6QAAAR9JREFUeF7tnbENgFAQhbz9t9NdTGzUFX73Q8DagncQW+fo6QKAC8xzXh+AM0T5BQpVHgBl/rz33ReVYkvMWahi+aTphUqyJWYtVLF80vRCJdkSsxaqWD5peqGSbIlZC1UsnzS9UEm2xKyFKpZPml6oJFti1kIVyydNL1SSLTFroYrlk6YXKsmWmLVQxfJJ0wuVZEvMWqhi+aTphUqyJWYtVLF80vRCJdkSsxaqWD5peqGSbIlZC1UsnzS9UEm2xKyFKpZPml6oJFti1kIVyydNL1SSLTFroYrlk6YXKsmWmLVQxfJJ0wuVZEvMWqhi+aTphUqyJWYtVLF80vRCJdkSsxaqWD5per/vIdkSsxbqfvn9PmnBwSy80ytdYPsFfqOApDYolPr+AAAAAElFTkSuQmCC);
+}
+.gwd-coupon.gwd-jd[data-v-07d1070f]:hover:before,
+.gwd-coupon.gwd-jd[data-v-07d1070f]:hover:after {
+  background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAAsCAYAAABovuiKAAAAAXNSR0IArs4c6QAAAclJREFUSEvNlttNw0AQRe/MrgURChgThUeAmEcBKSEdQAl0AB2QDkIHlEIJlm3xTQl8BoyURePIkY3Fx6yDxPxFcq5m75x5EDYUJDqfWe666v2NkBmdgHs9r+RaGXEYwgwO1GKl0CJNZwDFDNyAKORoHyaKVGKlUBWLJJ+ywQtZCxuP/YXqFQyur/yFiiSZOGMTWIvAJ6NFlt0R0R45zAD4e1QHknrbsKOR6lnycaP8dnQC2gRHWoPraTcy4n4fwhAFQbenlW+1FtIqWrE1kIskiY2xzw6Yik/ilyYaZLskCQtj38GM4PJCo7OqWj0qFLTGN4S+8tfHpVvOfFgqhYosf3GgGHCx/DbHR+CdHf3T1mQzwwwG4N2+SqRFttaXX4G043M1P5VYe9RGEUy07/e0IsueZdQKjKXZw6Hap0b5P9L0gYjnncne2KiVfmNj37xbRAQAxMYGc+fcRMaJORyqDG+vbFlFvmOkIlvKTmEIYlZl83dk+/DzK9nluj4/g1ROE6sjQnY+XAjGHERx5yNivbL/zagt0vzeEZ5oawv27FRj0Wr4S/c7UAjgtlP3148IH6PbR8TlhRfVLSGVKT8+3uyd3SWT6r/fRdq0N2b1Td4AAAAASUVORK5CYII=);
+}
+.gwd-redpack[data-v-07d1070f] {
+  padding-right: 5px;
+  padding-left: 8px;
+  background: white;
+}
+.gwd-redpack.gwd-taobao[data-v-07d1070f] {
+  border: 1px solid #ff4400;
+}
+.gwd-redpack.gwd-taobao[data-v-07d1070f]:hover {
+  background: #fff0e7;
+}
+.gwd-redpack.gwd-jd[data-v-07d1070f] {
+  border: 1px solid #f9d2d3;
+}
+.gwd-redpack.gwd-jd[data-v-07d1070f]:hover {
+  background: #fff0e7;
+}
+.gwd-tooltip[data-v-07d1070f] {
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 22px;
+  line-height: 22px;
+  text-align: center;
+  z-index: 1;
+  color: #3c3c3c;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  display: none;
+  background: white;
+  border-radius: 2px;
+}
+.gwd-tooltip span[data-v-07d1070f] {
+  color: #3c3c3c;
+}
+.gwd-tooltip[data-v-07d1070f]:after {
+  /* a triangle at bottom */
+  content: " ";
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent white transparent;
+  transform: rotate(180deg);
+}
+</style></head>
+<body class="mobile-login-active" data-new-gr-c-s-check-loaded="14.1139.0" data-gr-ext-installed="" wotdisconnected="true"><span id="warning-container"><i data-reactroot=""></i></span>
+    <!-- Side Panel Toggle -->
+    <button id="sidePanelToggle" class="side-panel-toggle hidden" onclick="toggleSidePanel()">
+        📁 Shared Drive
+    </button>
+    
+    <!-- Announcement Toggle -->
+    <button id="announcementToggle" class="announcement-toggle hidden" onclick="toggleAnnouncementPanel()">
+        📢 Announcements <span id="unreadBadge" class="unread-badge hidden">0</span>
+    </button>
+
+    <!-- Chatbot Toggle -->
+    <button id="chatbotToggle" class="chatbot-toggle hidden" onclick="toggleChatbotPanel()">
+        🤖 Chatbot
+    </button>
+
+    <!-- Technology Toggle -->
+    <button id="technologyToggle" class="technology-toggle hidden" onclick="toggleTechnologyPanel()">
+        💡 Technology <span id="techUnreadBadge" class="unread-badge hidden">0</span>
+    </button>
+
+    <!-- Project Portal Status Overlay (shown during auto-login / on errors) -->
+    <div id="projectPortalStatus" class="hidden" style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;padding:24px 32px;border:1px solid #ccc;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);z-index:9999;min-width:280px;text-align:center;">
+        <div id="projectPortalStatusMessage">Connecting to Project Portal…</div>
+        <div id="projectPortalStatusActions" style="margin-top:12px;"></div>
+    </div>
+
+
+    <!-- Side Panel -->
+    <div id="sidePanel" class="side-panel">
+        <div class="side-panel-header">
+            <h3>Shared Drive</h3>
+            <button onclick="toggleSidePanel()" class="close-btn">✕</button>
+        </div>
+
+        <div class="camera-section">
+            <button onclick="console.log('Take Photo clicked'); openCamera();" class="btn-camera" id="takePhotoBtn" style="display: block; flex: 1 1 0%;">📷 Take Photo</button>
+            <button onclick="console.log('Record Video clicked'); openVideoCamera();" class="btn-camera" id="recordVideoBtn" style="display: block; flex: 1 1 0%;">🎥 Record Video</button>
+            <button onclick="console.log('Screenshot clicked'); openScreenshotGuide();" class="btn-camera" id="screenshotBtn">📸 Screenshot</button>
+        </div>
+
+        <div id="cameraPreview" class="camera-preview hidden">
+            <video id="videoPreview" autoplay=""></video>
+            <canvas id="photoCanvas" class="hidden"></canvas>
+            <div class="camera-controls">
+                <button onclick="capturePhoto()" id="captureBtn" class="hidden">Capture</button>
+                <button onclick="startRecording()" id="recordBtn" class="hidden">Start Recording</button>
+                <button onclick="stopRecording()" id="stopRecordBtn" class="hidden">Stop Recording</button>
+                <button onclick="closeCamera()">Cancel</button>
+            </div>
+        </div>
+
+        <div class="upload-section">
+            <input type="file" id="fileUpload" multiple="" accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx" onchange="uploadFiles()" class="hidden">
+            <button onclick="document.getElementById('fileUpload').click()" class="btn-upload" id="uploadBtn">📤 Upload Files</button>
+            <div id="uploadStatus" class="upload-status"></div>
+        </div>
+
+        <div class="files-section">
+            <h4>Files</h4>
+            <div id="filesList"></div>
+        </div>
+    </div>
+
+    <!-- Announcement Panel -->
+    <div id="announcementPanel" class="side-panel">
+        <div class="side-panel-header">
+            <h3>📢 Announcements</h3>
+            <button onclick="toggleAnnouncementPanel()" class="close-btn">✕</button>
+        </div>
+
+        <div class="announcements-section">
+            <div id="announcementsList"></div>
+        </div>
+    </div>
+
+    <!-- Technology Panel -->
+    <div id="technologyPanel" class="side-panel">
+        <div class="side-panel-header">
+            <h3>💡 Technology</h3>
+            <button onclick="toggleTechnologyPanel()" class="close-btn">✕</button>
+        </div>
+
+        <div class="announcements-section">
+            <div id="technologyList"></div>
+        </div>
+    </div>
+
+    <!-- Chatbot Panel -->
+    <div id="chatbotPanel" class="side-panel chatbot-panel">
+        <div class="side-panel-header">
+            <h3>🤖 Chatbot</h3>
+            <button onclick="toggleChatbotPanel()" class="close-btn">✕</button>
+        </div>
+
+        <div class="chatbot-panel-content">
+            <div class="main-container">
+                <div class="sidebar collapsed" id="sidebarChatbot">
+                    <div class="sidebar-header">
+                        <select class="model-select" id="sidebarModelSelect">
+                            <option value="gemma4" selected="">Gemma4 (Local)</option>
+                            <option value="gpt-5.2">gpt-5.2 (File supported)</option>
+                            <option value="gemini-3-flash-preview">gemini-3-flash</option>
+                            <option value="claude-sonnet-4-6">claude-sonnet-4.6</option>
+                        </select>
+                        <button class="new-chat-btn" id="sidebarNewChatBtn">+ New Chat</button>
+                    </div>
+                    <div class="history-list" id="sidebarHistoryList"></div>
+                </div>
+                <div class="chat-container">
+                    <button class="toggle-sidebar-btn" id="sidebarToggleSidebarBtn">☰</button>
+
+                    <div class="chat-messages" id="sidebarChatMessages">
+                        <div class="message assistant">
+                            <div class="message-avatar">Bot</div>
+                            <div class="message-content">Hello! I'm your AI assistant. How can I help you today?</div>
+                        </div>
+                    </div>
+
+                    <div class="chat-input-container" id="sidebarChatInputContainer">
+                        <div class="resize-handle" id="sidebarResizeHandle">
+                            <div class="resize-icon"></div>
+                        </div>
+                        <div class="file-attachments" id="sidebarFileAttachments"></div>
+                        <div class="input-wrapper">
+                            <button class="icon-btn clear-btn" id="sidebarClearBtn" title="Clear chat history">⟲</button>
+                            <button class="icon-btn add-file-btn" id="sidebarAddFileBtn" title="Attach files">+</button>
+                            <textarea class="chat-input" id="sidebarChatInput" placeholder="Type your message..." rows="1"></textarea>
+                            <button class="send-btn" id="sidebarSendBtn">➤</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <input type="file" id="sidebarFileInput" multiple="" accept="image/*,application/pdf,text/*,.doc,.docx,.xls,.xlsx" style="display: none;">
+    </div>
+
+
+    <div class="container">
+        <header>
+            <h1>Staff Portal</h1>
+            <div id="userInfo"></div>
+        </header>
+
+        <!-- Login Screen -->
+        <div id="loginScreen" class="screen">
+            <div class="login-box">
+                <h2>Login</h2>
+                <input type="text" id="loginUsername" placeholder="Username" autocomplete="off">
+                <input type="password" id="loginPassword" placeholder="Password" autocomplete="off" onkeypress="if(event.key==='Enter') login()">
+                <button onclick="login()">Login</button>
+                <p class="hint">Default password: password</p>
+            </div>
+        </div>
+
+        <!-- Staff Dashboard -->
+        <div id="staffDashboard" class="screen hidden">
+            <div class="dashboard-header">
+                <h2>Welcome, <span id="staffName"></span></h2>
+                <div>
+                    <span id="staffMobileUsername" class="mobile-username"></span>
+                    <button onclick="changeMyPassword()" class="btn-secondary" style="margin-right: 10px;">🔑 Change Password</button>
+                    <button onclick="logout()" class="btn-secondary">Logout</button>
+                </div>
+            </div>
+
+            <div class="admin-tabs">
+                <button class="tab-btn active" onclick="showStaffTab('staff-home')">Home</button>
+                <button class="tab-btn" onclick="showStaffTab('staff-tasks')">Tasks</button>
+                <button class="tab-btn" onclick="showStaffTab('staff-leave')">Leave</button>
+                <button class="tab-btn" onclick="showStaffTab('staff-mobile-devices')">Inventory</button>
+                <button class="tab-btn hidden" id="staffMonthlySummaryTabBtn" onclick="showStaffTab('staff-monthly')">Monthly Summary</button>
+                <button class="tab-btn hidden" id="staffProjectPortalTabBtn" onclick="showStaffTab('staff-project-portal')">🌐 Project Portal</button>
+                <button class="tab-btn" onclick="showStaffTab('staff-ai-translation')">🔤 AI Translation</button>
+                <button class="tab-btn" onclick="showStaffTab('staff-profile')">Profile</button>
+            </div>
+
+            <div id="staffHomeTab" class="tab-content">
+                <div class="time-tracking">
+                    <h3>Time Tracking</h3>
+                    <div class="status-row">
+                        <div id="timeStatus"></div>
+                        <button id="clockInBtn" onclick="promptClockIn()" class="btn-clock-in">Clock In</button>
+                    </div>
+                    <div id="clockOutSection" class="hidden">
+                        <button id="clockOutBtn" onclick="promptClockOut()" class="btn-clock-out">Clock Out</button>
+                    </div>
+                    <button id="undoClockOutBtn" onclick="undoClockOut()" class="btn-undo-clock-out hidden">Undo Clock Out</button>
+                </div>
+            </div>
+
+            <div id="staffTasksTab" class="tab-content hidden">
+                <div class="tasks-section">
+                    <h3>My Tasks</h3>
+                    <div id="tasksList"></div>
+                </div>
+            </div>
+
+            <div id="staffLeaveTab" class="tab-content hidden">
+                <div class="leave-section">
+                    <h3>Leave Request</h3>
+                    <div class="leave-form">
+                        <div class="form-row">
+                            <div>
+                                <label>Start Date:</label>
+                                <input type="date" id="leaveStartDate">
+                            </div>
+                            <div>
+                                <label>End Date:</label>
+                                <input type="date" id="leaveEndDate">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <label>Leave Type:</label>
+                            <select id="leaveType">
+                                <option value="AL">Annual Leave (AL)</option>
+                                <option value="SL">Sick Leave (SL)</option>
+                                <option value="L">Leave (L)</option>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <label>Half Day:</label>
+                            <select id="leaveHalfDay">
+                                <option value="">Full Day</option>
+                                <option value="morning">Morning</option>
+                                <option value="afternoon">Afternoon</option>
+                            </select>
+                        </div>
+                        <button onclick="submitLeaveRequest()" class="btn-submit-leave">Submit Leave Request</button>
+                    </div>
+                    <div id="leaveRequestsList" class="leave-requests-list"></div>
+                </div>
+            </div>
+
+            <div id="staffMonthlyTab" class="tab-content hidden">
+                <h3>Monthly Attendance Summary</h3>
+                <div style="margin-bottom: 20px;">
+                    <label for="staffMonthlyYearSelect"><strong>Year:</strong></label>
+                    <select id="staffMonthlyYearSelect" onchange="loadStaffMonthlySummary()">
+                    </select>
+                    <label for="staffMonthlyMonthSelect" style="margin-left: 20px;"><strong>Month:</strong></label>
+                    <select id="staffMonthlyMonthSelect" onchange="loadStaffMonthlySummary()">
+                    </select>
+                </div>
+                <div id="staffMonthlySummaryTable" style="overflow-x: auto;"></div>
+            </div>
+
+            <div id="staffProfileTab" class="tab-content hidden">
+                <div class="profile-section">
+                    <h3>My Profile</h3>
+                    <div id="profileInfo"></div>
+                </div>
+            </div>
+
+            <!-- Project Portal Embedded Tab (iframe) -->
+            <div id="staffProjectPortalTab" class="tab-content hidden">
+                <div style="display: flex; flex-direction: column; height: calc(100vh - 180px);">
+                    <div id="projectPortalToolbar" style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid #ddd; margin-bottom: 8px;">
+                        <span style="font-weight: bold; font-size: 14px;">🌐 Project Portal</span>
+                        <button onclick="refreshProjectPortalFrame()" style="padding: 4px 10px; border: 1px solid #4a90d9; border-radius: 4px; cursor: pointer; background: #5ba3e8; color: white; font-weight: bold; font-size: 12px;">🔄 Refresh</button>
+                        <button onclick="openProjectPortalNewTab()" style="padding: 4px 10px; border: 1px solid #4a90d9; border-radius: 4px; cursor: pointer; background: #5ba3e8; color: white; font-weight: bold; font-size: 12px;">↗ Open in New Tab</button>
+                        <span id="projectPortalFrameStatus" style="font-size: 11px; color: #888;"></span>
+                    </div>
+                    <div id="projectPortalFrameContainer" style="flex: 1; position: relative; border: 1px solid #ddd; border-radius: 4px; overflow: hidden;">
+                        <div id="projectPortalFrameLoading" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 2;">
+                            <p>⏳ Connecting to Project Portal...</p>
+                        </div>
+                        <iframe id="projectPortalFrame" style="width: 100%; height: 100%; border: none; display: none;"></iframe>
+                        <div id="projectPortalFrameError" class="hidden" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 2; background: #fff; padding: 24px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                            <p id="projectPortalFrameErrorMsg" style="margin-bottom: 12px;">Unable to connect to Project Portal</p>
+                            <button onclick="loadProjectPortalFrame()" style="padding: 6px 16px; margin: 0 4px; border: 1px solid #667eea; border-radius: 4px; cursor: pointer; background: #667eea; color: white;">Retry</button>
+                            <button onclick="loadProjectPortalFrameManual()" style="padding: 6px 16px; margin: 0 4px; border: 1px solid #667eea; border-radius: 4px; cursor: pointer; background: #667eea; color: white;">Try Manual Login</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Translation Tab -->
+            <div id="staffAiTranslationTab" class="tab-content hidden">
+                <div style="display: flex; flex-direction: column; height: calc(100vh - 180px);">
+                    <div style="display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #ddd; margin-bottom: 8px;">
+                        <span style="font-weight: bold;">🔤 AI Translation</span>
+                        <button onclick="document.getElementById('aiTranslationFrame').src = 'http://192.168.8.100:3030'" style="padding: 6px 12px; border: 1px solid #4a90d9; border-radius: 4px; cursor: pointer; background: #5ba3e8; color: white; font-weight: bold; font-size: 14px;">🔄 Refresh</button>
+                        <button onclick="window.open('http://192.168.8.100:3030', '_blank')" style="padding: 6px 12px; border: 1px solid #4a90d9; border-radius: 4px; cursor: pointer; background: #5ba3e8; color: white; font-weight: bold; font-size: 14px;">↗ Open in New Tab</button>
+                    </div>
+                    <iframe id="aiTranslationFrame" src="" style="flex: 1; width: 100%; border: 1px solid #ddd; border-radius: 4px;"></iframe>
+                </div>
+            </div>
+
+            <div id="staffMobileDevicesTab" class="tab-content hidden">
+                <div style="margin-bottom: 20px; border-bottom: 1px solid #ccc; padding-bottom: 10px;">
+                    <button onclick="showMobileSubTab('staff', 'devices')" class="sub-tab-btn active" style="padding: 5px 15px; margin-right: 10px; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; background-color: #667eea; color: white;">Mobile Device</button>
+                    <button id="staffSampleSubTabBtn" onclick="showMobileSubTab('staff', 'samples')" class="sub-tab-btn hidden" style="padding: 5px 15px; margin-right: 10px; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; background-color: #f0f0f0; color: black;">Sample</button>
+                </div>
+                <div id="staffMobileDevicesContent" class="sub-tab-content">
+                    <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <input type="text" id="staffMobileDeviceSearch" placeholder="Search devices..." style="padding: 5px 10px; border: 1px solid #ccc; border-radius: 4px;">
+                            <button onclick="searchMobileDevices('staff')" style="background-color: #4CAF50; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Search</button>
+                        </div>
+                        <div id="staffDeviceAddBtnContainer" style="display: flex; align-items: center; gap: 10px;">
+                            <button onclick="addMobileDevice()" style="background-color: #4CAF50; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Add</button>
+                            <button onclick="downloadMobileDevices()" style="background-color: #4CAF50; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Download</button>
+                        </div>
+                    </div>
+                    <div id="staffMobileDevicesTableContainer" style="overflow-x: auto;">
+                        <table id="staffMobileDevicesTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Brand</th>
+                                    <th>Model</th>
+                                    <th>OS</th>
+                                    <th>Bluetooth</th>
+                                    <th>USB</th>
+                                    <th>UDID</th>
+                                    <th>Remarks</th>
+                                    <th class="staff-inventory-action-col hidden">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="staffMobileDevicesTableBody"></tbody>
+                        </table>
+                    </div>
+                    <div id="staffMobileDevicesPagination" class="pagination-controls" style="display: flex; justify-content: center; gap: 10px; margin-top: 20px;"></div>
+                </div>
+                <div id="staffSampleInventoryContent" class="sub-tab-content hidden">
+                    <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <input type="text" id="staffSampleSearch" placeholder="Search samples..." style="padding: 5px 10px; border: 1px solid #ccc; border-radius: 4px;">
+                            <button onclick="searchSamples('staff')" style="background-color: #4CAF50; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Search</button>
+                        </div>
+                        <div id="staffSampleAddBtnContainer" style="display: flex; align-items: center; gap: 10px;">
+                            <button onclick="addSample()" style="background-color: #4CAF50; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Add</button>
+                            <button onclick="downloadSamples()" style="background-color: #4CAF50; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Download</button>
+                        </div>
+                    </div>
+                    <div id="staffSampleInventoryTableContainer" style="overflow-x: auto;">
+                        <table id="staffSampleInventoryTable">
+                            <thead>
+                                <tr>
+                                    <th>Asset ID</th>
+                                    <th>Date Received</th>
+                                    <th>Status</th>
+                                    <th>Project ID</th>
+                                    <th>Location</th>
+                                    <th>Remarks</th>
+                                    <th>Sample image</th>
+                                    <th class="staff-sample-action-col hidden">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="staffSampleInventoryTableBody"></tbody>
+                        </table>
+                    </div>
+                    <div id="staffSampleInventoryPagination" class="pagination-controls" style="display: flex; justify-content: center; gap: 10px; margin-top: 20px;"></div>
+                </div>
+            </div>
+
+
+
+
+        </div>
+
+        <!-- Admin Dashboard -->
+        <div id="adminDashboard" class="screen hidden">
+            <div class="dashboard-header">
+                <h2>Admin Dashboard</h2>
+                <div>
+                    <span id="adminMobileUsername" class="mobile-username"></span>
+                    <button onclick="changeMyPassword()" class="btn-secondary" style="margin-right: 10px;">🔑 Change Password</button>
+                    <button onclick="factoryDefaults()" class="btn-danger" style="margin-right: 10px;">🔄 Factory Defaults</button>
+                    <button onclick="logout()" class="btn-secondary">Logout</button>
+                </div>
+            </div>
+
+            <div class="admin-tabs">
+                <button class="tab-btn active" onclick="showTab('users')">User Management</button>
+                <button class="tab-btn" onclick="showTab('staff')">Staff Summary</button>
+                <button class="tab-btn" onclick="showTab('mobile-devices')">Inventory</button>
+                <button class="tab-btn" onclick="showTab('admin-announcements')">Announcements</button>
+                <button class="tab-btn" onclick="showTab('monthly')">Monthly Summary</button>
+                <button class="tab-btn" onclick="showTab('utilization')">Utilization</button>
+                <button class="tab-btn" id="adminProjectPortalTabBtn" onclick="showTab('project-portal')">🌐 Project Portal</button>
+                <button class="tab-btn" onclick="showTab('ai-translation')">🔤 AI Translation</button>
+            </div>
+
+            <div id="usersTab" class="tab-content">
+                <h3 id="userFormTitle">Add New User</h3>
+                <div class="task-form">
+                    <input type="hidden" id="editUsername">
+                    <input type="text" id="newUsername" placeholder="Username (e.g., staff4)">
+                    <input type="password" id="newPassword" placeholder="Password">
+                    <input type="text" id="newName" placeholder="Full Name">
+                    <input type="email" id="newEmail" placeholder="Email">
+                    <input type="text" id="newDepartment" placeholder="Department">
+                    <select id="newRole" onchange="toggleLeadAssignment()">
+                        <option value="staff">Staff</option>
+                        <option value="lead">Lead</option>
+                        <option value="coordinator">Coordinator</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                    <div id="leadAssignmentRow" class="hidden">
+                        <select id="assignLead"></select>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button onclick="saveUser()" id="saveUserBtn">Add User</button>
+                        <input type="file" id="excelImport" accept=".xlsx,.xls" onchange="importUsersFromExcel()" class="hidden">
+                        <button onclick="document.getElementById('excelImport').click()" class="btn-secondary">📥 Import Excel</button>
+                        <button onclick="cancelEdit()" id="cancelEditBtn" class="btn-secondary hidden">Cancel</button>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 30px;">All Users</h3>
+                <table id="usersTable">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Department</th>
+                            <th>Role</th>
+                            <th>Assigned Lead</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody"></tbody>
+                </table>
+            </div>
+
+            <div id="staffTab" class="tab-content hidden">
+                <h3>Staff Summary</h3>
+                <table id="staffTable">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Status</th>
+                            <th>Clock In</th>
+                            <th>Clock Out</th>
+                            <th>Tasks (Project ID)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="staffTableBody"></tbody>
+                </table>
+            </div>
+
+            <div id="adminAnnouncementsTab" class="tab-content hidden">
+                <h3>Post Announcement</h3>
+                <div class="task-form">
+                    <input type="text" id="adminAnnouncementTitle" placeholder="Announcement Title">
+                    <textarea id="adminAnnouncementContent" placeholder="Announcement content..." rows="6"></textarea>
+                    <div style="margin-bottom: 10px;">
+                        <label><strong>Type:</strong></label>
+                        <select id="adminAnnouncementType" style="margin-left: 8px; padding: 6px 12px; border-radius: 4px; border: 1px solid #ddd;">
+                            <option value="general">General</option>
+                            <option value="technology">Technology</option>
+                        </select>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <label><strong>Send to:</strong></label>
+                        <select id="adminAnnouncementAudience" style="margin-left: 8px; padding: 6px 12px; border-radius: 4px; border: 1px solid #ddd;">
+                            <option value="all">All</option>
+                            <option value="leads">Lead</option>
+                        </select>
+                    </div>
+                    <button onclick="postAnnouncement('admin')">📢 Post Announcement</button>
+                </div>
+
+                <h3 style="margin-top: 30px;">Posted Announcements</h3>
+                <div id="adminPostedAnnouncementsList"></div>
+            </div>
+
+            <div id="tasksTab" class="tab-content hidden">
+                <h3>Assign Task</h3>
+                <div class="task-form">
+                    <select id="assignStaff"></select>
+                    <input type="text" id="projectId" placeholder="Project ID">
+                    <input type="text" id="taskTitle" placeholder="Task title">
+                    <textarea id="taskDesc" placeholder="Task description"></textarea>
+                    <button onclick="assignTask()">Assign Task</button>
+                </div>
+            </div>
+
+            <div id="monthlyTab" class="tab-content hidden">
+                <h3>Monthly Attendance Summary</h3>
+                <div style="margin-bottom: 20px;">
+                    <label for="yearSelect"><strong>Year:</strong></label>
+                    <select id="yearSelect" onchange="loadMonthlySummary()">
+                    </select>
+                    <label for="monthSelect" style="margin-left: 20px;"><strong>Month:</strong></label>
+                    <select id="monthSelect" onchange="loadMonthlySummary()">
+                    </select>
+                </div>
+                <div id="monthlySummaryTable" style="overflow-x: auto;"></div>
+            </div>
+
+            <div id="utilizationTab" class="tab-content hidden">
+                <h3>Utilization</h3>
+                <div style="margin-bottom: 20px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+                    <div>
+                        <label for="utilYearSelect"><strong>Year:</strong></label>
+                        <select id="utilYearSelect" onchange="loadUtilization()"></select>
+                    </div>
+                    <div>
+                        <label for="utilMonthSelect"><strong>Month:</strong></label>
+                        <select id="utilMonthSelect" onchange="loadUtilization()"></select>
+                    </div>
+                    <div>
+                        <label for="utilMemberSelect"><strong>Member:</strong></label>
+                        <select id="utilMemberSelect" onchange="highlightUtilizationMember()">
+                            <option value="">All Members</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="position: relative; height: 400px; margin-top: 20px;" id="utilizationCombinedContainer">
+                    <canvas id="utilizationChartCombined"></canvas>
+                </div>
+            </div>
+
+            <div id="mobileDevicesTab" class="tab-content hidden">
+                <div style="margin-bottom: 20px; border-bottom: 1px solid #ccc; padding-bottom: 10px;">
+                    <button onclick="showMobileSubTab('admin', 'devices')" class="sub-tab-btn active" style="padding: 5px 15px; margin-right: 10px; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; background-color: #667eea; color: white;">Mobile Device</button>
+                    <button onclick="showMobileSubTab('admin', 'samples')" class="sub-tab-btn" style="padding: 5px 15px; margin-right: 10px; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; background-color: #f0f0f0; color: black;">Sample</button>
+                </div>
+                <div id="adminMobileDevicesContent" class="sub-tab-content">
+                    <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <input type="text" id="adminMobileDeviceSearch" placeholder="Search devices..." style="padding: 5px 10px; border: 1px solid #ccc; border-radius: 4px;">
+                            <button onclick="searchMobileDevices('admin')" style="background-color: #4CAF50; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Search</button>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <button onclick="addMobileDevice()" style="background-color: #4CAF50; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Add</button>
+                            <button onclick="downloadMobileDevices()" style="background-color: #4CAF50; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Download</button>
+                        </div>
+                    </div>
+                    <div id="mobileDevicesTableContainer" style="overflow-x: auto;">
+                        <table id="mobileDevicesTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Brand</th>
+                                    <th>Model</th>
+                                    <th>OS</th>
+                                    <th>Bluetooth</th>
+                                    <th>USB</th>
+                                    <th>UDID</th>
+                                    <th>Remarks</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="mobileDevicesTableBody"></tbody>
+                        </table>
+                    </div>
+                    <div id="mobileDevicesPagination" class="pagination-controls" style="display: flex; justify-content: center; gap: 10px; margin-top: 20px;"></div>
+                </div>
+                <div id="adminSampleInventoryContent" class="sub-tab-content hidden">
+                    <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <input type="text" id="adminSampleSearch" placeholder="Search samples..." style="padding: 5px 10px; border: 1px solid #ccc; border-radius: 4px;">
+                            <button onclick="searchSamples('admin')" style="background-color: #4CAF50; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Search</button>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <button onclick="addSample()" style="background-color: #4CAF50; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Add</button>
+                            <button onclick="downloadSamples()" style="background-color: #4CAF50; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Download</button>
+                        </div>
+                    </div>
+                    <div id="adminSampleInventoryTableContainer" style="overflow-x: auto;">
+                        <table id="adminSampleInventoryTable">
+                            <thead>
+                                <tr>
+                                    <th>Asset ID</th>
+                                    <th>Date Received</th>
+                                    <th>Status</th>
+                                    <th>Project ID</th>
+                                    <th>Location</th>
+                                    <th>Remarks</th>
+                                    <th>Sample image</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminSampleInventoryTableBody"></tbody>
+                        </table>
+                    </div>
+                    <div id="adminSampleInventoryPagination" class="pagination-controls" style="display: flex; justify-content: center; gap: 10px; margin-top: 20px;"></div>
+                </div>
+            </div>
+
+            <!-- Admin Project Portal Embedded Tab (iframe) -->
+            <div id="projectPortalTab" class="tab-content hidden">
+                <div style="display: flex; flex-direction: column; height: calc(100vh - 180px);">
+                    <div id="adminProjectPortalToolbar" style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid #ddd; margin-bottom: 8px;">
+                        <span style="font-weight: bold; font-size: 14px;">🌐 Project Portal</span>
+                        <button onclick="refreshProjectPortalFrame()" style="padding: 4px 10px; border: 1px solid #4a90d9; border-radius: 4px; cursor: pointer; background: #5ba3e8; color: white; font-weight: bold; font-size: 12px;">🔄 Refresh</button>
+                        <button onclick="openProjectPortalNewTab()" style="padding: 4px 10px; border: 1px solid #4a90d9; border-radius: 4px; cursor: pointer; background: #5ba3e8; color: white; font-weight: bold; font-size: 12px;">↗ Open in New Tab</button>
+                        <span id="adminProjectPortalFrameStatus" style="font-size: 11px; color: #888;"></span>
+                    </div>
+                    <div id="adminProjectPortalFrameContainer" style="flex: 1; position: relative; border: 1px solid #ddd; border-radius: 4px; overflow: hidden;">
+                        <div id="adminProjectPortalFrameLoading" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 2;">
+                            <p>⏳ Connecting to Project Portal...</p>
+                        </div>
+                        <iframe id="adminProjectPortalFrame" style="width: 100%; height: 100%; border: none; display: none;"></iframe>
+                        <div id="adminProjectPortalFrameError" class="hidden" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 2; background: #fff; padding: 24px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                            <p id="adminProjectPortalFrameErrorMsg" style="margin-bottom: 12px;">Unable to connect to Project Portal</p>
+                            <button onclick="loadProjectPortalFrame()" style="padding: 6px 16px; margin: 0 4px; border: 1px solid #667eea; border-radius: 4px; cursor: pointer; background: #667eea; color: white;">Retry</button>
+                            <button onclick="loadProjectPortalFrameManual()" style="padding: 6px 16px; margin: 0 4px; border: 1px solid #667eea; border-radius: 4px; cursor: pointer; background: #667eea; color: white;">Try Manual Login</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin AI Translation Tab -->
+            <div id="aiTranslationTab" class="tab-content hidden">
+                <div style="display: flex; flex-direction: column; height: calc(100vh - 180px);">
+                    <div style="display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #ddd; margin-bottom: 8px;">
+                        <span style="font-weight: bold;">🔤 AI Translation</span>
+                        <button onclick="document.getElementById('adminAiTranslationFrame').src = 'http://192.168.8.100:3030'" style="padding: 6px 12px; border: 1px solid #4a90d9; border-radius: 4px; cursor: pointer; background: #5ba3e8; color: white; font-weight: bold; font-size: 14px;">🔄 Refresh</button>
+                        <button onclick="window.open('http://192.168.8.100:3030', '_blank')" style="padding: 6px 12px; border: 1px solid #4a90d9; border-radius: 4px; cursor: pointer; background: #5ba3e8; color: white; font-weight: bold; font-size: 14px;">↗ Open in New Tab</button>
+                    </div>
+                    <iframe id="adminAiTranslationFrame" src="" style="flex: 1; width: 100%; border: 1px solid #ddd; border-radius: 4px;"></iframe>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Lead Dashboard -->
+        <div id="leadDashboard" class="screen hidden">
+            <div class="dashboard-header">
+                <h2>Lead Dashboard</h2>
+                <div>
+                    <span id="leadMobileUsername" class="mobile-username"></span>
+                    <button onclick="changeMyPassword()" class="btn-secondary" style="margin-right: 10px;">🔑 Change Password</button>
+                    <button onclick="logout()" class="btn-secondary">Logout</button>
+                </div>
+            </div>
+
+            <div class="admin-tabs">
+                <button class="lead-tab-btn active" onclick="showLeadTab('lead-staff')">Staff</button>
+                <button class="lead-tab-btn" onclick="showLeadTab('team')">Team Summary</button>
+                <button class="lead-tab-btn" onclick="showLeadTab('lead-tasks')">Task Assignment</button>
+                <button class="lead-tab-btn" onclick="showLeadTab('lead-mobile-devices')">Inventory</button>
+                <button class="lead-tab-btn" onclick="showLeadTab('lead-announcements')">Announcements</button>
+                <button class="lead-tab-btn" onclick="showLeadTab('lead-monthly')">Monthly Summary</button>
+                <button class="lead-tab-btn" onclick="showLeadTab('lead-utilization')">Utilization</button>
+                <button class="lead-tab-btn hidden" id="leadProjectPortalTabBtn" onclick="showLeadTab('lead-project-portal')">🌐 Project Portal</button>
+                <button class="lead-tab-btn" onclick="showLeadTab('lead-ai-translation')">🔤 AI Translation</button>
+            </div>
+
+            <div id="leadStaffTab" class="lead-tab-content">
+                <h3>My Staff Dashboard</h3>
+                
+                <div class="time-tracking">
+                    <h4>Time Tracking</h4>
+                    <div class="status-row">
+                        <div id="leadTimeStatus"></div>
+                        <button id="leadClockInBtn" onclick="promptLeadClockIn()" class="btn-clock-in">Clock In</button>
+                    </div>
+                    <div id="leadClockOutSection" class="hidden">
+                    <button id="leadClockOutBtn" onclick="promptLeadClockOut()" class="btn-clock-out">Clock Out</button>
+                </div>
+                <button id="leadUndoClockOutBtn" onclick="undoClockOut()" class="btn-undo-clock-out hidden">Undo Clock Out</button>
+                </div>
+
+                <div class="tasks-section">
+                    <h4>My Tasks</h4>
+                    <div id="leadTasksList"></div>
+                </div>
+
+                <div class="leave-section">
+                    <h4>Leave Request</h4>
+                    <div class="leave-form">
+                        <div class="form-row">
+                            <div>
+                                <label>Start Date:</label>
+                                <input type="date" id="leadLeaveStartDate">
+                            </div>
+                            <div>
+                                <label>End Date:</label>
+                                <input type="date" id="leadLeaveEndDate">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <label>Leave Type:</label>
+                            <select id="leadLeaveType">
+                                <option value="AL">Annual Leave (AL)</option>
+                                <option value="SL">Sick Leave (SL)</option>
+                                <option value="L">Leave (L)</option>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <label>Half Day:</label>
+                            <select id="leadLeaveHalfDay">
+                                <option value="">Full Day</option>
+                                <option value="morning">Morning</option>
+                                <option value="afternoon">Afternoon</option>
+                            </select>
+                        </div>
+                        <button onclick="submitLeaveRequest('lead')" class="btn-submit-leave">Submit Leave Request</button>
+                    </div>
+                    <div id="leadLeaveRequestsList" class="leave-requests-list"></div>
+                </div>
+
+                <div class="profile-section">
+                    <h4>My Profile</h4>
+                    <div id="leadProfileInfo"></div>
+                </div>
+            </div>
+
+            <div id="teamTab" class="lead-tab-content hidden">
+                <h3>Team Summary</h3>
+                <table id="teamTable">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Status</th>
+                            <th>Clock In</th>
+                            <th>Clock Out</th>
+                            <th>Tasks (Project ID)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="teamTableBody"></tbody>
+                </table>
+            </div>
+
+            <div id="leadTasksTab" class="lead-tab-content hidden">
+                <h3>Task Assignment</h3>
+                <div class="task-assignment-container">
+                    <!-- Left Panel: Assignment Form -->
+                    <div class="assignment-form-panel">
+                        <h4>Create/Edit Assignment</h4>
+                        <div class="task-form">
+                            <label><strong>Select Project:</strong></label>
+                            <!-- Custom project picker (replaces native select) -->
+                            <div class="project-picker" id="projectPicker">
+                                <input type="text" id="projectSearchInput" class="project-picker-search" placeholder="🔍 Type to search projects..." oninput="renderProjectPicker(this.value)" autocomplete="off">
+                                <div class="project-picker-list" id="projectPickerList">
+                                    <div class="project-picker-empty">Loading projects...</div>
+                                </div>
+                            </div>
+                            <!-- Hidden select kept for compatibility with loadProjectData() -->
+                            <select id="loadProjectSelect" style="display:none;">
+                                <option value="">-- Select Project --</option>
+                            </select>
+                            
+                            <input type="hidden" id="teamProjectId">
+                            <input type="text" id="teamTaskTitle" placeholder="Task title">
+                            <input type="hidden" id="teamTaskDesc">
+                            
+                            <label><strong>Project Duration:</strong></label>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                <div>
+                                    <label style="font-size: 12px; color: #666;">Start Date:</label>
+                                    <input type="date" id="projectStartDate" style="width: 100%;">
+                                </div>
+                                <div>
+                                    <label style="font-size: 12px; color: #666;">End Date:</label>
+                                    <input type="date" id="projectEndDate" style="width: 100%;">
+                                </div>
+                            </div>
+                            
+                            <label style="margin-top: 10px;"><strong>New Member Duration:</strong></label>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                <div>
+                                    <label style="font-size: 12px; color: #666;">Start Date:</label>
+                                    <input type="date" id="newMemberStartDate" style="width: 100%;">
+                                </div>
+                                <div>
+                                    <label style="font-size: 12px; color: #666;">End Date:</label>
+                                    <input type="date" id="newMemberCompleteDate" style="width: 100%;">
+                                </div>
+                            </div>
+                            <div style="font-size: 12px; color: #666; margin-top: 5px;">
+                                Note: These dates will only apply to newly added team members. Use Project Duration to change all members' dates.
+                            </div>
+                            
+                            <label><strong>Select Team Members:</strong></label>
+                            <div class="dual-panel-selector-compact">
+                                <div class="panel-container-compact">
+                                    <div class="panel-header-compact">Available Users</div>
+                                    <div class="panel-list-compact" id="availableUsersList"></div>
+                                </div>
+                                <div class="panel-controls-compact">
+                                    <button onclick="moveToTeam()" class="btn-move-compact">▶</button>
+                                    <button onclick="removeFromTeam()" class="btn-move-compact">◀</button>
+                                </div>
+                                <div class="panel-container-compact">
+                                    <div class="panel-header-compact">Selected Team</div>
+                                    <div class="panel-list-compact" id="selectedTeamList"></div>
+                                </div>
+                            </div>
+                            
+                            <button onclick="applyTaskAssignment()" class="btn-apply">Apply Assignment</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Right Panel: Project Tree View -->
+                    <div class="project-tree-panel">
+                        <h4>Project Assignments Tree</h4>
+                        <div id="projectTreeView" class="project-tree-view"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="leadAnnouncementsTab" class="lead-tab-content hidden">
+                <h3>Post Announcement</h3>
+                <div class="task-form">
+                    <input type="text" id="announcementTitle" placeholder="Announcement Title">
+                    <textarea id="announcementContent" placeholder="Announcement content..." rows="6"></textarea>
+                    <div style="margin-bottom: 10px;">
+                        <label><strong>Type:</strong></label>
+                        <select id="announcementType" style="margin-left: 8px; padding: 6px 12px; border-radius: 4px; border: 1px solid #ddd;">
+                            <option value="general">General</option>
+                            <option value="technology">Technology</option>
+                        </select>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <label><strong>Send to:</strong></label>
+                        <select id="announcementAudience" style="margin-left: 8px; padding: 6px 12px; border-radius: 4px; border: 1px solid #ddd;">
+                            <option value="all">All</option>
+                            <option value="leads">Lead</option>
+                        </select>
+                    </div>
+                    <button onclick="postAnnouncement()">📢 Post Announcement</button>
+                </div>
+
+                <h3 style="margin-top: 30px;">Posted Announcements</h3>
+                <div id="postedAnnouncementsList"></div>
+            </div>
+
+            <div id="leadMonthlyTab" class="lead-tab-content hidden">
+                <h3>Team Monthly Attendance Summary</h3>
+                <div style="margin-bottom: 20px;">
+                    <label for="leadYearSelect"><strong>Year:</strong></label>
+                    <select id="leadYearSelect" onchange="loadLeadMonthlySummary()">
+                    </select>
+                    <label for="leadMonthSelect" style="margin-left: 20px;"><strong>Month:</strong></label>
+                    <select id="leadMonthSelect" onchange="loadLeadMonthlySummary()">
+                    </select>
+                </div>
+                <div id="leadMonthlySummaryTable" style="overflow-x: auto;"></div>
+            </div>
+
+            <div id="leadUtilizationTab" class="lead-tab-content hidden">
+                <h3>Utilization</h3>
+                <div style="margin-bottom: 20px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+                    <div>
+                        <label for="leadUtilYearSelect"><strong>Year:</strong></label>
+                        <select id="leadUtilYearSelect" onchange="loadLeadUtilization()"></select>
+                    </div>
+                    <div>
+                        <label for="leadUtilMonthSelect"><strong>Month:</strong></label>
+                        <select id="leadUtilMonthSelect" onchange="loadLeadUtilization()"></select>
+                    </div>
+                    <div>
+                        <label for="leadUtilMemberSelect"><strong>Member:</strong></label>
+                        <select id="leadUtilMemberSelect" onchange="highlightLeadUtilizationMember()">
+                            <option value="">All Members</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="position: relative; height: 400px; margin-top: 20px;" id="leadUtilizationCombinedContainer">
+                    <canvas id="leadUtilizationChartCombined"></canvas>
+                </div>
+            </div>
+
+            <!-- Lead Project Portal Embedded Tab (iframe) -->
+            <div id="leadProjectPortalTab" class="lead-tab-content hidden">
+                <div style="display: flex; flex-direction: column; height: calc(100vh - 180px);">
+                    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid #ddd; margin-bottom: 8px;">
+                        <span style="font-weight: bold; font-size: 14px;">🌐 Project Portal</span>
+                        <button onclick="refreshProjectPortalFrame()" style="padding: 4px 10px; border: 1px solid #4a90d9; border-radius: 4px; cursor: pointer; background: #5ba3e8; color: white; font-weight: bold; font-size: 12px;">🔄 Refresh</button>
+                        <button onclick="openProjectPortalNewTab()" style="padding: 4px 10px; border: 1px solid #4a90d9; border-radius: 4px; cursor: pointer; background: #5ba3e8; color: white; font-weight: bold; font-size: 12px;">↗ Open in New Tab</button>
+                        <span id="leadProjectPortalFrameStatus" style="font-size: 11px; color: #888;"></span>
+                    </div>
+                    <div style="flex: 1; position: relative; border: 1px solid #ddd; border-radius: 4px; overflow: hidden;">
+                        <div id="leadProjectPortalFrameLoading" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 2;">
+                            <p>⏳ Connecting to Project Portal...</p>
+                        </div>
+                        <iframe id="leadProjectPortalFrame" style="width: 100%; height: 100%; border: none; display: none;"></iframe>
+                        <div id="leadProjectPortalFrameError" class="hidden" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 2; background: #fff; padding: 24px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                            <p id="leadProjectPortalFrameErrorMsg" style="margin-bottom: 12px;">Unable to connect to Project Portal</p>
+                            <button onclick="loadProjectPortalFrame()" style="padding: 6px 16px; margin: 0 4px; border: 1px solid #667eea; border-radius: 4px; cursor: pointer; background: #667eea; color: white;">Retry</button>
+                            <button onclick="loadProjectPortalFrameManual()" style="padding: 6px 16px; margin: 0 4px; border: 1px solid #667eea; border-radius: 4px; cursor: pointer; background: #667eea; color: white;">Try Manual Login</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lead AI Translation Tab -->
+            <div id="leadAiTranslationTab" class="lead-tab-content hidden">
+                <div style="display: flex; flex-direction: column; height: calc(100vh - 180px);">
+                    <div style="display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #ddd; margin-bottom: 8px;">
+                        <span style="font-weight: bold;">🔤 AI Translation</span>
+                        <button onclick="document.getElementById('leadAiTranslationFrame').src = 'http://192.168.8.100:3030'" style="padding: 6px 12px; border: 1px solid #4a90d9; border-radius: 4px; cursor: pointer; background: #5ba3e8; color: white; font-weight: bold; font-size: 14px;">🔄 Refresh</button>
+                        <button onclick="window.open('http://192.168.8.100:3030', '_blank')" style="padding: 6px 12px; border: 1px solid #4a90d9; border-radius: 4px; cursor: pointer; background: #5ba3e8; color: white; font-weight: bold; font-size: 14px;">↗ Open in New Tab</button>
+                    </div>
+                    <iframe id="leadAiTranslationFrame" src="" style="flex: 1; width: 100%; border: 1px solid #ddd; border-radius: 4px;"></iframe>
+                </div>
+            </div>
+
+            <div id="leadMobileDevicesTab" class="lead-tab-content hidden">
+                <div style="margin-bottom: 20px; border-bottom: 1px solid #ccc; padding-bottom: 10px;">
+                    <button onclick="showMobileSubTab('lead', 'devices')" class="sub-tab-btn active" style="padding: 5px 15px; margin-right: 10px; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; background-color: #667eea; color: white;">Mobile Device</button>
+                    <button onclick="showMobileSubTab('lead', 'samples')" class="sub-tab-btn" style="padding: 5px 15px; margin-right: 10px; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; background-color: #f0f0f0; color: black;">Sample</button>
+                </div>
+                <div id="leadMobileDevicesContent" class="sub-tab-content">
+                    <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <input type="text" id="leadMobileDeviceSearch" placeholder="Search devices..." style="padding: 5px 10px; border: 1px solid #ccc; border-radius: 4px;">
+                            <button onclick="searchMobileDevices('lead')" style="background-color: #4CAF50; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Search</button>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <button onclick="addMobileDevice()" style="background-color: #4CAF50; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Add</button>
+                            <button onclick="downloadMobileDevices()" style="background-color: #4CAF50; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Download</button>
+                        </div>
+                    </div>
+                    <div id="leadMobileDevicesTableContainer" style="overflow-x: auto;">
+                        <table id="leadMobileDevicesTable">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Brand</th>
+                                    <th>Model</th>
+                                    <th>OS</th>
+                                    <th>Bluetooth</th>
+                                    <th>USB</th>
+                                    <th>UDID</th>
+                                    <th>Remarks</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leadMobileDevicesTableBody"></tbody>
+                        </table>
+                    </div>
+                    <div id="leadMobileDevicesPagination" class="pagination-controls" style="display: flex; justify-content: center; gap: 10px; margin-top: 20px;"></div>
+                </div>
+                <div id="leadSampleInventoryContent" class="sub-tab-content hidden">
+                    <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <input type="text" id="leadSampleSearch" placeholder="Search samples..." style="padding: 5px 10px; border: 1px solid #ccc; border-radius: 4px;">
+                            <button onclick="searchSamples('lead')" style="background-color: #4CAF50; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Search</button>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <button onclick="addSample()" style="background-color: #4CAF50; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Add</button>
+                            <button onclick="downloadSamples()" style="background-color: #4CAF50; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Download</button>
+                        </div>
+                    </div>
+                    <div id="leadSampleInventoryTableContainer" style="overflow-x: auto;">
+                        <table id="leadSampleInventoryTable">
+                            <thead>
+                                <tr>
+                                    <th>Asset ID</th>
+                                    <th>Date Received</th>
+                                    <th>Status</th>
+                                    <th>Project ID</th>
+                                    <th>Location</th>
+                                    <th>Remarks</th>
+                                    <th>Sample image</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leadSampleInventoryTableBody"></tbody>
+                        </table>
+                    </div>
+                    <div id="leadSampleInventoryPagination" class="pagination-controls" style="display: flex; justify-content: center; gap: 10px; margin-top: 20px;"></div>
+                </div>
+            </div>
+
+
+
+
+        </div>
+    </div>
+
+    <!-- File Viewer Modal -->
+    <div id="fileViewerModal" class="modal hidden">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeFileViewer()">✕</button>
+            <div id="fileViewerContent"></div>
+        </div>
+    </div>
+
+    <!-- Video Trim Modal -->
+    <div id="videoTrimModal" class="modal hidden">
+        <div class="modal-content" style="max-width: 640px; width: 95%;">
+            <button class="modal-close" onclick="closeVideoTrimmer()">✕</button>
+            <h3 style="margin: 0 0 12px 0;">✂️ Trim Video</h3>
+
+            <video id="trimVideoPreview" controls="" style="width: 100%; max-height: 340px; background: #000; border-radius: 6px;"></video>
+
+            <div style="margin-top: 14px; display: flex; flex-direction: column; gap: 10px;">
+
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="width: 80px; font-size: 14px; color: #555;">Start</span>
+                    <span id="trimStartDisplay" style="font-weight: bold; min-width: 50px;">0:00</span>
+                    <button onclick="setTrimStart()" style="padding: 6px 14px; background: #667eea; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-size: 13px;">Set from current</button>
+                    <input type="hidden" id="trimStartTime" value="0">
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="width: 80px; font-size: 14px; color: #555;">End</span>
+                    <span id="trimEndDisplay" style="font-weight: bold; min-width: 50px;">--</span>
+                    <button onclick="setTrimEnd()" style="padding: 6px 14px; background: #667eea; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-size: 13px;">Set from current</button>
+                    <input type="hidden" id="trimEndTime" value="">
+                </div>
+
+            </div>
+
+            <div id="trimStatus" style="margin-top: 12px; font-size: 13px; min-height: 20px;"></div>
+
+            <div style="margin-top: 14px; display: flex; gap: 10px; justify-content: flex-end;">
+                <button onclick="closeVideoTrimmer()" style="padding: 8px 18px; border: 1px solid #ccc; background: #fff; color: #333; border-radius: 4px; cursor: pointer;">Cancel</button>
+                <button id="trimSubmitBtn" onclick="submitVideoTrim()" style="padding: 8px 18px; background: #667eea; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">✂️ Trim &amp; Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Subtitle Editor Modal -->
+    <div id="subtitleEditorModal" class="modal hidden">
+        <div class="modal-content" style="width: 800px;">
+            <button class="modal-close" onclick="closeSubtitleEditor()">✕</button>
+            <h3>Add Subtitle to Video</h3>
+            <div class="subtitle-editor-container">
+                <div class="video-preview-section" style="position: relative;">
+                    <video id="subtitleVideoPreview" controls="" style="width: 100%; margin-bottom: 20px;"></video>
+                    <div id="subtitleOverlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;">
+                        <div id="editableSubtitle" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 36px; background-color: rgba(0, 0, 0, 0.5); padding: 10px; border-radius: 5px; cursor: move; pointer-events: all; user-select: none;">
+                            <div contenteditable="true" style="min-width: 200px; text-align: center; outline: none;">Enter subtitle here</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="subtitle-form">
+                    <div class="form-group">
+                        <label>Start Time (HH:MM:SS)</label>
+                        <input type="text" id="subtitleStartTime" placeholder="00:00:00">
+                    </div>
+                    <div class="form-group">
+                        <label>End Time (HH:MM:SS)</label>
+                        <input type="text" id="subtitleEndTime" placeholder="00:00:05">
+                    </div>
+                    <div class="form-group">
+                        <label>Subtitle Text</label>
+                        <textarea id="subtitleText" placeholder="Enter subtitle text here" rows="5" style="width: 100%; min-height: 100px;"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Text Size</label>
+                        <input type="number" id="subtitleSize" min="10" max="100">
+                    </div>
+                    <div class="form-group">
+                        <label>Text Color</label>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <input type="color" id="subtitleColor" style="display: none;">
+                            <button type="button" id="textColorButton" style="width: 40px; height: 40px; border: 2px solid rgb(204, 204, 204); cursor: pointer; background-color: rgb(0, 0, 0);"></button>
+                            <span id="textColorValue" style="font-family: monospace;">#000000</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Background Color</label>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <input type="color" id="subtitleBgColor" style="display: none;">
+                            <button type="button" id="bgColorButton" style="width: 40px; height: 40px; border: 2px solid rgb(204, 204, 204); cursor: pointer; background-color: rgb(0, 0, 0);"></button>
+                            <span id="bgColorValue" style="font-family: monospace;">#000000</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Background Transparency</label>
+                        <input type="range" id="subtitleBgOpacity" min="0" max="1" step="0.1">
+                    </div>
+                    <div id="subtitleProgress" class="progress-container hidden">
+                        <div class="progress-bar"></div>
+                        <div class="progress-text">Processing...</div>
+                    </div>
+                    <button onclick="previewSubtitle()" class="btn-submit" style="margin-right: 10px;">Preview</button>
+                    <button onclick="addSubtitle()" class="btn-submit">Add Subtitle</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.8.3/socket.io.min.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    <script src="marked.min.js?v=1"></script>
+    <script src="screenshot.js"></script>
+    <script src="projectPortalErrors.js?v=1"></script>
+    <script src="app.js?v=35"></script>
+    
+    <!-- Password Input Modal -->
+    <div id="passwordModal" class="modal hidden">
+        <div class="modal-content">
+            <h3 id="passwordModalTitle">Please enter your password</h3>
+            <input type="password" id="passwordInput" placeholder="Password" class="password-input" onkeydown="if(event.key==='Enter') verifyPassword()">
+            <div class="modal-actions">
+                <button onclick="verifyPassword()" class="btn-confirm-password">OK</button>
+                <button onclick="closePasswordModal()" class="btn-cancel-password">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Configuration Variables (dynamically fetched from server) -->
+    <script>
+        window.projectPortalUrl = window.projectPortalUrl || 'http://localhost:3100';
+        window.projectPortalApiUrl = window.projectPortalApiUrl || 'http://localhost:3101';
+        window.aiTranslationUrl = window.aiTranslationUrl || '';
+        
+        fetch('/api/config')
+            .then(response => response.json())
+            .then(config => {
+                if (config.projectPortalUrl) window.projectPortalUrl = config.projectPortalUrl;
+                if (config.projectPortalApiUrl) window.projectPortalApiUrl = config.projectPortalApiUrl;
+                if (config.aiTranslationUrl) window.aiTranslationUrl = config.aiTranslationUrl;
+            })
+            .catch(err => console.warn('Failed to fetch config:', err));
+    </script>
+
+    <!-- Mobile Zoom Control (hidden on desktop) -->
+    <div id="mobileZoomControl" class="mobile-zoom-control">
+        <button onclick="mobileZoomIn()" class="zoom-btn zoom-in">+</button>
+        <button onclick="mobileZoomReset()" class="zoom-label" id="zoomLabel">80%</button>
+        <button onclick="mobileZoomOut()" class="zoom-btn zoom-out">−</button>
+    </div>
+
+    <!-- Mobile Bottom Navigation (hidden on desktop, shown on mobile via CSS) -->
+    <nav id="mobileBottomNav" class="mobile-bottom-nav hidden"></nav>
+
+
+</body><div style="all: initial;"><div id="__hcfy__" style="all: initial;"><template shadowrootmode="open"><style>#root{-webkit-text-size-adjust:100%;box-sizing:border-box;font-size:14px;font-weight:400;letter-spacing:0;line-height:1.28581;text-transform:none;color:#182026;font-family:-apple-system,"BlinkMacSystemFont","Segoe UI","Roboto","Oxygen","Ubuntu","Cantarell","Open Sans","Helvetica Neue","Icons16",sans-serif}#root{touch-action:manipulation}#root>.bp6-portal{z-index:9999999999}</style><link rel="stylesheet" href="chrome-extension://oikmahiipjniocckomdccmplodldodja/normalize.css"><link rel="stylesheet" href="chrome-extension://oikmahiipjniocckomdccmplodldodja/blueprint.css"><link rel="stylesheet" href="chrome-extension://oikmahiipjniocckomdccmplodldodja/blueprint-select.css"><link rel="stylesheet" href="chrome-extension://oikmahiipjniocckomdccmplodldodja/cropper.css"><style>#translate-panel{background-color:#f6f7f9}.bp6-dark #translate-panel{background-color:#1c2127}#translate-panel{display:flex;flex-direction:column;padding-bottom:8px}#translate-panel .fixed{flex-shrink:0;margin-bottom:10px}#translate-panel .body{flex-grow:1;overflow:auto;overscroll-behavior:contain}#translate-panel .body::-webkit-scrollbar{width:8px;background-color:rgba(0,0,0,0);-webkit-border-radius:100px}#translate-panel .body::-webkit-scrollbar:hover{background-color:rgba(0,0,0,.09)}#translate-panel .body::-webkit-scrollbar-thumb:vertical{background:rgba(0,0,0,.5);-webkit-border-radius:100px}#translate-panel .body::-webkit-scrollbar-thumb:vertical:active{background:rgba(0,0,0,.61);-webkit-border-radius:100px}#translate-panel.size-small,#translate-panel.size-small h6.bp6-heading,#translate-panel.size-small .bp6-control.bp6-large,#translate-panel.size-small textarea.bp6-input.bp6-small{font-size:14px}#translate-panel.size-small .phonetic-item,#translate-panel.size-small .quick-settings a{font-size:12px}#translate-panel.size-middle,#translate-panel.size-middle h6.bp6-heading,#translate-panel.size-middle .bp6-control.bp6-large,#translate-panel.size-middle textarea.bp6-input{font-size:18px}#translate-panel.size-middle .phonetic-item,#translate-panel.size-middle .quick-settings a{font-size:14px}#translate-panel.size-large,#translate-panel.size-large h6.bp6-heading,#translate-panel.size-large .bp6-control.bp6-large,#translate-panel.size-large textarea.bp6-input.bp6-large{font-size:22px}#translate-panel.size-large .source,#translate-panel.size-large .phonetic-item,#translate-panel.size-large .quick-settings a{font-size:18px}#translate-panel .bp6-button.bp6-small,#translate-panel .bp6-small .bp6-button{min-height:20px;min-width:20px}#translate-panel .header{display:flex;align-items:center;padding:4px 6px 4px 10px;border-bottom:1px solid #d1d1d1}.bp6-dark #translate-panel .header{border-bottom-color:rgba(17,20,24,.4)}#translate-panel .header .drag-block{min-width:5px;flex-shrink:0;flex-grow:1;align-self:stretch}#translate-panel .header .left{flex-shrink:0;display:flex}#translate-panel .header .right{flex-shrink:0;display:flex;align-items:center}#translate-panel .header .right .bp6-icon-arrow-right{flex-shrink:0;margin:0 5px}#translate-panel .header .right>.bp6-button{flex-shrink:0;margin:0 1px}#translate-panel .header .right>.bp6-button:last-child{margin-right:0}#translate-panel .quick-settings{padding:4px 9px;margin:0 1px}#translate-panel .quick-settings>div{margin-bottom:5px}#translate-panel .quick-settings .bp6-control{margin-bottom:0}#translate-panel .query-text{position:relative;padding:10px 10px 2px 10px}#translate-panel .query-text textarea.bp6-input{min-height:44px;font-family:system-ui,-apple-system,"Segoe UI","Roboto","Ubuntu","Cantarell","Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";overscroll-behavior:contain}#translate-panel .query-text .translate-btn{position:absolute;opacity:.6}#translate-panel .query-text .translate-btn:hover{opacity:1}#translate-panel .body{padding:0 10px}#translate-panel .body .bp6-card:first-child{margin-top:1px}#translate-panel .body .bp6-card:last-child{margin-bottom:1px}#translate-panel .body .no-api{margin:20px 0}.result-block{margin:8px 0;padding:2px 5px}.result-block .bp6-button{visibility:hidden}.result-block .error .bp6-button,.result-block:hover .bp6-button{visibility:visible}.result-block .legend{display:flex;align-items:center;justify-content:space-between}.result-block .legend .legend-left{display:flex;align-items:center}.result-block .legend .api-ico,.result-block .legend .bp6-heading{flex-shrink:0;white-space:nowrap}.result-block .legend .api-ico{display:inline-block;width:14px;height:14px;background-size:contain;margin-right:3px}.result-block .legend .bp6-heading{margin-bottom:0;margin-right:10px}.result-block .legend .source{cursor:pointer;font-size:12px;display:inline-flex;align-items:center}.result-block .legend .source .source-text{overflow:hidden}.result-block .legend .source .bp6-icon{position:relative;top:-1px;margin-left:1px}.result-block .phonetic{display:flex;flex-wrap:wrap}.result-block .phonetic .phonetic-item{display:flex;align-items:center;font-size:12px}.result-block .phonetic .phonetic-item:not(:last-child){margin-right:12px}.result-block .common-result p{line-height:1.3;margin:2px 0;overflow-wrap:break-word}.result-block .common-result .dict a{text-decoration:underline}.result-block .error{font-size:12px;padding:5px 10px}.result-block .dict-pos{margin-right:5px}.external-translators{margin-bottom:3px;padding:0;display:flex;flex-wrap:wrap}.external-translators>div{margin:0 5px 5px 0}.quick-links a{margin:0 5px 5px 0}#popper-container{width:250px;max-width:100%;position:absolute;left:0;top:0;z-index:9999999998;touch-action:none;transition:opacity .2s;background-color:#f6f7f9}.bp6-dark #popper-container{background-color:#1c2127}#popper-container.show{opacity:1;pointer-events:auto;user-select:auto}#popper-container,#popper-container[data-popper-reference-hidden=true]{opacity:0;pointer-events:none;user-select:none}#popper-container .drag-block{cursor:grab}#popper-container.pin{position:fixed}#popper-container.pin .arrow{display:none}#popper-container .arrow,#popper-container .arrow::before{position:absolute;width:8px;height:8px;z-index:-1}#popper-container .arrow::before{content:"";transform:rotate(45deg);background:#f6f7f9}.bp6-dark #popper-container .arrow::before{background-color:#1c2127}#popper-container .arrow{display:none}#popper-container.show[data-popper-placement]:not([data-popper-reference-hidden=true]) .arrow{display:block}#popper-container[data-popper-placement^=top] .arrow{bottom:-5px}#popper-container[data-popper-placement^=top] .arrow::before{border-right:1px solid #d1d1d1;border-bottom:1px solid #d1d1d1}#popper-container[data-popper-placement^=bottom] .arrow{top:-5px}#popper-container[data-popper-placement^=bottom] .arrow::before{border-left:1px solid #d1d1d1;border-top:1px solid #d1d1d1}#popper-container[data-popper-placement^=left] .arrow{right:-5px}#popper-container[data-popper-placement^=left] .arrow::before{border-right:1px solid #d1d1d1;border-top:1px solid #d1d1d1}#popper-container[data-popper-placement^=right] .arrow{left:-5px}#popper-container[data-popper-placement^=right] .arrow::before{border-left:1px solid #d1d1d1;border-bottom:1px solid #d1d1d1}#translate-btn{display:none;position:absolute;z-index:9999999999;left:0;top:0}#translate-btn .bp6-button{padding:2px;min-width:0;min-height:0}#translate-btn .btn-icon{width:18px;height:18px;background-image:url(chrome-extension://oikmahiipjniocckomdccmplodldodja/logo.png);background-size:contain}.bp6-dark #translate-btn .btn-icon{background-image:url(chrome-extension://oikmahiipjniocckomdccmplodldodja/logowhite36.png)}#translate-btn.show{display:block}.translate-type-selector .bp6-label{display:inline}.translate-type-selector .bp6-radio{margin-bottom:0}#ocr-container{position:fixed;z-index:99999999999999;left:0;top:0;right:0;bottom:0}#ocr-container .toolbar{display:none;position:absolute;z-index:1}#ocr-container img{max-width:100%}#app{cursor:default}.switch-pin{flex-shrink:0;cursor:pointer}.switch-pin .bp6-icon-pin{transition:transform .2s,color .2s;transform:rotate(-45deg)}.pin .switch-pin .bp6-icon-pin{transform:rotate(-70deg)}.cut-btn{margin-left:2px}.app-toaster-container{position:fixed !important;z-index:9999999999 !important}.app-toaster-container .bp6-toast{min-width:auto}#web-trs-panel .app-toaster-container{padding-right:0;padding-left:0}#web-trs-panel .page-trs-form-group{margin:0 0 0 0;align-items:center}#web-trs-panel .page-trs-form-group>label{width:70px}</style><div id="root" dir="ltr"><div id="app"><div id="translate-btn"><button type="button" class="bp6-button"><span class="btn-icon"></span></button></div><div id="popper-container" class="bp6-elevation-4" style="width: 290px; transform: translate(0px, 0px);"><div id="translate-panel" class="size-small"><div class="fixed"><div class="header"><div class="left"><div class="switch-pin"><button type="button" class="bp6-button bp6-small bp6-minimal"><span aria-hidden="true" class="bp6-icon bp6-icon-pin"><svg data-icon="pin" height="14" role="img" viewBox="0 0 16 16" width="14"><path d="M9.41.92c-.51.51-.41 1.5.15 2.56L4.34 7.54C2.8 6.48 1.45 6.05.92 6.58l3.54 3.54-3.54 4.95 4.95-3.54 3.54 3.54c.53-.53.1-1.88-.96-3.42l4.06-5.22c1.06.56 2.04.66 2.55.15L9.41.92z" fill-rule="evenodd"></path></svg></span></button></div><button type="button" title="图片翻译" class="bp6-button bp6-small bp6-minimal"><span aria-hidden="true" class="bp6-icon bp6-icon-media"><svg data-icon="media" height="14" role="img" viewBox="0 0 16 16" width="14"><path d="M11.99 6.99c.55 0 1-.45 1-1s-.45-1-1-1-1 .45-1 1 .45 1 1 1zm3-5h-14c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h14c.55 0 1-.45 1-1v-10c0-.55-.45-1-1-1zm-1 9l-5-3-1 2-3-4-3 5v-7h12v7z" fill-rule="evenodd"></path></svg></span></button><button type="button" title="语音翻译" class="bp6-button bp6-small bp6-minimal"><span class="bp6-icon"><svg version="1.1" id="Capa_1" width="14" height="14" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 490.9 490.9" xml:space="preserve"><g><g><path d="M245.5,322.9c53,0,96.2-43.2,96.2-96.2V96.2c0-53-43.2-96.2-96.2-96.2s-96.2,43.2-96.2,96.2v130.5 C149.3,279.8,192.5,322.9,245.5,322.9z M173.8,96.2c0-39.5,32.2-71.7,71.7-71.7s71.7,32.2,71.7,71.7v130.5 c0,39.5-32.2,71.7-71.7,71.7s-71.7-32.2-71.7-71.7V96.2z"></path><path d="M94.4,214.5c-6.8,0-12.3,5.5-12.3,12.3c0,85.9,66.7,156.6,151.1,162.8v76.7h-63.9c-6.8,0-12.3,5.5-12.3,12.3 s5.5,12.3,12.3,12.3h152.3c6.8,0,12.3-5.5,12.3-12.3s-5.5-12.3-12.3-12.3h-63.9v-76.7c84.4-6.3,151.1-76.9,151.1-162.8 c0-6.8-5.5-12.3-12.3-12.3s-12.3,5.5-12.3,12.3c0,76.6-62.3,138.9-138.9,138.9s-138.9-62.3-138.9-138.9 C106.6,220,101.2,214.5,94.4,214.5z"></path></g></g></svg></span></button></div><div class="drag-block" title="按住不放可以拖动"></div><div class="right"><button type="button" disabled="" title="添加到收藏夹" tabindex="-1" class="bp6-button bp6-disabled bp6-small bp6-minimal"><span aria-hidden="true" class="bp6-icon bp6-icon-star-empty"><svg data-icon="star-empty" height="14" role="img" viewBox="0 0 16 16" width="14"><path d="M16 6.11l-5.53-.84L8 0 5.53 5.27 0 6.11l4 4.1L3.06 16 8 13.27 12.94 16 12 10.21l4-4.1zM4.91 13.2l.59-3.62L3 7.02l3.45-.53L8 3.2l1.55 3.29 3.45.53-2.5 2.56.59 3.62L8 11.49 4.91 13.2z" fill-rule="evenodd"></path></svg></span></button><span class="bp6-popover-target"><button type="button" class="bp6-button bp6-small bp6-minimal settings" title="快捷设置" aria-expanded="false" aria-haspopup="menu"><span aria-hidden="true" class="bp6-icon bp6-icon-cog"><svg data-icon="cog" height="14" role="img" viewBox="0 0 16 16" width="14"><path d="M15.19 6.39h-1.85c-.11-.37-.27-.71-.45-1.04l1.36-1.36c.31-.31.31-.82 0-1.13l-1.13-1.13a.803.803 0 00-1.13 0l-1.36 1.36c-.33-.17-.67-.33-1.04-.44V.79c0-.44-.36-.8-.8-.8h-1.6c-.44 0-.8.36-.8.8v1.86c-.39.12-.75.28-1.1.47l-1.3-1.3c-.3-.3-.79-.3-1.09 0L1.82 2.91c-.3.3-.3.79 0 1.09l1.3 1.3c-.2.34-.36.7-.48 1.09H.79c-.44 0-.8.36-.8.8v1.6c0 .44.36.8.8.8h1.85c.11.37.27.71.45 1.04l-1.36 1.36c-.31.31-.31.82 0 1.13l1.13 1.13c.31.31.82.31 1.13 0l1.36-1.36c.33.18.67.33 1.04.44v1.86c0 .44.36.8.8.8h1.6c.44 0 .8-.36.8-.8v-1.86c.39-.12.75-.28 1.1-.47l1.3 1.3c.3.3.79.3 1.09 0l1.09-1.09c.3-.3.3-.79 0-1.09l-1.3-1.3c.19-.35.36-.71.48-1.1h1.85c.44 0 .8-.36.8-.8v-1.6a.816.816 0 00-.81-.79zm-7.2 4.6c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z" fill-rule="evenodd"></path></svg></span></button></span><button type="button" title="关闭(Esc)" class="bp6-button bp6-small bp6-minimal"><span aria-hidden="true" class="bp6-icon bp6-icon-cross"><svg data-icon="cross" height="18" role="img" viewBox="0 0 16 16" width="18"><path d="M9.41 8l3.29-3.29c.19-.18.3-.43.3-.71a1.003 1.003 0 00-1.71-.71L8 6.59l-3.29-3.3a1.003 1.003 0 00-1.42 1.42L6.59 8 3.3 11.29c-.19.18-.3.43-.3.71a1.003 1.003 0 001.71.71L8 9.41l3.29 3.29c.18.19.43.3.71.3a1.003 1.003 0 00.71-1.71L9.41 8z" fill-rule="evenodd"></path></svg></span></button></div></div><div class="bp6-collapse"><div class="bp6-collapse-body" aria-hidden="true"><div class="quick-settings bp6-card bp6-elevation-0"><div><span aria-controls="listbox-0" class="lang-select bp6-popover-target" aria-expanded="false" aria-haspopup="listbox"><button type="button" class="bp6-button bp6-small"><span class="bp6-button-text">自动检测</span><span aria-hidden="true" class="bp6-icon bp6-icon-caret-down"><svg data-icon="caret-down" height="16" role="img" viewBox="0 0 16 16" width="16"><path d="M12 6.5c0-.28-.22-.5-.5-.5h-7a.495.495 0 00-.37.83l3.5 4c.09.1.22.17.37.17s.28-.07.37-.17l3.5-4c.08-.09.13-.2.13-.33z" fill-rule="evenodd"></path></svg></span></button></span><span aria-hidden="true" class="bp6-icon bp6-icon-arrow-right" style="margin: 0px 10px;"><svg data-icon="arrow-right" height="12" role="img" viewBox="0 0 16 16" width="12"><path d="M14.7 7.29l-5-5a.965.965 0 00-.71-.3 1.003 1.003 0 00-.71 1.71l3.29 3.29H1.99c-.55 0-1 .45-1 1s.45 1 1 1h9.59l-3.29 3.29a1.003 1.003 0 001.42 1.42l5-5c.18-.18.29-.43.29-.71s-.12-.52-.3-.7z" fill-rule="evenodd"></path></svg></span><span aria-controls="listbox-1" class="lang-select bp6-popover-target" aria-expanded="false" aria-haspopup="listbox"><button type="button" class="bp6-button bp6-small"><span class="bp6-button-text">中文(简体)</span><span aria-hidden="true" class="bp6-icon bp6-icon-caret-down"><svg data-icon="caret-down" height="16" role="img" viewBox="0 0 16 16" width="16"><path d="M12 6.5c0-.28-.22-.5-.5-.5h-7a.495.495 0 00-.37.83l3.5 4c.09.1.22.17.37.17s.28-.07.37-.17l3.5-4c.08-.09.13-.2.13-.33z" fill-rule="evenodd"></path></svg></span></button></span></div><div><label class="bp6-control bp6-checkbox bp6-inline"><input class="bp6-control-input" type="checkbox"><span class="bp6-control-indicator"></span>谷歌</label><label class="bp6-control bp6-checkbox bp6-inline"><input class="bp6-control-input" type="checkbox" checked=""><span class="bp6-control-indicator"></span>必应</label><label class="bp6-control bp6-checkbox bp6-inline"><input class="bp6-control-input" type="checkbox" checked=""><span class="bp6-control-indicator"></span>微软</label><label class="bp6-control bp6-checkbox bp6-inline"><input class="bp6-control-input" type="checkbox" checked=""><span class="bp6-control-indicator"></span>DeepL(内置)</label><label class="bp6-control bp6-checkbox bp6-inline"><input class="bp6-control-input" type="checkbox"><span class="bp6-control-indicator"></span>DeepL</label><label class="bp6-control bp6-checkbox bp6-inline"><input class="bp6-control-input" type="checkbox"><span class="bp6-control-indicator"></span>ChatGPT</label><label class="bp6-control bp6-checkbox bp6-inline"><input class="bp6-control-input" type="checkbox"><span class="bp6-control-indicator"></span>Claude</label><label class="bp6-control bp6-checkbox bp6-inline"><input class="bp6-control-input" type="checkbox"><span class="bp6-control-indicator"></span>Gemini</label><label class="bp6-control bp6-checkbox bp6-inline"><input class="bp6-control-input" type="checkbox"><span class="bp6-control-indicator"></span>Grok</label><label class="bp6-control bp6-checkbox bp6-inline"><input class="bp6-control-input" type="checkbox"><span class="bp6-control-indicator"></span>Ol</label><label class="bp6-control bp6-checkbox bp6-inline"><input class="bp6-control-input" type="checkbox"><span class="bp6-control-indicator"></span>硅基</label><label class="bp6-control bp6-checkbox bp6-inline"><input class="bp6-control-input" type="checkbox"><span class="bp6-control-indicator"></span>混元</label><label class="bp6-control bp6-checkbox bp6-inline"><input class="bp6-control-input" type="checkbox"><span class="bp6-control-indicator"></span>文心</label><label class="bp6-control bp6-checkbox bp6-inline"><input class="bp6-control-input" type="checkbox"><span class="bp6-control-indicator"></span>文心（旧）</label><label class="bp6-control bp6-checkbox bp6-inline"><input class="bp6-control-input" type="checkbox"><span class="bp6-control-indicator"></span>智谱</label><label class="bp6-control bp6-checkbox bp6-inline"><input class="bp6-control-input" type="checkbox"><span class="bp6-control-indicator"></span>豆包</label><label class="bp6-control bp6-checkbox bp6-inline"><input class="bp6-control-input" type="checkbox"><span class="bp6-control-indicator"></span>通义</label><label class="bp6-control bp6-checkbox bp6-inline"><input class="bp6-control-input" type="checkbox"><span class="bp6-control-indicator"></span>DeepSeek</label><label class="bp6-control bp6-checkbox bp6-inline"><input class="bp6-control-input" type="checkbox"><span class="bp6-control-indicator"></span>零一</label><label class="bp6-control bp6-checkbox bp6-inline"><input class="bp6-control-input" type="checkbox"><span class="bp6-control-indicator"></span>MiniMax</label><label class="bp6-control bp6-checkbox bp6-inline"><input class="bp6-control-input" type="checkbox"><span class="bp6-control-indicator"></span>百川</label><label class="bp6-control bp6-checkbox bp6-inline"><input class="bp6-control-input" type="checkbox"><span class="bp6-control-indicator"></span>Kimi</label><label class="bp6-control bp6-checkbox bp6-inline"><input class="bp6-control-input" type="checkbox"><span class="bp6-control-indicator"></span>百度</label><label class="bp6-control bp6-checkbox bp6-inline"><input class="bp6-control-input" type="checkbox"><span class="bp6-control-indicator"></span>百度(专业版)</label><label class="bp6-control bp6-checkbox bp6-inline"><input class="bp6-control-input" type="checkbox"><span class="bp6-control-indicator"></span>腾讯</label><label class="bp6-control bp6-checkbox bp6-inline"><input class="bp6-control-input" type="checkbox"><span class="bp6-control-indicator"></span>彩云</label><label class="bp6-control bp6-checkbox bp6-inline"><input class="bp6-control-input" type="checkbox"><span class="bp6-control-indicator"></span>阿里</label><label class="bp6-control bp6-checkbox bp6-inline"><input class="bp6-control-input" type="checkbox"><span class="bp6-control-indicator"></span>阿里(专业版)</label><label class="bp6-control bp6-checkbox bp6-inline"><input class="bp6-control-input" type="checkbox"><span class="bp6-control-indicator"></span>有道</label><label class="bp6-control bp6-checkbox bp6-inline"><input class="bp6-control-input" type="checkbox"><span class="bp6-control-indicator"></span>火山</label><label class="bp6-control bp6-checkbox bp6-inline"><input class="bp6-control-input" type="checkbox" checked=""><span class="bp6-control-indicator"></span>必应词典</label><label class="bp6-control bp6-checkbox bp6-inline"><input class="bp6-control-input" type="checkbox"><span class="bp6-control-indicator"></span>搜狗</label><label class="bp6-control bp6-checkbox bp6-inline"><input class="bp6-control-input" type="checkbox"><span class="bp6-control-indicator"></span>Yandex</label><div style="margin-top: 4px;"><a class="bp6-text-small">购买套餐包后可直接使用以上所有服务</a></div></div><div><label class="bp6-control bp6-checkbox bp6-inline"><input class="bp6-control-input" type="checkbox"><span class="bp6-control-indicator"></span>自动朗读</label><label class="bp6-control bp6-checkbox bp6-inline"><input class="bp6-control-input" type="checkbox"><span class="bp6-control-indicator"></span>自动复制</label></div><div role="radiogroup" class="bp6-radio-group"><label class="bp6-control bp6-radio bp6-inline"><input class="bp6-control-input" name="Blueprint6.RadioGroup-0" type="radio" value="small" checked=""><span class="bp6-control-indicator"></span>小</label><label class="bp6-control bp6-radio bp6-inline"><input class="bp6-control-input" name="Blueprint6.RadioGroup-0" type="radio" value="middle"><span class="bp6-control-indicator"></span>中</label><label class="bp6-control bp6-radio bp6-inline"><input class="bp6-control-input" name="Blueprint6.RadioGroup-0" type="radio" value="large"><span class="bp6-control-indicator"></span>大</label></div><div><label class="bp6-control bp6-checkbox bp6-inline"><input class="bp6-control-input" type="checkbox"><span class="bp6-control-indicator"></span>显示文本框</label><label class="bp6-control bp6-checkbox bp6-inline" style="margin-right: 0px;"><input class="bp6-control-input" type="checkbox"><span class="bp6-control-indicator"></span>鼠标悬浮取词</label></div><a class="bp6-text-small">打开完整设置</a></div></div></div></div><div class="body"><p>请输入需要翻译的文本。</p></div></div><div class="arrow"></div></div><div id="web-trs-panel"></div></div></div></template></div></div><grammarly-desktop-integration data-grammarly-shadow-root="true" style="visibility: visible !important;"><template shadowrootmode="open"><style>
+      div.grammarly-desktop-integration {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select:none;
+        user-select:none;
+      }
+
+      div.grammarly-desktop-integration:before {
+        content: attr(data-content);
+      }
+    </style><div aria-label="grammarly-integration" role="group" tabindex="-1" class="grammarly-desktop-integration" data-content="{&quot;mode&quot;:&quot;full&quot;,&quot;isActive&quot;:true,&quot;isUserDisabled&quot;:false}"></div></template></grammarly-desktop-integration></html>
