@@ -1,58 +1,160 @@
-# Design Document: English Learning App
+# Design Document：Chat With Me
 
 ## Overview
 
-The English Learning App is a responsive web application designed to help children in mainland China practice spoken English through an interactive picture-description activity. Each learning session follows a structured flow: the app generates an AI-created image, asks three progressive questions about it, records and evaluates the child's spoken English answers, delivers encouragement, and concludes with a session report. Child profiles and session history are persisted in Firebase Firestore, enabling multi-device access.
+Chat With Me 是一个响应式 Web 应用，帮助中国大陆的儿童通过看图说话练习英语口语。应用提供两种模式：**固定场景模式（Mode 1）** 使用预先准备的静态场景资源，AI 仅在后台评分，体验流畅无卡顿；**AI 动态模式（Mode 2）** 由 Gemini 实时生成图片和问题，内容无限多样。儿童档案和历史记录通过 Firebase Firestore 持久化，支持多设备访问。
 
-**Key design goals:**
-- Simple, distraction-free UI for children aged 10–18
-- AI-driven content pipeline via Google Gemini (configurable to other providers)
-- Browser-native speech (Web Speech API) — no server-side audio processing
-- Config-file-driven AI provider selection — no code changes to switch providers
-- Offline-tolerant Firebase sync for reliable cross-device history
+**核心设计目标：**
+- 简洁无干扰的 UI，适合 10–18 岁儿童
+- Mode 1 将 AI 等待时间分散在答题过程中，消除明显卡顿
+- Mode 2 通过 Google Gemini 驱动完整内容生成管线（可配置切换）
+- 浏览器原生语音（Web Speech API）——无需服务端音频处理
+- 配置文件驱动的 AI 提供商选择——切换提供商无需改代码
+- 离线容忍的 Firebase 同步，保障跨设备历史记录可靠性
 
-**Research findings:**
-- Google Gemini supports native image generation via `gemini-2.0-flash-exp` (multimodal output) and dedicated Imagen models via the `@google/generative-ai` JavaScript SDK. Text generation uses `gemini-1.5-flash` or `gemini-2.0-flash`. [Source: ai.google.dev](https://ai.google.dev/gemini-api/docs/image-generation)
-- Web Speech API (`SpeechSynthesis` for TTS, `SpeechRecognition` for ASR) is supported natively in Chrome 25+, Edge 87+, Safari 14.1+, and Samsung Internet. Firefox support for `SpeechRecognition` requires a flag and is not fully reliable. The app must note this limitation to users. [Source: MDN](https://developer.mozilla.org/en-US/docs/Web/API/SpeechRecognition)
-- Firebase Firestore (modular SDK v9+) supports real-time sync, offline persistence, and fine-grained security rules — appropriate for multi-device child profile management. [Source: Firebase docs](https://firebase.google.com/docs/firestore)
+**技术选型依据：**
+- Google Gemini 支持 `gemini-2.0-flash-exp` 原生图片生成（multimodal output）和 `gemini-1.5-flash` 文字生成，均通过 `@google/generative-ai` JavaScript SDK 调用。
+- Web Speech API（`SpeechSynthesis` TTS + `SpeechRecognition` ASR）在 Chrome 25+、Edge 87+、Safari 14.1+ 原生支持。Firefox 的 `SpeechRecognition` 需启用 flag 且不稳定，应提示用户。
+- Firebase Firestore（模块化 SDK v9+）支持实时同步、离线持久化和细粒度安全规则。
 
 ---
 
 ## Architecture
 
-The application is a client-side Single Page Application (SPA). There is no custom backend server. All AI calls are made from the client to the Gemini API (or configured provider). Firebase Firestore is used directly from the client via the Firebase JS SDK, with security rules enforcing data isolation per user.
+应用为纯客户端 SPA（无自定义后端）。所有 AI 调用直接从客户端发出，Firebase SDK 直接操作 Firestore，安全规则在 Firebase 侧执行数据隔离。
 
 ```mermaid
 graph TB
     subgraph Browser [Browser / Client SPA]
         UI[UI Layer<br/>React Components]
-        SM[Session State Machine<br/>useSession hook]
+        SM1[Mode 1 State Machine<br/>usePresetSession hook]
+        SM2[Mode 2 State Machine<br/>useDynamicSession hook]
         AI[AI Service Layer<br/>GeminiProvider / ProviderFactory]
+        SE[Scene Evaluator<br/>后台评分 + 超时管理]
+        SL[Scene Loader<br/>场景文件扫描]
         Speech[Speech Service Layer<br/>TTSService / ASRService]
         DB[Firebase Service Layer<br/>firestoreService]
-        Config[Config Loader<br/>config.json]
+        Config[Config Loader<br/>config.json + featureFlags]
     end
 
     subgraph External
         Gemini[Google Gemini API<br/>image + text generation]
         Fire[Firebase Firestore<br/>profiles + sessions]
+        Scenes[public/scenes/<br/>静态场景资源]
     end
 
-    UI <--> SM
-    SM --> AI
-    SM --> Speech
-    SM --> DB
+    UI <--> SM1
+    UI <--> SM2
+    SM1 --> SE
+    SM1 --> SL
+    SM1 --> Speech
+    SM1 --> DB
+    SM2 --> AI
+    SM2 --> Speech
+    SM2 --> DB
+    SE --> AI
     AI --> Gemini
     DB --> Fire
+    SL --> Scenes
     Config --> AI
-    Config --> Speech
+    Config --> SM1
 ```
 
-**Architectural decisions:**
-1. **Client-only (no custom backend):** Simplifies deployment (static hosting on Firebase Hosting or similar) and removes server maintenance cost. API keys are stored in a config file loaded at startup, which is acceptable for a personal/family application. For a production multi-tenant app, keys should move server-side.
-2. **Provider abstraction:** All AI calls go through a `AIProviderInterface` so swapping Gemini for another provider only requires a new adapter class and a config change.
-3. **Session state machine:** A finite state machine governs the session lifecycle, making state transitions explicit and testable.
-4. **Web Speech API (browser-native):** Avoids audio upload costs and latency. The known limitation is Firefox's incomplete `SpeechRecognition` support — the app will warn users on unsupported browsers.
+**架构决策：**
+
+1. **纯客户端，无自定义后端：** 简化部署（静态托管），消除服务器维护成本。API 密钥存于 config 文件，适用于家庭私人部署场景。
+2. **两个模式独立状态机：** `usePresetSession` 和 `useDynamicSession` 各自管理生命周期，代码隔离，可独立实现和测试，互不影响。
+3. **后台并发评分（Mode 1）：** `SceneEvaluator` 在每题提交后立即 fire-and-forget 发起评分请求，将 AI 等待时间分散至答题过程，结算页仅需短暂等待。15 秒超时保障不因单题失败阻塞整体。
+4. **场景文件系统管理：** Mode 1 的场景内容通过文件夹直接管理，`public/scenes/index.json` 作为目录索引，内容准备者无需接触代码。
+5. **Provider 抽象：** 所有 AI 调用通过 `AIProviderInterface` 路由，更换提供商只需新建适配类并修改 config。
+6. **Feature Flags：** 两个模式的可用性由 `featureFlags.ts` 常量控制，支持独立开发和渐进发布。
+
+---
+
+## Mode 1：固定场景模式详细设计
+
+### 场景资源结构
+
+```
+public/scenes/
+├── index.json                   ← 所有场景 ID 列表
+├── primary_zoo/
+│   ├── meta.json                ← 场景元数据（id, title, gradeLevel, imageDescription）
+│   ├── image.jpg                ← 场景图片
+│   └── questions.json           ← 问题列表（3–5 题，含 order 字段）
+└── junior_city_life/
+    └── ...
+```
+
+文件夹命名格式：`{gradeLevel}_{名称}`，App 从前缀自动识别年级。
+
+### Mode 1 会话流程
+
+```mermaid
+stateDiagram-v2
+    [*] --> Idle
+    Idle --> LoadingScene : startSession()
+    LoadingScene --> ShowingQuestion : sceneLoaded（随机选场景，排除已完成）
+    LoadingScene --> Error : loadError
+    ShowingQuestion --> Recording : startRecording()
+    Recording --> ShowingTranscript : transcriptReady（STT 结果显示在可编辑文本框）
+    Recording --> ShowingQuestion : transcriptEmpty（软提示，非错误）
+    ShowingTranscript --> Submitting : submitAnswer()（后台发起评分，立即进入）
+    Submitting --> ShowingQuestion : 非最后一题（TTS 朗读下一题）
+    Submitting --> ShowingResults : 最后一题（等待所有评分结果）
+    ShowingResults --> ShowingReport : resultsCollected
+    ShowingReport --> [*]
+    Error --> Idle : retry()
+```
+
+**关键设计点：**
+- `submitAnswer()` 是非阻塞的：提交后立即显示下一题，评分在后台进行
+- ASR 错误在 Mode 1 中不中断会话，只显示软提示（孩子可手动输入）
+- 评分时将图片 base64 发给 AI（主路径），失败时降级为文字描述（备用路径）
+- `ShowingResults` 状态下等待所有 `Promise` settle（含超时保障）
+
+### 场景选择算法
+
+```
+1. 加载 index.json，获取所有场景 ID
+2. 查询 Firestore 获取该 Profile 完成过的场景 ID（completedIds）
+3. 用 Profile 的 gradeLevel 过滤场景（可选）
+4. 从未完成的场景中随机选取
+5. 若所有场景均已完成，重置 completedIds，从全部场景中重新随机
+```
+
+---
+
+## Mode 2：AI 动态模式详细设计
+
+### Mode 2 会话流程
+
+```mermaid
+stateDiagram-v2
+    [*] --> Idle
+    Idle --> GeneratingImage : startSession()
+    GeneratingImage --> GeneratingQuestion : imageReady（AI 图或 fallback）
+    GeneratingQuestion --> AwaitingAnswer : questionReady（TTS 自动朗读）
+    GeneratingQuestion --> Error : questionError
+    AwaitingAnswer --> Recording : startRecording()
+    Recording --> Transcribing : stopRecording()
+    Transcribing --> AwaitingAnswer : transcriptEmpty（软提示）
+    Transcribing --> Evaluating : transcriptReady
+    Evaluating --> ShowingScores : scoresReady
+    Evaluating --> ShowingScores : evaluationError（部分分数降级）
+    ShowingScores --> GeneratingEncouragement : 1500ms 后自动
+    GeneratingEncouragement --> RoundComplete : encouragementReady
+    RoundComplete --> GeneratingQuestion : rounds < 3
+    RoundComplete --> GeneratingReport : rounds == 3
+    GeneratingReport --> ShowingReport : reportReady / reportError
+    ShowingReport --> [*]
+    Error --> Idle : retry()
+```
+
+**与 Mode 1 的关键差异：**
+- 每个 AI 步骤（生图、出题、评分、鼓励、报告）均为同步等待，用户在每步可能需要等待
+- ASR 为只读展示（不可编辑），评分在答题后立即展示，不等到最后汇总
+- 鼓励语在每轮结束后立即展示，而非结算时汇总
 
 ---
 
@@ -64,25 +166,34 @@ graph TB
 graph TD
     App --> ConfigGuard
     ConfigGuard --> AuthWrapper
-    AuthWrapper --> ProfileSelector
-    AuthWrapper --> ProfileEditor
-    AuthWrapper --> SessionView
-    AuthWrapper --> HistoryView
-    SessionView --> ImageDisplay
-    SessionView --> QuestionCard
-    SessionView --> RecordButton
-    SessionView --> TranscriptDisplay
-    SessionView --> ScorePanel
-    SessionView --> EncouragementCard
-    SessionView --> ReportScreen
+    AuthWrapper --> HomeScreen
+    HomeScreen --> ProfileSelector
+    ProfileSelector --> ProfileEditor
+    ProfileSelector --> PresetSessionView
+    ProfileSelector --> DynamicSessionView
+    ProfileSelector --> HistoryView
+
+    PresetSessionView --> SceneImageDisplay
+    PresetSessionView --> PresetQuestionCard
+    PresetSessionView --> AnswerEditor
+    PresetSessionView --> PresetReportScreen
+
+    DynamicSessionView --> ImageDisplay
+    DynamicSessionView --> QuestionCard
+    DynamicSessionView --> RecordButton
+    DynamicSessionView --> TranscriptDisplay
+    DynamicSessionView --> ScorePanel
+    DynamicSessionView --> EncouragementCard
+    DynamicSessionView --> DynamicReportScreen
+
     HistoryView --> SessionHistoryList
     SessionHistoryList --> SessionDetailView
 ```
 
-### Key Component Interfaces
+### Key Data Interfaces
 
 ```typescript
-// Profile management
+// 共享数据类型
 interface Profile {
   id: string;
   name: string;
@@ -93,21 +204,22 @@ interface Profile {
 
 type GradeLevel = 'primary' | 'junior' | 'senior';
 
-// Session data model (stored in Firestore)
 interface Session {
   id: string;
   profileId: string;
+  sessionMode: 'preset' | 'dynamic';  // 区分模式
+  sceneId?: string;                    // Mode 1 专用
   createdAt: Timestamp;
   imageDescription: string;
-  imageUrl: string;           // base64 or storage URL
-  rounds: Round[];            // exactly 3 when complete
+  imageUrl: string;
+  rounds: Round[];
   report: Report | null;
   compositeScore: number | null;
   status: 'in_progress' | 'complete' | 'error';
 }
 
 interface Round {
-  roundNumber: 1 | 2 | 3;
+  roundNumber: number;
   question: string;
   transcript: string;
   scores: EvaluationScores;
@@ -115,16 +227,27 @@ interface Round {
 }
 
 interface EvaluationScores {
-  vocabulary: number;       // 0-100
-  pronunciation: number;    // 0-100
-  grammar: number;          // 0-100
-  relevance: number;        // 0-100
+  vocabulary: number | null;
+  pronunciation: number | null;
+  grammar: number | null;
+  relevance: number | null;
 }
 
-interface Report {
-  compositeScore: number;   // 0-100
-  analysis: string;         // <= 150 words
-  generatedAt: Timestamp;
+// Mode 1 专用
+interface SceneMeta {
+  id: string;
+  title: string;
+  gradeLevel: GradeLevel;
+  imageAlt: string;
+  imageDescription: string;
+  imagePath: string;
+  questionsPath: string;
+}
+
+interface SceneQuestion {
+  id: string;
+  text: string;
+  order: number;
 }
 ```
 
@@ -132,101 +255,15 @@ interface Report {
 
 ```typescript
 interface AIProviderInterface {
+  // Mode 2 专用
   generateImage(prompt: string, gradeLevel: GradeLevel): Promise<GeneratedImage>;
   generateQuestion(params: QuestionParams): Promise<string>;
+
+  // 两个模式共用
   evaluateAnswer(params: EvaluationParams): Promise<EvaluationScores>;
+  evaluateAnswerWithImage(params: EvaluationWithImageParams): Promise<EvaluationScores>;
   generateEncouragement(params: EncouragementParams): Promise<string>;
   generateReport(params: ReportParams): Promise<Report>;
-}
-
-interface GeneratedImage {
-  base64Data: string;
-  mimeType: string;
-  description: string;  // AI-generated description used for evaluation context
-}
-
-interface QuestionParams {
-  gradeLevel: GradeLevel;
-  /**
-   * AI-generated description of the currently displayed image, OR the
-   * description of a fallback image when AI image generation failed.
-   * Question generation proceeds regardless of which source provided the
-   * image (Req 2.3).
-   */
-  imageDescription: string;
-  previousQuestions: string[];
-  roundNumber: 1 | 2 | 3;
-}
-
-interface EvaluationParams {
-  question: string;
-  transcript: string;
-  imageDescription: string;
-  gradeLevel: GradeLevel;
-}
-
-interface EncouragementParams {
-  childName: string;
-  scores: EvaluationScores;
-  roundNumber: number;
-}
-
-interface ReportParams {
-  childName: string;
-  gradeLevel: GradeLevel;
-  rounds: Round[];
-}
-```
-
-### Speech Service Interfaces
-
-```typescript
-interface TTSService {
-  speak(text: string, lang: string): Promise<void>;
-  /**
-   * Interrupt any ongoing playback and immediately begin speaking `text`.
-   * The visual indication cycle restarts from the default state.
-   * Equivalent to stop() followed by speak(), but exposed as a single atomic
-   * operation so the UI can distinguish an intentional interrupt (Req 4.6)
-   * from a plain stop (Req 4.4).
-   */
-  interruptAndSpeak(text: string, lang: string): Promise<void>;
-  stop(): void;
-  isSpeaking(): boolean;
-  isAvailable(): boolean;
-  /**
-   * Fires only when TTS transitions from the default (idle) state to speaking.
-   * Does NOT fire when `interruptAndSpeak` is called while already speaking;
-   * in that case the caller is responsible for restarting the visual cycle
-   * directly (Req 4.3, 4.6).
-   */
-  onStart(cb: () => void): void;
-  onEnd(cb: () => void): void;
-  onError(cb: (err: Error) => void): void;
-}
-
-interface ASRService {
-  startRecording(lang: string): void;
-  stopRecording(): void;
-  isAvailable(): boolean;
-  /**
-   * Fires with a non-empty transcript on successful recognition.
-   * An empty string result is NOT surfaced here; instead the caller receives
-   * an `onEmptyResult` callback and shows a retry prompt — not an error
-   * message (Req 5.7).
-   */
-  onResult(cb: (transcript: string) => void): void;
-  /**
-   * Fires when recording ends with an empty transcript and no technical
-   * failure (e.g., the child was silent). The UI SHALL show a retry prompt
-   * only — no error message (Req 5.7).
-   */
-  onEmptyResult(cb: () => void): void;
-  /**
-   * Fires on a technical failure (microphone unavailable, API error, etc.).
-   * The UI SHALL display an error message and allow retry (Req 5.6).
-   */
-  onError(cb: (err: Error) => void): void;
 }
 ```
 
@@ -238,49 +275,28 @@ interface ASRService {
 
 ```
 users/{userId}/
-  profiles/{profileId}          ← Profile document
-  sessions/{sessionId}          ← Session document (contains embedded rounds)
+  profiles/{profileId}
+  sessions/{sessionId}
 ```
 
-**Profile document:**
-```json
-{
-  "id": "p_abc123",
-  "name": "小明",
-  "gradeLevel": "primary",
-  "createdAt": "<Timestamp>",
-  "updatedAt": "<Timestamp>"
-}
-```
-
-**Session document:**
+**Session document（新增字段）：**
 ```json
 {
   "id": "s_xyz789",
   "profileId": "p_abc123",
-  "createdAt": "<Timestamp>",
+  "sessionMode": "preset",
+  "sceneId": "primary_zoo",
   "status": "complete",
+  "createdAt": "<Timestamp>",
   "imageDescription": "A colorful zoo with elephants and giraffes",
-  "imageUrl": "data:image/png;base64,...",
-  "rounds": [
-    {
-      "roundNumber": 1,
-      "question": "What animals can you see in the picture?",
-      "transcript": "I can see an elephant and a giraffe",
-      "scores": { "vocabulary": 82, "pronunciation": 75, "grammar": 88, "relevance": 90 },
-      "encouragement": "Great job, 小明! You named the animals clearly!"
-    }
-  ],
-  "report": {
-    "compositeScore": 83,
-    "analysis": "小明 demonstrated strong vocabulary and relevance...",
-    "generatedAt": "<Timestamp>"
-  },
+  "imageUrl": "/scenes/primary_zoo/image.jpg",
+  "rounds": [...],
+  "report": {...},
   "compositeScore": 83
 }
 ```
 
-### Config File Schema (`config.json`)
+### Config File Schema（`public/config.json`）
 
 ```json
 {
@@ -306,356 +322,78 @@ users/{userId}/
     "storageBucket": "your-project.appspot.com",
     "messagingSenderId": "123456789",
     "appId": "1:123456789:web:abcdef"
+  },
+  "mode1": {
+    "evaluationTimeoutMs": 15000
   }
 }
 ```
-
-**Required fields validation:** `aiProvider`, `[provider].apiKey`, `[provider].imageModel`, `[provider].textModel`, `tts.lang`, `firebase.projectId` and `firebase.apiKey` must all be present and non-empty.
-
----
-
-## Session State Machine
-
-The session lifecycle is modeled as an explicit finite state machine:
-
-```mermaid
-stateDiagram-v2
-    [*] --> Idle
-    Idle --> GeneratingImage : startSession()
-    GeneratingImage --> GeneratingQuestion : imageReady (AI image OR fallback image)
-    GeneratingImage --> Error : imageError
-    GeneratingQuestion --> AwaitingAnswer : questionReady
-    GeneratingQuestion --> Error : questionError
-    AwaitingAnswer --> Recording : startRecording()
-    Recording --> Transcribing : stopRecording()
-    Transcribing --> AwaitingAnswer : transcriptEmpty (show retry prompt, no error)
-    Transcribing --> Evaluating : transcriptReady (non-empty)
-    Evaluating --> ShowingScores : scoresReady
-    Evaluating --> ShowingScores : evaluationError (partial scores)
-    ShowingScores --> GeneratingEncouragement : scoresDisplayed
-    GeneratingEncouragement --> RoundComplete : encouragementReady
-    RoundComplete --> GeneratingQuestion : rounds < 3
-    RoundComplete --> GeneratingReport : rounds == 3
-    GeneratingReport --> ShowingReport : reportReady
-    GeneratingReport --> ShowingReport : reportError (show partial)
-    ShowingReport --> [*]
-    Error --> Idle : retry()
-```
-
-**State notes:**
-
-- `GeneratingImage → GeneratingQuestion`: This transition fires whether the displayed image was produced by the AI or is a fallback image. Question generation always uses the description of whichever image is currently on screen (Req 2.3).
-- `Transcribing → AwaitingAnswer` (transcriptEmpty): When ASR returns an empty transcript after recording ends *without a technical failure*, the machine returns to `AwaitingAnswer` and the UI shows a retry prompt only — **no error message** (Req 5.7). A technical failure (mic unavailable, API error) transitions to a dedicated `ASRError` sub-state and shows an error message (Req 5.6).
-- `Error` state: On entry, the UI **always** shows the user-friendly error message **and** the retry action — the error banner is never suppressed (Req 2.5).
-- TTS interrupt (Req 4.6): When the child taps the speaker icon while `isSpeaking()` is true, `TTSService.interruptAndSpeak()` is called. The session state machine does not change state; the UI layer resets its own visual-indicator cycle (animated icon) immediately on the interrupt call, then lets the new `onEnd` callback restore the default icon. The `onStart` callback is **not** used to trigger the visual indicator when interrupting — it fires only on a fresh start from the idle state (Req 4.3).
-
----
-
-## Key Algorithm Flows
-
-### Image Generation Prompt Construction
-
-The image generation prompt is tailored by grade level:
-
-```
-Grade primary:  "Generate a simple, colorful illustration suitable for children aged 10-12.
-                 The scene should show [category] with clear, recognizable elements.
-                 Avoid complex backgrounds. Style: flat illustration, bright colors."
-
-Grade junior:   "Generate an engaging scene suitable for teenagers aged 13-15.
-                 The image should depict [category] with enough detail to prompt
-                 descriptive discussion. Style: realistic illustration."
-
-Grade senior:   "Generate a thought-provoking scene suitable for students aged 16-18.
-                 The image should depict [category] with rich contextual detail
-                 that invites reflection. Style: photorealistic."
-```
-
-Image categories are drawn from a curated list: animals, nature, city life, school, sports, food, family, travel.
-
-### Question Generation Prompt Construction
-
-Question generation is triggered whenever an image is displayed on screen — whether the image was produced by the AI or is a fallback image. The `imageDescription` passed to `buildQuestionPrompt` is always the description of the currently displayed image, regardless of its source (Req 2.3).
-
-```typescript
-function buildQuestionPrompt(params: QuestionParams): string {
-  const gradeInstructions = {
-    primary: `Ask a simple factual question with a clear answer (e.g., "What color is the dog?", 
-              "Where is the animal?"). Use vocabulary appropriate for ages 10-12.`,
-    junior:  `Ask an open-ended descriptive question (e.g., "Could you tell me what is happening here?",
-              "What can you see in different parts of this picture?"). Suitable for ages 13-15.`,
-    senior:  `Ask a reflective or analytical question requiring personal thought 
-              (e.g., "How does this scene make you feel?", "What do you think will happen next?").
-              Suitable for ages 16-18.`
-  };
-
-  const continuityClause = params.previousQuestions.length > 0
-    ? `The previous questions were: ${params.previousQuestions.map((q, i) => `Round ${i+1}: "${q}"`).join('; ')}. 
-       Generate a new question that explores a different aspect of the same image.`
-    : '';
-
-  return `
-    You are helping a Chinese student practice English.
-    Image description: "${params.imageDescription}"
-    Round: ${params.roundNumber} of 3.
-    ${continuityClause}
-    ${gradeInstructions[params.gradeLevel]}
-    Respond with ONLY the question text, no additional explanation.
-  `;
-}
-```
-
-### Evaluation Prompt Construction
-
-```typescript
-function buildEvaluationPrompt(params: EvaluationParams): string {
-  const strictnessNote = params.gradeLevel !== 'primary'
-    ? 'Apply stricter grammar and relevance criteria appropriate for intermediate/advanced learners.'
-    : 'Apply lenient criteria appropriate for beginners.';
-
-  return `
-    You are an English language evaluator for Chinese students.
-    Image context: "${params.imageDescription}"
-    Question asked: "${params.question}"
-    Student's answer (transcribed from speech): "${params.transcript}"
-    Grade level: ${params.gradeLevel}
-    ${strictnessNote}
-
-    Score the answer on four dimensions (0-100 each):
-    1. Vocabulary Accuracy: Are the words used appropriate and correctly applied?
-    2. Pronunciation Accuracy: Infer from the transcription quality and word choices.
-    3. Grammar Correctness: Is the sentence structure grammatically correct?
-    4. Answer Relevance: Does the answer address the question and image content?
-
-    Respond ONLY with valid JSON in this exact format:
-    {
-      "vocabulary": <number>,
-      "pronunciation": <number>,
-      "grammar": <number>,
-      "relevance": <number>
-    }
-  `;
-}
-```
-
-### Composite Score Calculation
-
-```typescript
-function calculateCompositeScore(rounds: Round[]): number {
-  const dimensionWeights = {
-    vocabulary: 0.25,
-    pronunciation: 0.25,
-    grammar: 0.25,
-    relevance: 0.25
-  };
-
-  const allScores = rounds.flatMap(r => [r.scores]);
-  const totals = allScores.reduce((acc, s) => ({
-    vocabulary: acc.vocabulary + s.vocabulary,
-    pronunciation: acc.pronunciation + s.pronunciation,
-    grammar: acc.grammar + s.grammar,
-    relevance: acc.relevance + s.relevance
-  }), { vocabulary: 0, pronunciation: 0, grammar: 0, relevance: 0 });
-
-  const n = rounds.length;
-  const composite =
-    (totals.vocabulary / n) * dimensionWeights.vocabulary +
-    (totals.pronunciation / n) * dimensionWeights.pronunciation +
-    (totals.grammar / n) * dimensionWeights.grammar +
-    (totals.relevance / n) * dimensionWeights.relevance;
-
-  return Math.round(Math.max(0, Math.min(100, composite)));
-}
-```
-
----
-
-## Correctness Properties
-
-*A property is a characteristic or behavior that should hold true across all valid executions of a system — essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees.*
-
-This feature's pure logic (profile validation, score calculation, prompt building, config validation, session state transitions) is well-suited for property-based testing. Infrastructure concerns (Firebase sync, AI API calls) are covered by integration tests.
-
-The property-based testing library used is **fast-check** (TypeScript/JavaScript).
-
-### Property 1: Profile name whitespace rejection
-
-*For any* string composed entirely of whitespace characters (spaces, tabs, newlines, or any combination), the profile name validator SHALL reject it and return a validation error.
-
-**Validates: Requirements 1.6**
-
-### Property 2: Profile round-trip serialization
-
-*For any* valid profile (non-empty name, valid grade level), serializing it to a Firestore document and deserializing it back SHALL produce an object equal to the original profile.
-
-**Validates: Requirements 1.1, 1.2**
-
-### Property 3: Profile deletion removes all sessions
-
-*For any* profile with N associated sessions (N ≥ 0), after deleting the profile, neither the profile nor any of its N sessions SHALL be present in the data store.
-
-**Validates: Requirements 1.3**
-
-### Property 4: Grade-level-specific question prompts
-
-*For any* grade level (primary, junior, senior), the question prompt builder SHALL produce a prompt string that contains the grade-level-specific instruction vocabulary and does NOT contain instruction vocabulary belonging to other grade levels.
-
-**Validates: Requirements 3.2, 3.3, 3.4**
-
-### Property 5: Round 2 and 3 prompts include prior context
-
-*For any* session where at least one round has been completed, the prompt for the next round SHALL contain the text of all previous questions from that session.
-
-**Validates: Requirements 3.6**
-
-### Property 6: Composite score stays within valid range
-
-*For any* combination of three rounds each with four dimension scores in [0, 100], the composite score calculation SHALL produce a result in [0, 100].
-
-**Validates: Requirements 8.2**
-
-### Property 7: Config validation correctly classifies configs
-
-*For any* configuration object missing at least one required field, the config validator SHALL return a validation failure. *For any* configuration object where all required fields are present and non-empty, the config validator SHALL return a validation success.
-
-**Validates: Requirements 10.2, 10.4**
-
-### Property 8: Provider factory returns correct adapter
-
-*For any* supported provider name (e.g., "gemini") in the config, the AI provider factory SHALL return an adapter object that implements the `AIProviderInterface`.
-
-**Validates: Requirements 10.5**
-
-### Property 9: Session does not terminate before three rounds
-
-*For any* session state with fewer than three completed rounds, the session state machine SHALL NOT be in a terminal state (ShowingReport or complete).
-
-**Validates: Requirements 7.4**
-
-### Property 10: Session history is chronologically ordered
-
-*For any* list of sessions belonging to a profile, the history display function SHALL return them sorted in reverse-chronological order (most recent first) regardless of the insertion order.
-
-**Validates: Requirements 9.2**
 
 ---
 
 ## Error Handling
 
-| Error Condition | Recovery Strategy |
+| 错误情况 | 处理策略 |
 |---|---|
-| AI image generation fails | **Always** show user-friendly error banner + "Try Again" button, even when the retry option is present (Req 2.5); remain on session start screen |
-| AI image generation fails (fallback path) | Display a fallback static image; proceed immediately to question generation using the fallback image's description (Req 2.3) |
-| AI question generation fails | **Always** show user-friendly error banner + "Try Again" button (Req 2.5); do not advance round |
-| ASR unavailable (browser) | Show browser compatibility warning at session start; suggest Chrome/Edge |
-| ASR returns empty transcript (no technical failure) | Show inline retry prompt only ("We didn't catch that — please try again"); **do NOT show an error message** (Req 5.7) |
-| ASR error during recording (technical failure) | Show error message + allow retry (Req 5.6) |
-| TTS unavailable | Show notification; question text remains visible on screen |
-| TTS already speaking when speaker tapped | Call `interruptAndSpeak()`: stop current playback, start new playback, reset visual indicator immediately; `onStart` is NOT used for this path (Req 4.3, 4.6) |
-| Evaluator API failure | Show available scores (if any); indicate missing dimensions; allow continuing |
-| Evaluator returns malformed JSON | Parse what is available; default to null for missing dimensions |
-| Report generation failure | Show individual round scores; show "Report unavailable" message; save partial data |
-| Firebase write failure | Queue write for retry (Firebase SDK offline persistence handles this automatically) |
-| Firebase history load in progress | Show loading indicator for the entire Profile's history; **do NOT display any partial data** until all session data for the selected Profile has fully loaded (Req 9.5) |
-| Config file missing or invalid | Block app startup; show configuration error screen with field-level detail |
-| API key invalid / quota exceeded | Show provider error with actionable message (check API key, check quota) |
-
-**Error state principles:**
-- Errors within a session should never lose already-collected data
-- Every recoverable error exposes a retry action
-- Error messages are **always** displayed when an AI generation failure occurs, regardless of whether a retry option is also available (Req 2.5)
-- Empty ASR transcripts are **not** errors — they use a soft retry prompt, not an error message (Req 5.7)
-- History screens show a loading indicator and hold back all data until the full Profile load completes — no partial renders (Req 9.5)
-- Network/Firebase errors leverage the SDK's built-in offline persistence queue
-- All errors are logged to the browser console with full context for debugging
+| Mode 1 场景加载失败 | 显示错误 + 重试按钮 |
+| Mode 1 单题评分超时（15s） | 该题显示"评分不可用"，不阻塞其他题 |
+| Mode 1 图片发送失败（评分时） | 降级为纯文字描述评分 |
+| Mode 2 AI 生图失败 | 使用 fallback 静态图片，继续会话 |
+| Mode 2 问题生成失败 | 显示错误 + 重试，不推进轮次 |
+| ASR 技术故障 | 显示错误信息 + 允许重试 |
+| ASR 无声/空转录 | 显示软提示"没有听清"，**不显示错误** |
+| TTS 不可用 | 显示通知，问题文字保持可见 |
+| Firebase 写入失败 | SDK 离线队列自动重试 |
+| 历史加载中 | 全屏 loading，**不展示部分数据** |
+| Config 缺失/无效 | 阻止启动，显示字段级错误 |
+| 非安全上下文（HTTP） | 显示明确 HTTPS 要求提示 |
 
 ---
 
 ## Testing Strategy
 
-### Overview
+### Unit Tests（Vitest）
 
-The testing strategy uses a dual approach:
-- **Unit tests** for specific examples, edge cases, and error conditions using **Vitest**
-- **Property-based tests** for universal properties using **fast-check** (minimum 100 iterations each)
-- **Integration tests** for Firebase and AI API wiring (limited examples, run separately)
+- Config loader：有效配置、缺失字段、无效值
+- Profile validator：有效名称、空名称、纯空白名称
+- Score calculator：边界值（全 0、全 100、含 null）
+- Prompt builders：各年级提示词内容、轮次上下文包含
+- Scene loader：场景索引解析、年级前缀识别、pickRandomScene 去重逻辑
+- Scene evaluator：超时行为、Promise.race 结果、reset 清理
+- usePresetSession 状态机：所有状态转换，提交后立即切题
+- useDynamicSession 状态机：所有状态转换，包含 fallback 图片路径
+- History sorter：时间戳排序、相同时间戳的稳定排序
 
-### Unit Tests
+### Property-Based Tests（fast-check，每项至少 100 次）
 
-Focus areas:
-- Config loader: valid config, missing fields, invalid values
-- Profile validator: valid names, empty names, whitespace-only names
-- Score calculator: boundary values (all 0, all 100, mixed)
-- Prompt builder: grade-level prompt output, round context inclusion; verify fallback-image descriptions are accepted as valid `imageDescription` inputs (Req 2.3)
-- Session state machine: all valid state transitions, invalid transition guards; verify `transcriptEmpty` → `AwaitingAnswer` does NOT set error state (Req 5.7); verify `imageReady` from fallback → `GeneratingQuestion` (Req 2.3)
-- AI response parser: valid JSON scores, malformed JSON, partial scores
-- History sorter: ordering of sessions by timestamp
-- TTS service: `interruptAndSpeak` calls `stop()` then `speak()` atomically; `onStart` fires only when transitioning from idle (Req 4.3, 4.6)
-- History loader: verifies that partial data is held until the full Profile load resolves (Req 9.5)
+1. **Profile 名称空白拒绝**：任意纯空白字符串均被拒绝
+2. **Profile 序列化往返**：任意合法 Profile 序列化后反序列化等于原值
+3. **综合分数范围**：任意三轮四维分数（含 null）计算结果始终在 [0, 100]
+4. **年级问题提示词特异性**：任意年级的提示词包含该年级特有指令，不含其他年级指令
+5. **轮次上下文包含**：Round 2/3 的提示词包含所有前序问题
+6. **Config 校验分类**：任意缺失必填字段的 config 均返回失败；任意完整 config 返回成功
+7. **场景随机选择不重复**：completedIds 不为全集时，pickedScene 不在 completedIds 中
+8. **场景全部完成后重置**：completedIds 包含所有场景时，pickRandomScene 仍返回有效场景
+9. **Session 历史降序排序**：任意插入顺序的 Session 列表，排序后始终按时间降序
 
-### Property-Based Tests (fast-check)
+### Integration Tests（Firebase Emulator + Mock Gemini）
 
-Each test runs a minimum of 100 iterations. Tests are tagged with their corresponding design property.
-
-```typescript
-// Tag format: Feature: english-learning-app, Property N: <description>
-
-// Property 1: Profile name whitespace rejection
-// Feature: english-learning-app, Property 1: Profile name whitespace rejection
-test('whitespace-only names are always rejected', () => {
-  fc.assert(fc.property(
-    fc.stringOf(fc.constantFrom(' ', '\t', '\n', '\r')).filter(s => s.length > 0),
-    (whitespaceStr) => {
-      const result = validateProfileName(whitespaceStr);
-      return result.valid === false;
-    }
-  ), { numRuns: 100 });
-});
-
-// Property 6: Composite score range
-// Feature: english-learning-app, Property 6: Composite score stays within valid range
-test('composite score is always in [0, 100]', () => {
-  fc.assert(fc.property(
-    fc.array(fc.record({
-      vocabulary: fc.integer({ min: 0, max: 100 }),
-      pronunciation: fc.integer({ min: 0, max: 100 }),
-      grammar: fc.integer({ min: 0, max: 100 }),
-      relevance: fc.integer({ min: 0, max: 100 })
-    }), { minLength: 3, maxLength: 3 }),
-    (scoreSets) => {
-      const rounds = scoreSets.map((scores, i) => ({ roundNumber: i + 1, scores } as Round));
-      const composite = calculateCompositeScore(rounds);
-      return composite >= 0 && composite <= 100;
-    }
-  ), { numRuns: 100 });
-});
-```
-
-### Integration Tests
-
-Run against a Firebase emulator and a mocked Gemini API:
-- Profile CRUD operations persist correctly to Firestore
-- Session data is saved with all required fields after completion
-- Session history loads from Firestore in correct order
-- Config loading reads values correctly from `config.json`
+- Profile CRUD 正确持久化
+- Session 数据（含 sceneId）完整保存
+- `getCompletedSceneIds` 正确返回已完成场景
+- Config 加载读取正确值
 
 ### Accessibility Tests
 
-- `axe-core` automated scan on all main screens (profile selector, session view, history view, report screen)
-- Manual contrast ratio verification for primary color palette
-- Manual keyboard navigation test
-
-### Responsive Layout Tests
-
-- Verify single uncluttered layout at standard breakpoints (375px–1440px) with no scrolling required during an active Round
-- Verify that on very small screens (below ~360px viewport height or equivalent constrained dimensions) scrolling is permitted and all UI elements remain at minimum readable sizes — buttons, question text, and score display must not be clipped or scaled below the 16px minimum (Req 11.5)
+- `axe-core` 自动扫描所有主要页面
+- 主色调对比度人工验证
+- 键盘导航人工测试
 
 ### Browser Compatibility
 
-Manual smoke test matrix:
-| Browser | TTS | ASR | Expected |
-|---------|-----|-----|----------|
-| Chrome 120+ | ✅ | ✅ | Full support |
-| Edge 120+ | ✅ | ✅ | Full support |
-| Safari 16+ | ✅ | ✅ | Full support |
-| Firefox 120+ | ✅ | ⚠️ | TTS works; ASR requires flag — show warning |
+| 浏览器 | TTS | ASR | 预期 |
+|---|---|---|---|
+| Chrome 120+ | ✅ | ✅ | 完整支持 |
+| Edge 120+ | ✅ | ✅ | 完整支持 |
+| Safari 16+ | ✅ | ✅ | 完整支持 |
+| Firefox 120+ | ✅ | ⚠️ | TTS 可用；ASR 需 flag，显示警告 |
