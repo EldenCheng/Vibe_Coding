@@ -1,0 +1,24 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "text": "What fruits can you see in the market? Name at least three kinds of fruits.",
+      "order": 1
+    },
+    {
+      "id": "q2",
+      "text": "What are the students (Li Wei, Sarah, Chen, Zhang) doing right now? How is the atmosphere?",
+      "order": 2
+    },
+    {
+      "id": "q3",
+      "text": "Imagine you are Li Wei. How would you recommend a local snack or fruit (like dragon fruit or oranges) to Sarah?",
+      "order": 3
+    },
+    {
+      "id": "q4",
+      "text": "Do you prefer going to a street market like this, or shopping in a modern supermarket? Why?",
+      "order": 4
+    }
+  ]
+}

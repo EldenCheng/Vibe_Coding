@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat With Me - English Practice Demo</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Welcome Screen -->
+        <div id="welcome-screen" class="screen active">
+            <div class="welcome-container">
+                <div class="app-icon">💬</div>
+                <h1 class="app-title">Chat With Me</h1>
+                <p class="app-description">Practice English by talking about pictures!</p>
+                <button id="start-btn" class="btn btn-primary btn-large">Start</button>
+                
+                <!-- Config Warning -->
+                <div id="config-warning" class="warning-box hidden">
+                    <p>⚠️ Please configure your API Key in demo_config.json</p>
+                </div>
+                
+                <!-- TTS Warning -->
+                <div id="tts-warning" class="info-box hidden">
+                    <p>ℹ️ TTS (Text-to-Speech) is not available on this browser/environment</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Screen -->
+        <div id="loading-screen" class="screen">
+            <div class="loading-container">
+                <div class="spinner"></div>
+                <p id="loading-message">Loading scene...</p>
+            </div>
+        </div>
+
+        <!-- Question Screen -->
+        <div id="question-screen" class="screen">
+            <div class="question-container">
+                <div class="header">
+                    <button id="back-btn" class="btn btn-secondary btn-small">← Back</button>
+                    <span class="progress-text">Question <span id="current-q">1</span></span>
+                </div>
+                
+                <div class="image-section">
+                    <img id="scene-image" src="" alt="Scene Image" class="scene-image">
+                    <div id="image-loading" class="image-loader">
+                        <div class="spinner"></div>
+                        <p>Loading image...</p>
+                    </div>
+                </div>
+                
+                <div class="question-section">
+                    <div class="question-header">
+                        <h2 class="question-title">Question</h2>
+                        <button id="tts-btn" class="btn btn-icon" title="Read Aloud">🔊</button>
+                    </div>
+                    <p id="question-text" class="question-text"></p>
+                </div>
+                
+                <div class="answer-section">
+                    <textarea 
+                        id="answer-input" 
+                        class="answer-input" 
+                        placeholder="Type your answer in English..."
+                        rows="5"
+                    ></textarea>
+                </div>
+                
+                <div class="action-section">
+                    <button id="submit-btn" class="btn btn-primary btn-large" disabled>Submit Answer</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Evaluating Screen -->
+        <div id="evaluating-screen" class="screen">
+            <div class="evaluating-container">
+                <div class="spinner large"></div>
+                <h2>AI is Evaluating Your Answer...</h2>
+                <p>This may take a few seconds</p>
+            </div>
+        </div>
+
+        <!-- Result Screen -->
+        <div id="result-screen" class="screen">
+            <div class="result-container">
+                <div class="result-header">
+                    <h2>Your Results</h2>
+                    <div id="composite-score" class="score-badge">85</div>
+                </div>
+                
+                <div class="scores-grid">
+                    <div class="score-card">
+                        <span class="score-label">Vocabulary</span>
+                        <span id="vocab-score" class="score-value">85</span>
+                    </div>
+                    <div class="score-card">
+                        <span class="score-label">Grammar</span>
+                        <span id="grammar-score" class="score-value">90</span>
+                    </div>
+                    <div class="score-card">
+                        <span class="score-label">Relevance</span>
+                        <span id="relevance-score" class="score-value">88</span>
+                    </div>
+                    <div class="score-card">
+                        <span class="score-label">Pronunciation</span>
+                        <span id="pronunciation-score" class="score-value">82</span>
+                    </div>
+                </div>
+                
+                <div class="comment-section">
+                    <h3>AI Feedback</h3>
+                    <p id="ai-comment" class="ai-comment"></p>
+                </div>
+                
+                <div class="action-section">
+                    <button id="confirm-btn" class="btn btn-primary btn-large">Confirm</button>
+                    <button id="retry-btn" class="btn btn-secondary btn-large">Try Again</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error Screen -->
+        <div id="error-screen" class="screen">
+            <div class="error-container">
+                <div class="error-icon">❌</div>
+                <h2>Oops! Something went wrong</h2>
+                <p id="error-message">An error occurred. Please try again.</p>
+                <div class="action-section">
+                    <button id="retry-error-btn" class="btn btn-primary btn-large">Try Again</button>
+                    <button id="back-to-welcome-btn" class="btn btn-secondary btn-large">Back to Welcome</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Files -->
+    <script src="js/config.js"></script>
+    <script src="js/sceneLoader.js"></script>
+    <script src="js/ttsService.js"></script>
+    <script src="js/aiService.js"></script>
+    <script src="js/uiController.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
