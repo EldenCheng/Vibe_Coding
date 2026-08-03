@@ -2,7 +2,7 @@
   "aiProvider": "gemini",
   "gemini": {
     "baseUrl": "https://generativelanguage.googleapis.com",
-    "apiKey": "AQ.Ab8RN6LuHk3925EPif7hyFMDUUoip6elnKHabnMwyTgVI16TsA",
+    "apiKey": "",
     "textModel": "gemini-flash-latest"
   },
   "tts": {
