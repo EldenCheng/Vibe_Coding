@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>漫画详情 - 漫画管理器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-bottom: 15px;
+            color: #3498db;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        
+        .manga-info {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        
+        .info-item {
+            font-size: 14px;
+        }
+        
+        .info-label {
+            color: #666;
+        }
+        
+        .info-value {
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-ongoing {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-stopped {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .colored-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .table-container {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .chapter-name {
+            font-weight: 500;
+        }
+        
+        .file-size {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .no-chapters {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="../index.html" class="back-link">← 返回首页</a>
+            <h1 id="mangaTitle">漫画名称</h1>
+            <div class="manga-info" id="mangaInfo">
+                <!-- 由JavaScript填充 -->
+            </div>
+        </header>
+        
+        <div class="table-container">
+            <table id="chapterTable">
+                <thead>
+                    <tr>
+                        <th>序号</th>
+                        <th>章节名称</th>
+                        <th>文件大小</th>
+                    </tr>
+                </thead>
+                <tbody id="chapterTableBody">
+                </tbody>
+            </table>
+            <div class="no-chapters" id="noChapters" style="display: none;">
+                暂无章节数据
+            </div>
+        </div>
+        
+        <footer>
+            漫画管理器 - 扫描本地漫画目录生成离线浏览页面
+        </footer>
+    </div>
+    
+    <script>
+        // 嵌入的漫画信息（由Python脚本生成）
+        var MANGA_INFO = /*MANGA_INFO_PLACEHOLDER*/{
+            "name": "",
+            "display_name": "",
+            "status": "连载中",
+            "colored": false,
+            "chapter_count": 0,
+            "total_size": ""
+        };
+        
+        // 嵌入的章节数据（由Python脚本生成）
+        var CHAPTERS = [
+  {
+    "name": "[Mox.moe][聊齋志異][龙纪]聊斋『娇娜』.kepub (1)",
+    "sort_key": 1,
+    "size": "26.3 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异01促织",
+    "sort_key": 1,
+    "size": "11.5 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异02粉蝶",
+    "sort_key": 2,
+    "size": "11.4 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异03倦绣图.kepub (1)",
+    "sort_key": 3,
+    "size": "10.0 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异03倦绣图",
+    "sort_key": 3,
+    "size": "10.0 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异04梦狼",
+    "sort_key": 4,
+    "size": "11.5 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异05婴宁",
+    "sort_key": 5,
+    "size": "11.7 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异06小翠",
+    "sort_key": 6,
+    "size": "10.0 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异07孟芸娘",
+    "sort_key": 7,
+    "size": "13.1 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异08凤仙",
+    "sort_key": 8,
+    "size": "10.3 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异09画皮",
+    "sort_key": 9,
+    "size": "10.6 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异10陆判",
+    "sort_key": 10,
+    "size": "11.1 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异11罗刹海市",
+    "sort_key": 11,
+    "size": "10.0 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异12阿英",
+    "sort_key": 12,
+    "size": "11.3 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异13姐妹易嫁",
+    "sort_key": 13,
+    "size": "15.2 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异14细柳",
+    "sort_key": 14,
+    "size": "9.2 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异15鸦头",
+    "sort_key": 15,
+    "size": "12.6 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异16青娥",
+    "sort_key": 16,
+    "size": "13.0 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异17素秋",
+    "sort_key": 17,
+    "size": "12.6 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异18鸽异",
+    "sort_key": 18,
+    "size": "9.6 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异19石清虚",
+    "sort_key": 19,
+    "size": "10.1 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异20王六郎",
+    "sort_key": 20,
+    "size": "8.3 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异21神女",
+    "sort_key": 21,
+    "size": "11.2 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异22嫦娥",
+    "sort_key": 22,
+    "size": "13.6 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异23阿绣",
+    "sort_key": 23,
+    "size": "13.5 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异24仙人岛",
+    "sort_key": 24,
+    "size": "8.6 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异25黄英",
+    "sort_key": 25,
+    "size": "11.0 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异26小谢",
+    "sort_key": 26,
+    "size": "11.2 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异27胭脂",
+    "sort_key": 27,
+    "size": "9.6 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异28娇娜",
+    "sort_key": 28,
+    "size": "12.6 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异29辛十四娘",
+    "sort_key": 29,
+    "size": "11.4 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异30陈云栖",
+    "sort_key": 30,
+    "size": "9.3 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异31连城",
+    "sort_key": 31,
+    "size": "10.3 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异32二商",
+    "sort_key": 32,
+    "size": "10.1 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异33绫巾缘",
+    "sort_key": 33,
+    "size": "15.7 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异34葛巾",
+    "sort_key": 34,
+    "size": "12.3 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异35竹青",
+    "sort_key": 35,
+    "size": "11.2 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异36宦娘",
+    "sort_key": 36,
+    "size": "12.5 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异37胡四娘",
+    "sort_key": 37,
+    "size": "12.4 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异38马介甫",
+    "sort_key": 38,
+    "size": "12.3 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异39青凤",
+    "sort_key": 39,
+    "size": "8.7 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异40晚霞",
+    "sort_key": 40,
+    "size": "11.5 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异41异母兄弟",
+    "sort_key": 41,
+    "size": "13.4 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异42贾奉雉",
+    "sort_key": 42,
+    "size": "12.0 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异43诗谳",
+    "sort_key": 43,
+    "size": "11.4 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异44青梅",
+    "sort_key": 44,
+    "size": "11.3 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异45张鸿渐.kepub (1)",
+    "sort_key": 45,
+    "size": "13.6 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异45张鸿渐",
+    "sort_key": 45,
+    "size": "13.6 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异46聂小倩",
+    "sort_key": 46,
+    "size": "11.7 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异47荷花三娘",
+    "sort_key": 47,
+    "size": "10.7 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异48王成",
+    "sort_key": 48,
+    "size": "10.2 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异49商三官",
+    "sort_key": 49,
+    "size": "13.3 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异50封三娘",
+    "sort_key": 50,
+    "size": "10.9 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异51庚娘",
+    "sort_key": 51,
+    "size": "12.2 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异52翩翩",
+    "sort_key": 52,
+    "size": "10.1 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异53瑞云",
+    "sort_key": 53,
+    "size": "8.5 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异54席方平",
+    "sort_key": 54,
+    "size": "11.3 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异55宫梦弼",
+    "sort_key": 55,
+    "size": "14.4 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异56续黄粱",
+    "sort_key": 56,
+    "size": "11.3 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异57窦女",
+    "sort_key": 57,
+    "size": "11.4 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异58白秋练",
+    "sort_key": 58,
+    "size": "11.8 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异59阿宝",
+    "sort_key": 59,
+    "size": "9.4 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异61云翠仙",
+    "sort_key": 61,
+    "size": "7.2 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异62仇大姐兴",
+    "sort_key": 62,
+    "size": "12.4 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异63诗谳",
+    "sort_key": 63,
+    "size": "10.7 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异64彭海秋",
+    "sort_key": 64,
+    "size": "12.5 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异65梅女",
+    "sort_key": 65,
+    "size": "12.6 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异66二商",
+    "sort_key": 66,
+    "size": "11.4 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异67小梅",
+    "sort_key": 67,
+    "size": "11.8 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异68云萝公主",
+    "sort_key": 68,
+    "size": "14.8 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异69田七郎",
+    "sort_key": 69,
+    "size": "13.5 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异70雷曹·冤",
+    "sort_key": 70,
+    "size": "6.3 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异71胡四娘",
+    "sort_key": 71,
+    "size": "10.7 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异72刘夫人",
+    "sort_key": 72,
+    "size": "29.5 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异73细侯",
+    "sort_key": 73,
+    "size": "8.0 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异74画壁",
+    "sort_key": 74,
+    "size": "7.5 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异75香玉",
+    "sort_key": 75,
+    "size": "12.4 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异76神女",
+    "sort_key": 76,
+    "size": "11.7 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异77丑狐·蕙",
+    "sort_key": 77,
+    "size": "11.9 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异78菱角",
+    "sort_key": 78,
+    "size": "10.3 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异79狐嫁女",
+    "sort_key": 79,
+    "size": "7.8 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异80青娥",
+    "sort_key": 80,
+    "size": "27.8 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异81梦狼",
+    "sort_key": 81,
+    "size": "11.5 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异82连城",
+    "sort_key": 82,
+    "size": "13.4 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异83侠女",
+    "sort_key": 83,
+    "size": "10.7 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异84司文郎",
+    "sort_key": 84,
+    "size": "9.4 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异85仙人岛",
+    "sort_key": 85,
+    "size": "8.6 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异86贾儿",
+    "sort_key": 86,
+    "size": "10.4 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异87连琐",
+    "sort_key": 87,
+    "size": "11.1 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异88白于玉",
+    "sort_key": 88,
+    "size": "8.1 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异89黄英",
+    "sort_key": 89,
+    "size": "13.1 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异90阿霞",
+    "sort_key": 90,
+    "size": "8.4 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异91莲花公主",
+    "sort_key": 91,
+    "size": "9.5 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异92促织",
+    "sort_key": 92,
+    "size": "10.5 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异93武孝廉",
+    "sort_key": 93,
+    "size": "9.3 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异94崂山道士",
+    "sort_key": 94,
+    "size": "10.7 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异95嫦娥",
+    "sort_key": 95,
+    "size": "13.5 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异96仇大姐",
+    "sort_key": 96,
+    "size": "11.8 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异97阿宝",
+    "sort_key": 97,
+    "size": "9.5 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异98商三官",
+    "sort_key": 98,
+    "size": "12.6 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异99花姑子",
+    "sort_key": 99,
+    "size": "10.5 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异100八大王",
+    "sort_key": 100,
+    "size": "9.8 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異]聊斋志异101伍秋月",
+    "sort_key": 101,
+    "size": "6.5 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異][龙纪]聊斋『云翠仙",
+    "sort_key": null,
+    "size": "15.0 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異][龙纪]聊斋『仇大姐",
+    "sort_key": null,
+    "size": "25.8 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異][龙纪]聊斋『仙人岛",
+    "sort_key": null,
+    "size": "16.4 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異][龙纪]聊斋『冤狱』",
+    "sort_key": null,
+    "size": "12.5 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異][龙纪]聊斋『天宫』",
+    "sort_key": null,
+    "size": "13.9 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異][龙纪]聊斋『姊妹易",
+    "sort_key": null,
+    "size": "23.2 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異][龙纪]聊斋『娇娜』",
+    "sort_key": null,
+    "size": "26.3 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異][龙纪]聊斋『嫦娥』",
+    "sort_key": null,
+    "size": "24.5 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異][龙纪]聊斋『宫梦弼",
+    "sort_key": null,
+    "size": "23.5 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異][龙纪]聊斋『封三娘",
+    "sort_key": null,
+    "size": "29.8 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異][龙纪]聊斋『小谢』",
+    "sort_key": null,
+    "size": "22.5 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異][龙纪]聊斋『席方平",
+    "sort_key": null,
+    "size": "20.9 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異][龙纪]聊斋『庚娘』",
+    "sort_key": null,
+    "size": "23.4 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異][龙纪]聊斋『彭海秋",
+    "sort_key": null,
+    "size": "23.4 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異][龙纪]聊斋『清虚石",
+    "sort_key": null,
+    "size": "17.7 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異][龙纪]聊斋『游船巧",
+    "sort_key": null,
+    "size": "24.1 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異][龙纪]聊斋『牛飞』",
+    "sort_key": null,
+    "size": "11.0 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異][龙纪]聊斋『王六郎",
+    "sort_key": null,
+    "size": "19.1 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異][龙纪]聊斋『珊瑚』",
+    "sort_key": null,
+    "size": "24.1 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異][龙纪]聊斋『瑞云』",
+    "sort_key": null,
+    "size": "14.1 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異][龙纪]聊斋『画壁』",
+    "sort_key": null,
+    "size": "14.8 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異][龙纪]聊斋『白秋练",
+    "sort_key": null,
+    "size": "26.8 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異][龙纪]聊斋『神女』",
+    "sort_key": null,
+    "size": "23.2 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異][龙纪]聊斋『窦女』",
+    "sort_key": null,
+    "size": "19.2 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異][龙纪]聊斋『素秋』",
+    "sort_key": null,
+    "size": "14.9 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異][龙纪]聊斋『红玉』",
+    "sort_key": null,
+    "size": "18.3 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異][龙纪]聊斋『细侯』",
+    "sort_key": null,
+    "size": "17.3 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異][龙纪]聊斋『细柳』",
+    "sort_key": null,
+    "size": "20.2 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異][龙纪]聊斋『续黄粱",
+    "sort_key": null,
+    "size": "22.3 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異][龙纪]聊斋『翩翩』",
+    "sort_key": null,
+    "size": "17.3 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異][龙纪]聊斋『胭脂』",
+    "sort_key": null,
+    "size": "16.7 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異][龙纪]聊斋『辛十四",
+    "sort_key": null,
+    "size": "24.4 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異][龙纪]聊斋『阿宝』",
+    "sort_key": null,
+    "size": "17.6 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異][龙纪]聊斋『阿绣』",
+    "sort_key": null,
+    "size": "19.1 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異][龙纪]聊斋『陈云栖",
+    "sort_key": null,
+    "size": "18.0 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異][龙纪]聊斋『霍女』",
+    "sort_key": null,
+    "size": "21.7 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異][龙纪]聊斋『青娥』",
+    "sort_key": null,
+    "size": "19.5 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異][龙纪]聊斋『鸦头』",
+    "sort_key": null,
+    "size": "22.3 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異][龙纪]聊斋『鸽异』",
+    "sort_key": null,
+    "size": "14.0 MB"
+  },
+  {
+    "name": "[Mox.moe][聊齋志異][龙纪]聊斋『黄英』",
+    "sort_key": null,
+    "size": "20.5 MB"
+  }
+];
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            renderMangaInfo();
+            renderChapters();
+        });
+        
+        // 渲染漫画信息
+        function renderMangaInfo() {
+            document.title = `${MANGA_INFO.display_name} - 漫画管理器`;
+            document.getElementById('mangaTitle').textContent = MANGA_INFO.display_name;
+            
+            const infoContainer = document.getElementById('mangaInfo');
+            
+            // 状态
+            let statusClass = 'status-ongoing';
+            if (MANGA_INFO.status === '完结') {
+                statusClass = 'status-completed';
+            } else if (MANGA_INFO.status === '停更') {
+                statusClass = 'status-stopped';
+            }
+            
+            // 构建信息HTML
+            let infoHTML = `
+                <div class="info-item">
+                    <span class="info-label">状态：</span>
+                    <span class="status-badge ${statusClass}">${MANGA_INFO.status}</span>
+                </div>
+            `;
+            
+            // 彩色
+            if (MANGA_INFO.colored) {
+                infoHTML += `
+                    <div class="info-item">
+                        <span class="colored-badge">彩色</span>
+                    </div>
+                `;
+            }
+            
+            // 章节数
+            infoHTML += `
+                <div class="info-item">
+                    <span class="info-label">章节数：</span>
+                    <span class="info-value">${MANGA_INFO.chapter_count}</span>
+                </div>
+            `;
+            
+            // 总大小
+            if (MANGA_INFO.total_size) {
+                infoHTML += `
+                    <div class="info-item">
+                        <span class="info-label">总大小：</span>
+                        <span class="info-value">${MANGA_INFO.total_size}</span>
+                    </div>
+                `;
+            }
+            
+            infoContainer.innerHTML = infoHTML;
+        }
+        
+        // 渲染章节列表
+        function renderChapters() {
+            const tbody = document.getElementById('chapterTableBody');
+            const noChapters = document.getElementById('noChapters');
+            
+            if (CHAPTERS.length === 0) {
+                tbody.innerHTML = '';
+                noChapters.style.display = 'block';
+                return;
+            }
+            
+            noChapters.style.display = 'none';
+            
+            tbody.innerHTML = CHAPTERS.map((chapter, index) => {
+                return `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td class="chapter-name">${chapter.name}</td>
+                        <td class="file-size">${chapter.size}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+    </script>
+</body>
+</html>

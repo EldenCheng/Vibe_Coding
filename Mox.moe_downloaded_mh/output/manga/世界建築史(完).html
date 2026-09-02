@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>漫画详情 - 漫画管理器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-bottom: 15px;
+            color: #3498db;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        
+        .manga-info {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        
+        .info-item {
+            font-size: 14px;
+        }
+        
+        .info-label {
+            color: #666;
+        }
+        
+        .info-value {
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-ongoing {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-stopped {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .colored-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .table-container {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .chapter-name {
+            font-weight: 500;
+        }
+        
+        .file-size {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .no-chapters {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="../index.html" class="back-link">← 返回首页</a>
+            <h1 id="mangaTitle">漫画名称</h1>
+            <div class="manga-info" id="mangaInfo">
+                <!-- 由JavaScript填充 -->
+            </div>
+        </header>
+        
+        <div class="table-container">
+            <table id="chapterTable">
+                <thead>
+                    <tr>
+                        <th>序号</th>
+                        <th>章节名称</th>
+                        <th>文件大小</th>
+                    </tr>
+                </thead>
+                <tbody id="chapterTableBody">
+                </tbody>
+            </table>
+            <div class="no-chapters" id="noChapters" style="display: none;">
+                暂无章节数据
+            </div>
+        </div>
+        
+        <footer>
+            漫画管理器 - 扫描本地漫画目录生成离线浏览页面
+        </footer>
+    </div>
+    
+    <script>
+        // 嵌入的漫画信息（由Python脚本生成）
+        var MANGA_INFO = /*MANGA_INFO_PLACEHOLDER*/{
+            "name": "",
+            "display_name": "",
+            "status": "连载中",
+            "colored": false,
+            "chapter_count": 0,
+            "total_size": ""
+        };
+        
+        // 嵌入的章节数据（由Python脚本生成）
+        var CHAPTERS = [
+  {
+    "name": "[Kmoe][世界建築史]第01卷巴洛克卷上1",
+    "sort_key": 1,
+    "size": "225.3 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第02卷巴洛克卷上2",
+    "sort_key": 2,
+    "size": "218.5 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第03卷巴洛克卷中1",
+    "sort_key": 3,
+    "size": "204.5 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第04卷巴洛克卷中2",
+    "sort_key": 4,
+    "size": "195.3 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第05卷巴洛克卷下1",
+    "sort_key": 5,
+    "size": "262.3 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第06卷巴洛克卷下2",
+    "sort_key": 6,
+    "size": "235.3 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第07卷拜占庭卷上",
+    "sort_key": 7,
+    "size": "247.1 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第08卷拜占庭卷下",
+    "sort_key": 8,
+    "size": "228.4 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第09卷俄羅斯古代卷上1",
+    "sort_key": 9,
+    "size": "246.9 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第10卷俄羅斯古代卷上2",
+    "sort_key": 10,
+    "size": "259.5 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第11卷俄羅斯古代卷中1",
+    "sort_key": 11,
+    "size": "239.1 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第12卷俄羅斯古代卷中2",
+    "sort_key": 12,
+    "size": "244.4 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第13卷俄羅斯古代卷下1",
+    "sort_key": 13,
+    "size": "223.4 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第14卷俄羅斯古代卷下2",
+    "sort_key": 14,
+    "size": "222.5 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第15卷哥特卷上1",
+    "sort_key": 15,
+    "size": "217.6 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第16卷哥特卷上2",
+    "sort_key": 16,
+    "size": "226.3 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第17卷哥特卷中1",
+    "sort_key": 17,
+    "size": "225.0 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第18卷哥特卷中2",
+    "sort_key": 18,
+    "size": "233.0 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第19卷哥特卷下1",
+    "sort_key": 19,
+    "size": "179.2 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第20卷哥特卷下2",
+    "sort_key": 20,
+    "size": "153.2 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第21卷古埃及卷上",
+    "sort_key": 21,
+    "size": "196.7 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第22卷古埃及卷下",
+    "sort_key": 22,
+    "size": "190.0 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第23卷古羅馬卷上1",
+    "sort_key": 23,
+    "size": "196.2 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第24卷古羅馬卷上2",
+    "sort_key": 24,
+    "size": "209.7 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第25卷古羅馬卷下1",
+    "sort_key": 25,
+    "size": "194.2 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第26卷古羅馬卷下2",
+    "sort_key": 26,
+    "size": "178.8 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第27卷古希臘卷上",
+    "sort_key": 27,
+    "size": "278.3 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第28卷古希臘卷下",
+    "sort_key": 28,
+    "size": "225.4 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第29卷羅曼卷上",
+    "sort_key": 29,
+    "size": "178.6 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第30卷羅曼卷中",
+    "sort_key": 30,
+    "size": "190.7 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第31卷羅曼卷下1",
+    "sort_key": 31,
+    "size": "145.1 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第32卷羅曼卷下2",
+    "sort_key": 32,
+    "size": "150.6 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第33卷美洲古代卷上1",
+    "sort_key": 33,
+    "size": "169.7 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第34卷美洲古代卷上2",
+    "sort_key": 34,
+    "size": "180.5 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第35卷美洲古代卷中1",
+    "sort_key": 35,
+    "size": "209.0 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第36卷美洲古代卷中2",
+    "sort_key": 36,
+    "size": "215.2 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第37卷美洲古代卷下1",
+    "sort_key": 37,
+    "size": "126.9 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第38卷美洲古代卷下2",
+    "sort_key": 38,
+    "size": "113.6 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第39卷文藝複興卷上1",
+    "sort_key": 39,
+    "size": "226.1 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第40卷文藝複興卷上2",
+    "sort_key": 40,
+    "size": "227.9 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第41卷文藝複興卷中1",
+    "sort_key": 41,
+    "size": "219.2 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第42卷文藝複興卷中2",
+    "sort_key": 42,
+    "size": "202.5 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第43卷文藝複興卷下1",
+    "sort_key": 43,
+    "size": "217.5 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第44卷文藝複興卷下2",
+    "sort_key": 44,
+    "size": "198.3 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第45卷西亞古代卷上",
+    "sort_key": 45,
+    "size": "195.2 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第46卷西亞古代卷下",
+    "sort_key": 46,
+    "size": "217.7 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第47卷新古典主義卷上1",
+    "sort_key": 47,
+    "size": "148.5 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第48卷新古典主義卷上2",
+    "sort_key": 48,
+    "size": "152.5 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第49卷新古典主義卷中1",
+    "sort_key": 49,
+    "size": "178.2 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第50卷新古典主義卷中2",
+    "sort_key": 50,
+    "size": "182.0 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第51卷新古典主義卷下1",
+    "sort_key": 51,
+    "size": "160.7 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第52卷新古典主義卷下2",
+    "sort_key": 52,
+    "size": "143.9 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第53卷伊斯蘭卷上1",
+    "sort_key": 53,
+    "size": "183.8 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第54卷伊斯蘭卷上2",
+    "sort_key": 54,
+    "size": "204.8 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第55卷伊斯蘭卷中1",
+    "sort_key": 55,
+    "size": "199.7 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第56卷伊斯蘭卷中2",
+    "sort_key": 56,
+    "size": "230.3 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]第57卷伊斯蘭卷下1",
+    "sort_key": 57,
+    "size": "282.0 MB"
+  },
+  {
+    "name": "[Kmoe][世界建築史]卷58-伊斯蘭卷下2",
+    "sort_key": 58,
+    "size": "268.2 MB"
+  }
+];
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            renderMangaInfo();
+            renderChapters();
+        });
+        
+        // 渲染漫画信息
+        function renderMangaInfo() {
+            document.title = `${MANGA_INFO.display_name} - 漫画管理器`;
+            document.getElementById('mangaTitle').textContent = MANGA_INFO.display_name;
+            
+            const infoContainer = document.getElementById('mangaInfo');
+            
+            // 状态
+            let statusClass = 'status-ongoing';
+            if (MANGA_INFO.status === '完结') {
+                statusClass = 'status-completed';
+            } else if (MANGA_INFO.status === '停更') {
+                statusClass = 'status-stopped';
+            }
+            
+            // 构建信息HTML
+            let infoHTML = `
+                <div class="info-item">
+                    <span class="info-label">状态：</span>
+                    <span class="status-badge ${statusClass}">${MANGA_INFO.status}</span>
+                </div>
+            `;
+            
+            // 彩色
+            if (MANGA_INFO.colored) {
+                infoHTML += `
+                    <div class="info-item">
+                        <span class="colored-badge">彩色</span>
+                    </div>
+                `;
+            }
+            
+            // 章节数
+            infoHTML += `
+                <div class="info-item">
+                    <span class="info-label">章节数：</span>
+                    <span class="info-value">${MANGA_INFO.chapter_count}</span>
+                </div>
+            `;
+            
+            // 总大小
+            if (MANGA_INFO.total_size) {
+                infoHTML += `
+                    <div class="info-item">
+                        <span class="info-label">总大小：</span>
+                        <span class="info-value">${MANGA_INFO.total_size}</span>
+                    </div>
+                `;
+            }
+            
+            infoContainer.innerHTML = infoHTML;
+        }
+        
+        // 渲染章节列表
+        function renderChapters() {
+            const tbody = document.getElementById('chapterTableBody');
+            const noChapters = document.getElementById('noChapters');
+            
+            if (CHAPTERS.length === 0) {
+                tbody.innerHTML = '';
+                noChapters.style.display = 'block';
+                return;
+            }
+            
+            noChapters.style.display = 'none';
+            
+            tbody.innerHTML = CHAPTERS.map((chapter, index) => {
+                return `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td class="chapter-name">${chapter.name}</td>
+                        <td class="file-size">${chapter.size}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+    </script>
+</body>
+</html>

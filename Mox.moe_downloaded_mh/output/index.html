@@ -1,0 +1,1549 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>漫画管理器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        .filter-group {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .filter-group select {
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            background: #fff;
+            cursor: pointer;
+        }
+        
+        .filter-group select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        .stats {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .table-container {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #2c3e50;
+            cursor: pointer;
+            user-select: none;
+            white-space: nowrap;
+        }
+        
+        th:hover {
+            background: #e9ecef;
+        }
+        
+        th.sortable {
+            position: relative;
+        }
+        
+        th.sortable::after {
+            content: "↕";
+            margin-left: 5px;
+            opacity: 0.3;
+        }
+        
+        th.sort-asc::after {
+            content: "↑";
+            opacity: 1;
+        }
+        
+        th.sort-desc::after {
+            content: "↓";
+            opacity: 1;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        td a {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        td a:hover {
+            text-decoration: underline;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-ongoing {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-stopped {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .colored-check {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>漫画管理器</h1>
+            <div class="controls">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="搜索漫画名...">
+                </div>
+                <div class="filter-group">
+                    <select id="statusFilter">
+                        <option value="all">全部状态</option>
+                        <option value="完结">已完结</option>
+                        <option value="连载中">连载中</option>
+                        <option value="停更">停更</option>
+                    </select>
+                    <select id="coloredFilter">
+                        <option value="all">全部</option>
+                        <option value="true">彩色</option>
+                        <option value="false">非彩色</option>
+                    </select>
+                </div>
+            </div>
+            <div class="stats" id="stats">共 0 本漫画</div>
+        </header>
+        
+        <div class="table-container">
+            <table id="mangaTable">
+                <thead>
+                    <tr>
+                        <th>序号</th>
+                        <th class="sortable" data-sort="name">漫画名</th>
+                        <th>最新章节</th>
+                        <th class="sortable" data-sort="update_timestamp">更新时间</th>
+                        <th class="sortable" data-sort="chapter_count">章节数</th>
+                        <th>状态</th>
+                        <th>彩色</th>
+                    </tr>
+                </thead>
+                <tbody id="mangaTableBody">
+                </tbody>
+            </table>
+            <div class="no-results" id="noResults" style="display: none;">
+                没有找到匹配的漫画
+            </div>
+        </div>
+        
+        <footer>
+            漫画管理器 - 扫描本地漫画目录生成离线浏览页面
+        </footer>
+    </div>
+    
+    <script>
+        // 嵌入的漫画数据（由Python脚本生成）
+        var MANGA_DATA = [
+  {
+    "name": "COPPELION核爆末世錄",
+    "display_name": "COPPELION核爆末世錄",
+    "path": "manga/COPPELION核爆末世錄.html",
+    "status": "连载中",
+    "colored": false,
+    "latest_chapter": "[Kox][COPPELION核爆末世錄]卷20",
+    "latest_sort_key": 20,
+    "update_time": "2024-04-03",
+    "update_timestamp": 1712131138.0,
+    "chapter_count": 26,
+    "total_size": "2.02 GB"
+  },
+  {
+    "name": "DNA2(愛藏版)",
+    "display_name": "DNA2",
+    "path": "manga/DNA2(愛藏版).html",
+    "status": "连载中",
+    "colored": false,
+    "latest_chapter": "[Kmoe][DNA2(愛藏版)]卷03",
+    "latest_sort_key": 3,
+    "update_time": "2025-02-28",
+    "update_timestamp": 1740731835.0,
+    "chapter_count": 3,
+    "total_size": "673.2 MB"
+  },
+  {
+    "name": "GIGANT",
+    "display_name": "GIGANT",
+    "path": "manga/GIGANT.html",
+    "status": "连载中",
+    "colored": false,
+    "latest_chapter": "[Kmoe][GIGANT]卷09",
+    "latest_sort_key": 9,
+    "update_time": "2025-04-28",
+    "update_timestamp": 1745853462.003739,
+    "chapter_count": 9,
+    "total_size": "1.76 GB"
+  },
+  {
+    "name": "IT'SMYLIFE(完)",
+    "display_name": "IT'SMYLIFE",
+    "path": "manga/IT'SMYLIFE(完).html",
+    "status": "完结",
+    "colored": false,
+    "latest_chapter": "[Kmoe][IT'SMYLIFE]卷11",
+    "latest_sort_key": 11,
+    "update_time": "2026-04-30",
+    "update_timestamp": 1777516003.0,
+    "chapter_count": 11,
+    "total_size": "535.8 MB"
+  },
+  {
+    "name": "TSUBASA-翼-豪華精裝版畫(完)",
+    "display_name": "TSUBASA-翼-豪華精裝版畫",
+    "path": "manga/TSUBASA-翼-豪華精裝版畫(完).html",
+    "status": "完结",
+    "colored": false,
+    "latest_chapter": "[Kmoe][TSUBASA-翼-豪華精裝版畫]全一冊",
+    "latest_sort_key": null,
+    "update_time": "2026-04-30",
+    "update_timestamp": 1777516417.0,
+    "chapter_count": 1,
+    "total_size": "33.3 MB"
+  },
+  {
+    "name": "丁丁曆險記(完)",
+    "display_name": "丁丁曆險記",
+    "path": "manga/丁丁曆險記(完).html",
+    "status": "完结",
+    "colored": false,
+    "latest_chapter": "[Kmoe][丁丁曆險記]永远的丁丁",
+    "latest_sort_key": null,
+    "update_time": "2025-09-28",
+    "update_timestamp": 1759038101.0,
+    "chapter_count": 50,
+    "total_size": "1.65 GB"
+  },
+  {
+    "name": "三毛流浪記(完)",
+    "display_name": "三毛流浪記",
+    "path": "manga/三毛流浪記(完).html",
+    "status": "完结",
+    "colored": false,
+    "latest_chapter": "[Kmoe][三毛流浪記]卷10",
+    "latest_sort_key": 10,
+    "update_time": "2025-07-12",
+    "update_timestamp": 1752257984.0,
+    "chapter_count": 11,
+    "total_size": "89.2 MB"
+  },
+  {
+    "name": "不是人",
+    "display_name": "不是人",
+    "path": "manga/不是人.html",
+    "status": "连载中",
+    "colored": false,
+    "latest_chapter": "[Kox][不是人]卷02",
+    "latest_sort_key": 2,
+    "update_time": "2024-01-03",
+    "update_timestamp": 1704247441.0,
+    "chapter_count": 2,
+    "total_size": "87.9 MB"
+  },
+  {
+    "name": "世界建築史(完)",
+    "display_name": "世界建築史",
+    "path": "manga/世界建築史(完).html",
+    "status": "完结",
+    "colored": false,
+    "latest_chapter": "[Kmoe][世界建築史]卷58-伊斯蘭卷下2",
+    "latest_sort_key": 58,
+    "update_time": "2026-04-29",
+    "update_timestamp": 1777451963.0,
+    "chapter_count": 58,
+    "total_size": "11.60 GB"
+  },
+  {
+    "name": "中國成語故事(完)",
+    "display_name": "中國成語故事",
+    "path": "manga/中國成語故事(完).html",
+    "status": "完结",
+    "colored": false,
+    "latest_chapter": "[Kmoe][中國成語故事]第45冊：虛有其表",
+    "latest_sort_key": 45,
+    "update_time": "2026-01-08",
+    "update_timestamp": 1767857228.0,
+    "chapter_count": 45,
+    "total_size": "1.86 GB"
+  },
+  {
+    "name": "九龍殺手少女(完)",
+    "display_name": "九龍殺手少女",
+    "path": "manga/九龍殺手少女(完).html",
+    "status": "完结",
+    "colored": false,
+    "latest_chapter": "[Kmoe][九龍殺手少女]卷09",
+    "latest_sort_key": 9,
+    "update_time": "2026-01-07",
+    "update_timestamp": 1767717969.0,
+    "chapter_count": 9,
+    "total_size": "719.3 MB"
+  },
+  {
+    "name": "亂馬½(尖端)(完)",
+    "display_name": "亂馬½(尖端)",
+    "path": "manga/亂馬½(尖端)(完).html",
+    "status": "完结",
+    "colored": false,
+    "latest_chapter": "[Mox.moe][亂馬½(尖端)]卷38",
+    "latest_sort_key": 38,
+    "update_time": "2022-07-26",
+    "update_timestamp": 1658841165.1366782,
+    "chapter_count": 38,
+    "total_size": "3.02 GB"
+  },
+  {
+    "name": "五等分的新娘",
+    "display_name": "五等分的新娘",
+    "path": "manga/五等分的新娘.html",
+    "status": "连载中",
+    "colored": false,
+    "latest_chapter": "[Kox][五等分的新娘(簡體全彩版)]卷14",
+    "latest_sort_key": 14,
+    "update_time": "2024-01-09",
+    "update_timestamp": 1704784692.0,
+    "chapter_count": 14,
+    "total_size": "1.21 GB"
+  },
+  {
+    "name": "信蜂(典藏版)(完)",
+    "display_name": "信蜂(典藏版)",
+    "path": "manga/信蜂(典藏版)(完).html",
+    "status": "完结",
+    "colored": false,
+    "latest_chapter": "[Kmoe][信蜂(典藏版)]卷20",
+    "latest_sort_key": 20,
+    "update_time": "2025-09-29",
+    "update_timestamp": 1759129628.0,
+    "chapter_count": 20,
+    "total_size": "2.35 GB"
+  },
+  {
+    "name": "偶像少女地獄變外傳V音坂(完)",
+    "display_name": "偶像少女地獄變外傳V音坂",
+    "path": "manga/偶像少女地獄變外傳V音坂(完).html",
+    "status": "完结",
+    "colored": false,
+    "latest_chapter": "[Kmoe][偶像少女地獄變外傳V音坂]卷02",
+    "latest_sort_key": 2,
+    "update_time": "2026-01-08",
+    "update_timestamp": 1767859873.0,
+    "chapter_count": 2,
+    "total_size": "99.7 MB"
+  },
+  {
+    "name": "偷窺孔(全彩版)(完)",
+    "display_name": "偷窺孔(全彩版)",
+    "path": "manga/偷窺孔(全彩版)(完).html",
+    "status": "完结",
+    "colored": true,
+    "latest_chapter": "[Kmoe][偷窺孔(全彩版)]卷13",
+    "latest_sort_key": 13,
+    "update_time": "2025-07-09",
+    "update_timestamp": 1752072870.0,
+    "chapter_count": 19,
+    "total_size": "2.05 GB"
+  },
+  {
+    "name": "傀儡馬戲團(豪華版)(完)",
+    "display_name": "傀儡馬戲團(豪華版)",
+    "path": "manga/傀儡馬戲團(豪華版)(完).html",
+    "status": "完结",
+    "colored": false,
+    "latest_chapter": "[Kmoe][傀儡馬戲團(豪華版)]卷23",
+    "latest_sort_key": 23,
+    "update_time": "2026-01-09",
+    "update_timestamp": 1767900233.0,
+    "chapter_count": 23,
+    "total_size": "4.07 GB"
+  },
+  {
+    "name": "傷追人(珍藏版(完)",
+    "display_name": "傷追人",
+    "path": "manga/傷追人(珍藏版(完).html",
+    "status": "完结",
+    "colored": false,
+    "latest_chapter": "[Kmoe][傷追人(珍藏版)]卷11",
+    "latest_sort_key": 11,
+    "update_time": "2025-08-24",
+    "update_timestamp": 1756048862.0,
+    "chapter_count": 11,
+    "total_size": "2.00 GB"
+  },
+  {
+    "name": "北鬥之拳(究極版)(完)",
+    "display_name": "北鬥之拳(究極版)",
+    "path": "manga/北鬥之拳(究極版)(完).html",
+    "status": "完结",
+    "colored": false,
+    "latest_chapter": "[Kmoe][北鬥之拳(究極版)]卷18",
+    "latest_sort_key": 18,
+    "update_time": "2025-10-24",
+    "update_timestamp": 1761236729.56837,
+    "chapter_count": 17,
+    "total_size": "4.12 GB"
+  },
+  {
+    "name": "哆啦A夢(全彩簡體版)(完)",
+    "display_name": "哆啦A夢(全彩簡體版)",
+    "path": "manga/哆啦A夢(全彩簡體版)(完).html",
+    "status": "完结",
+    "colored": true,
+    "latest_chapter": "[Mox.moe][哆啦A夢]卷45",
+    "latest_sort_key": 45,
+    "update_time": "2022-06-01",
+    "update_timestamp": 1654073480.0,
+    "chapter_count": 71,
+    "total_size": "5.67 GB"
+  },
+  {
+    "name": "哥普拉(全彩版)(完)",
+    "display_name": "哥普拉(全彩版)",
+    "path": "manga/哥普拉(全彩版)(完).html",
+    "status": "完结",
+    "colored": true,
+    "latest_chapter": "[Mox.moe][哥普拉(全彩版)]卷15",
+    "latest_sort_key": 15,
+    "update_time": "2022-07-27",
+    "update_timestamp": 1658912551.0,
+    "chapter_count": 20,
+    "total_size": "3.65 GB"
+  },
+  {
+    "name": "哥普拉-聖騎士傳說-哥普拉外传(完)",
+    "display_name": "哥普拉-聖騎士傳說-哥普拉外传",
+    "path": "manga/哥普拉-聖騎士傳說-哥普拉外传(完).html",
+    "status": "完结",
+    "colored": false,
+    "latest_chapter": "[Kmoe][聖騎士傳說-哥普拉外传]全一册",
+    "latest_sort_key": null,
+    "update_time": "2025-09-03",
+    "update_timestamp": 1756871512.0,
+    "chapter_count": 1,
+    "total_size": "233.8 MB"
+  },
+  {
+    "name": "地下忍者(未完)",
+    "display_name": "地下忍者",
+    "path": "manga/地下忍者(未完).html",
+    "status": "连载中",
+    "colored": false,
+    "latest_chapter": "[Mox.moe][地下忍者]話071-078",
+    "latest_sort_key": 71,
+    "update_time": "2022-10-18",
+    "update_timestamp": 1666064618.0,
+    "chapter_count": 14,
+    "total_size": "754.5 MB"
+  },
+  {
+    "name": "士郎正宗の世界展公式原畫集(完)",
+    "display_name": "士郎正宗の世界展公式原畫集",
+    "path": "manga/士郎正宗の世界展公式原畫集(完).html",
+    "status": "完结",
+    "colored": false,
+    "latest_chapter": "[Kmoe][士郎正宗の世界展公式原畫集(]全一冊",
+    "latest_sort_key": null,
+    "update_time": "2025-10-31",
+    "update_timestamp": 1761920340.0,
+    "chapter_count": 1,
+    "total_size": "121.0 MB"
+  },
+  {
+    "name": "夏日時光(完)",
+    "display_name": "夏日時光",
+    "path": "manga/夏日時光(完).html",
+    "status": "完结",
+    "colored": false,
+    "latest_chapter": "[Kmoe][夏日時光]卷11",
+    "latest_sort_key": 11,
+    "update_time": "2025-09-28",
+    "update_timestamp": 1759037941.0,
+    "chapter_count": 11,
+    "total_size": "1.25 GB"
+  },
+  {
+    "name": "外星聖戰(完)",
+    "display_name": "外星聖戰",
+    "path": "manga/外星聖戰(完).html",
+    "status": "完结",
+    "colored": false,
+    "latest_chapter": "[Mox.moe][外星聖戰]卷10",
+    "latest_sort_key": 10,
+    "update_time": "2022-08-29",
+    "update_timestamp": 1661742708.0,
+    "chapter_count": 10,
+    "total_size": "143.5 MB"
+  },
+  {
+    "name": "天上天下(全彩版)",
+    "display_name": "天上天下",
+    "path": "manga/天上天下(全彩版).html",
+    "status": "连载中",
+    "colored": true,
+    "latest_chapter": "[Kox][天上天下(全彩版)]卷22",
+    "latest_sort_key": 22,
+    "update_time": "2024-06-04",
+    "update_timestamp": 1717479943.0,
+    "chapter_count": 24,
+    "total_size": "2.40 GB"
+  },
+  {
+    "name": "天保桃色水滸傳(1-4)",
+    "display_name": "天保桃色水滸傳",
+    "path": "manga/天保桃色水滸傳(1-4).html",
+    "status": "连载中",
+    "colored": false,
+    "latest_chapter": "[Kmoe][天保桃色水滸傳]卷04",
+    "latest_sort_key": 4,
+    "update_time": "2025-06-11",
+    "update_timestamp": 1749632107.0,
+    "chapter_count": 4,
+    "total_size": "463.2 MB"
+  },
+  {
+    "name": "奧秘畫報1991年刊",
+    "display_name": "奧秘畫報1991年刊",
+    "path": "manga/奧秘畫報1991年刊.html",
+    "status": "连载中",
+    "colored": false,
+    "latest_chapter": "[Mox.moe][奧秘畫報1991年刊]第05期",
+    "latest_sort_key": 5,
+    "update_time": "2022-06-08",
+    "update_timestamp": 1654697332.6792917,
+    "chapter_count": 5,
+    "total_size": "114.2 MB"
+  },
+  {
+    "name": "學園默示錄(停更)",
+    "display_name": "學園默示錄",
+    "path": "manga/學園默示錄(停更).html",
+    "status": "停更",
+    "colored": false,
+    "latest_chapter": "[Mox.moe][學園默示錄]学园默示录番外",
+    "latest_sort_key": null,
+    "update_time": "2022-06-28",
+    "update_timestamp": 1656382918.0,
+    "chapter_count": 9,
+    "total_size": "426.6 MB"
+  },
+  {
+    "name": "寄生獸(全彩版)",
+    "display_name": "寄生獸",
+    "path": "manga/寄生獸(全彩版).html",
+    "status": "连载中",
+    "colored": true,
+    "latest_chapter": "[Kox][寄生獸(全彩版)]卷10",
+    "latest_sort_key": 10,
+    "update_time": "2024-02-01",
+    "update_timestamp": 1706770889.0,
+    "chapter_count": 9,
+    "total_size": "423.8 MB"
+  },
+  {
+    "name": "實驗人形奧斯卡",
+    "display_name": "實驗人形奧斯卡",
+    "path": "manga/實驗人形奧斯卡.html",
+    "status": "连载中",
+    "colored": false,
+    "latest_chapter": "[Kmoe][實驗人形奧斯卡]卷19",
+    "latest_sort_key": 19,
+    "update_time": "2025-03-28",
+    "update_timestamp": 1743164294.0,
+    "chapter_count": 19,
+    "total_size": "520.6 MB"
+  },
+  {
+    "name": "巨乳戰隊X(完)",
+    "display_name": "巨乳戰隊X",
+    "path": "manga/巨乳戰隊X(完).html",
+    "status": "完结",
+    "colored": false,
+    "latest_chapter": "[Kmoe][巨乳戰隊X]卷08",
+    "latest_sort_key": 8,
+    "update_time": "2026-01-07",
+    "update_timestamp": 1767717390.0,
+    "chapter_count": 8,
+    "total_size": "716.0 MB"
+  },
+  {
+    "name": "幼女戰記",
+    "display_name": "幼女戰記",
+    "path": "manga/幼女戰記.html",
+    "status": "连载中",
+    "colored": false,
+    "latest_chapter": "[Kox][幼女戰記]雷魯根的胃痛+特別附錄",
+    "latest_sort_key": null,
+    "update_time": "2024-03-29",
+    "update_timestamp": 1711708156.0,
+    "chapter_count": 41,
+    "total_size": "2.79 GB"
+  },
+  {
+    "name": "幽遊白書",
+    "display_name": "幽遊白書",
+    "path": "manga/幽遊白書.html",
+    "status": "连载中",
+    "colored": false,
+    "latest_chapter": "[Mox.moe][幽遊白書]完全檔案Collec",
+    "latest_sort_key": null,
+    "update_time": "2022-10-12",
+    "update_timestamp": 1665568959.0,
+    "chapter_count": 21,
+    "total_size": "1.40 GB"
+  },
+  {
+    "name": "強殖裝甲凱普(未完)",
+    "display_name": "強殖裝甲凱普",
+    "path": "manga/強殖裝甲凱普(未完).html",
+    "status": "连载中",
+    "colored": false,
+    "latest_chapter": "[Mox.moe][強殖裝甲凱普]話241-245",
+    "latest_sort_key": 241,
+    "update_time": "2022-10-24",
+    "update_timestamp": 1666618761.2677498,
+    "chapter_count": 34,
+    "total_size": "3.02 GB"
+  },
+  {
+    "name": "性感女主播(1-3)",
+    "display_name": "性感女主播",
+    "path": "manga/性感女主播(1-3).html",
+    "status": "连载中",
+    "colored": false,
+    "latest_chapter": "[Kmoe][性感女主播]卷03",
+    "latest_sort_key": 3,
+    "update_time": "2025-06-10",
+    "update_timestamp": 1749528346.0,
+    "chapter_count": 3,
+    "total_size": "210.2 MB"
+  },
+  {
+    "name": "我妻同學是我的老婆",
+    "display_name": "我妻同學是我的老婆",
+    "path": "manga/我妻同學是我的老婆.html",
+    "status": "连载中",
+    "colored": false,
+    "latest_chapter": "[Kmoe][我妻同學是我的老婆]卷13",
+    "latest_sort_key": 13,
+    "update_time": "2025-07-08",
+    "update_timestamp": 1751942876.0,
+    "chapter_count": 13,
+    "total_size": "1.01 GB"
+  },
+  {
+    "name": "我推的孩子(完)",
+    "display_name": "我推的孩子",
+    "path": "manga/我推的孩子(完).html",
+    "status": "完结",
+    "colored": false,
+    "latest_chapter": "[Kmoe][【我推的孩子】]話166",
+    "latest_sort_key": 166,
+    "update_time": "2026-01-07",
+    "update_timestamp": 1767772077.0,
+    "chapter_count": 20,
+    "total_size": "1.24 GB"
+  },
+  {
+    "name": "我的純潔淑女(1-21)",
+    "display_name": "我的純潔淑女",
+    "path": "manga/我的純潔淑女(1-21).html",
+    "status": "连载中",
+    "colored": false,
+    "latest_chapter": "[Kmoe][我的純潔淑女]卷21",
+    "latest_sort_key": 21,
+    "update_time": "2025-07-04",
+    "update_timestamp": 1751562637.640361,
+    "chapter_count": 21,
+    "total_size": "3.33 GB"
+  },
+  {
+    "name": "我開始做AV男優了(1-90)",
+    "display_name": "我開始做AV男優了",
+    "path": "manga/我開始做AV男優了(1-90).html",
+    "status": "连载中",
+    "colored": false,
+    "latest_chapter": "[Kmoe][我開始做AV男優了]話086-090",
+    "latest_sort_key": 86,
+    "update_time": "2025-07-05",
+    "update_timestamp": 1751697524.03698,
+    "chapter_count": 11,
+    "total_size": "215.5 MB"
+  },
+  {
+    "name": "戰國",
+    "display_name": "戰國",
+    "path": "manga/戰國.html",
+    "status": "连载中",
+    "colored": false,
+    "latest_chapter": "[Kox][戰國]卷15",
+    "latest_sort_key": 15,
+    "update_time": "2024-02-28",
+    "update_timestamp": 1709114818.0,
+    "chapter_count": 15,
+    "total_size": "1.35 GB"
+  },
+  {
+    "name": "捍衛雙警34",
+    "display_name": "捍衛雙警34",
+    "path": "manga/捍衛雙警34.html",
+    "status": "连载中",
+    "colored": false,
+    "latest_chapter": "[Kox][捍衛雙警34]卷27",
+    "latest_sort_key": 27,
+    "update_time": "2024-01-26",
+    "update_timestamp": 1706232467.0,
+    "chapter_count": 26,
+    "total_size": "1.30 GB"
+  },
+  {
+    "name": "新世紀福音戰士&Re-Take",
+    "display_name": "新世紀福音戰士&Re-Take",
+    "path": "manga/新世紀福音戰士&Re-Take.html",
+    "status": "连载中",
+    "colored": false,
+    "latest_chapter": "[Mox.moe][新世紀福音戰士]漫畫致敬集",
+    "latest_sort_key": null,
+    "update_time": "2024-02-29",
+    "update_timestamp": 1709198118.0,
+    "chapter_count": 30,
+    "total_size": "1.97 GB"
+  },
+  {
+    "name": "新世紀福音戰士(完全版)",
+    "display_name": "新世紀福音戰士",
+    "path": "manga/新世紀福音戰士(完全版).html",
+    "status": "完结",
+    "colored": false,
+    "latest_chapter": "[Kmoe][新世紀福音戰士(完全版)]卷07",
+    "latest_sort_key": 7,
+    "update_time": "2025-02-05",
+    "update_timestamp": 1738764496.0,
+    "chapter_count": 7,
+    "total_size": "1.97 GB"
+  },
+  {
+    "name": "朋友遊戲(未完)(001-127)",
+    "display_name": "朋友遊戲(未完)",
+    "path": "manga/朋友遊戲(未完)(001-127).html",
+    "status": "连载中",
+    "colored": false,
+    "latest_chapter": "[Kmoe][朋友遊戲]話126-127",
+    "latest_sort_key": 126,
+    "update_time": "2025-09-02",
+    "update_timestamp": 1756783595.0,
+    "chapter_count": 26,
+    "total_size": "1.19 GB"
+  },
+  {
+    "name": "機動戦士高達(ガンダム0079)",
+    "display_name": "機動戦士高達",
+    "path": "manga/機動戦士高達(ガンダム0079).html",
+    "status": "连载中",
+    "colored": false,
+    "latest_chapter": "[Kox][機動戦士高達(ガンダム0079)]卷11",
+    "latest_sort_key": 11,
+    "update_time": "2024-01-24",
+    "update_timestamp": 1706075025.0,
+    "chapter_count": 11,
+    "total_size": "1.44 GB"
+  },
+  {
+    "name": "機動戰士高達0083Rebe",
+    "display_name": "機動戰士高達0083Rebe",
+    "path": "manga/機動戰士高達0083Rebe.html",
+    "status": "连载中",
+    "colored": false,
+    "latest_chapter": "[Kmoe][機動戰士高達0083Rebel]卷18",
+    "latest_sort_key": 18,
+    "update_time": "2025-01-22",
+    "update_timestamp": 1737546169.0,
+    "chapter_count": 18,
+    "total_size": "1.49 GB"
+  },
+  {
+    "name": "機動戰士高達THE ORIGIN(全彩版)(完)",
+    "display_name": "機動戰士高達THE ORIGIN(全彩版)",
+    "path": "manga/機動戰士高達THE ORIGIN(全彩版)(完).html",
+    "status": "完结",
+    "colored": true,
+    "latest_chapter": "[Kmoe][機動戰士高達THEORIGI]卷24",
+    "latest_sort_key": 24,
+    "update_time": "2025-07-23",
+    "update_timestamp": 1753221205.0,
+    "chapter_count": 24,
+    "total_size": "2.32 GB"
+  },
+  {
+    "name": "機動戰士高達THEORIGI",
+    "display_name": "機動戰士高達THEORIGI",
+    "path": "manga/機動戰士高達THEORIGI.html",
+    "status": "连载中",
+    "colored": false,
+    "latest_chapter": "[Kox][機動戰士高達THEORIGI]GuideBook",
+    "latest_sort_key": null,
+    "update_time": "2024-10-30",
+    "update_timestamp": 1730279676.0,
+    "chapter_count": 25,
+    "total_size": "2.32 GB"
+  },
+  {
+    "name": "機動戰士高達UCBandeD",
+    "display_name": "機動戰士高達UCBandeD",
+    "path": "manga/機動戰士高達UCBandeD.html",
+    "status": "连载中",
+    "colored": false,
+    "latest_chapter": "[Kox][機動戰士高達UCBandeD]卷17",
+    "latest_sort_key": 17,
+    "update_time": "2024-07-22",
+    "update_timestamp": 1721638804.0313296,
+    "chapter_count": 17,
+    "total_size": "2.38 GB"
+  },
+  {
+    "name": "機動戰士高達天空的學校",
+    "display_name": "機動戰士高達天空的學校",
+    "path": "manga/機動戰士高達天空的學校.html",
+    "status": "连载中",
+    "colored": false,
+    "latest_chapter": "[Kox][機動戰士高達天空的學校]卷12",
+    "latest_sort_key": 12,
+    "update_time": "2024-02-01",
+    "update_timestamp": 1706772277.0,
+    "chapter_count": 12,
+    "total_size": "552.2 MB"
+  },
+  {
+    "name": "機動戰士高達逆襲的夏亞 貝托蒂嘉的子嗣",
+    "display_name": "機動戰士高達逆襲的夏亞 貝托蒂嘉的子嗣",
+    "path": "manga/機動戰士高達逆襲的夏亞 貝托蒂嘉的子嗣.html",
+    "status": "连载中",
+    "colored": false,
+    "latest_chapter": "[Mox.moe][機動戰士高達逆襲的夏亞貝托]卷07",
+    "latest_sort_key": 7,
+    "update_time": "2022-03-03",
+    "update_timestamp": 1646288924.0,
+    "chapter_count": 6,
+    "total_size": "421.4 MB"
+  },
+  {
+    "name": "機動警察(愛藏版)(完)",
+    "display_name": "機動警察(愛藏版)",
+    "path": "manga/機動警察(愛藏版)(完).html",
+    "status": "完结",
+    "colored": false,
+    "latest_chapter": "[Kmoe][機動警察(愛藏版)]卷16",
+    "latest_sort_key": 16,
+    "update_time": "2025-09-03",
+    "update_timestamp": 1756893235.0,
+    "chapter_count": 16,
+    "total_size": "2.63 GB"
+  },
+  {
+    "name": "死都想要你的第一次(1-7完)",
+    "display_name": "死都想要你的第一次",
+    "path": "manga/死都想要你的第一次(1-7完).html",
+    "status": "完结",
+    "colored": false,
+    "latest_chapter": "[Kmoe][死都想要你的第一次]卷07",
+    "latest_sort_key": 7,
+    "update_time": "2025-06-24",
+    "update_timestamp": 1750751192.0,
+    "chapter_count": 7,
+    "total_size": "288.3 MB"
+  },
+  {
+    "name": "殺戮都市(全彩版)",
+    "display_name": "殺戮都市",
+    "path": "manga/殺戮都市(全彩版).html",
+    "status": "连载中",
+    "colored": true,
+    "latest_chapter": "[Kox][殺戮都市(全彩版)]卷37",
+    "latest_sort_key": 37,
+    "update_time": "2023-12-04",
+    "update_timestamp": 1701679734.0,
+    "chapter_count": 37,
+    "total_size": "2.70 GB"
+  },
+  {
+    "name": "殺道行者(完)",
+    "display_name": "殺道行者",
+    "path": "manga/殺道行者(完).html",
+    "status": "完结",
+    "colored": false,
+    "latest_chapter": "[Mox.moe][殺道行者]186-190",
+    "latest_sort_key": 186,
+    "update_time": "2022-09-28",
+    "update_timestamp": 1664350861.0,
+    "chapter_count": 38,
+    "total_size": "3.50 GB"
+  },
+  {
+    "name": "浪客行(彩色版)(未完)",
+    "display_name": "浪客行(彩色版)",
+    "path": "manga/浪客行(彩色版)(未完).html",
+    "status": "连载中",
+    "colored": true,
+    "latest_chapter": "[Mox][浪客行(彩色版)]卷41",
+    "latest_sort_key": 41,
+    "update_time": "2022-12-09",
+    "update_timestamp": 1670554673.0,
+    "chapter_count": 41,
+    "total_size": "4.26 GB"
+  },
+  {
+    "name": "海盜戰記(完)",
+    "display_name": "海盜戰記",
+    "path": "manga/海盜戰記(完).html",
+    "status": "完结",
+    "colored": false,
+    "latest_chapter": "[Mox][海盜戰記]外傳",
+    "latest_sort_key": null,
+    "update_time": "2026-04-30",
+    "update_timestamp": 1777515571.0,
+    "chapter_count": 41,
+    "total_size": "3.51 GB"
+  },
+  {
+    "name": "無職轉生_到了異世界就拿出真本事",
+    "display_name": "無職轉生_到了異世界就拿出真本事",
+    "path": "manga/無職轉生_到了異世界就拿出真本事.html",
+    "status": "连载中",
+    "colored": false,
+    "latest_chapter": "[Kox][無職轉生_到了異世界就拿出真本事]動畫完全設定資料集",
+    "latest_sort_key": null,
+    "update_time": "2023-12-28",
+    "update_timestamp": 1703741140.0,
+    "chapter_count": 24,
+    "total_size": "2.27 GB"
+  },
+  {
+    "name": "無邪氣樂園(全彩版)",
+    "display_name": "無邪氣樂園",
+    "path": "manga/無邪氣樂園(全彩版).html",
+    "status": "连载中",
+    "colored": true,
+    "latest_chapter": "[Kmoe][無邪氣樂園(全彩版)]卷13",
+    "latest_sort_key": 13,
+    "update_time": "2025-07-21",
+    "update_timestamp": 1753099028.8792942,
+    "chapter_count": 13,
+    "total_size": "1.47 GB"
+  },
+  {
+    "name": "煌羅萬象(完)",
+    "display_name": "煌羅萬象",
+    "path": "manga/煌羅萬象(完).html",
+    "status": "完结",
+    "colored": false,
+    "latest_chapter": "[Kmoe][煌羅萬象]卷11",
+    "latest_sort_key": 11,
+    "update_time": "2025-10-28",
+    "update_timestamp": 1761629806.0,
+    "chapter_count": 11,
+    "total_size": "1.53 GB"
+  },
+  {
+    "name": "砲友關係",
+    "display_name": "砲友關係",
+    "path": "manga/砲友關係.html",
+    "status": "连载中",
+    "colored": false,
+    "latest_chapter": "[Kox][砲友關係]卷05",
+    "latest_sort_key": 5,
+    "update_time": "2024-02-04",
+    "update_timestamp": 1707017143.0,
+    "chapter_count": 5,
+    "total_size": "325.3 MB"
+  },
+  {
+    "name": "絕代雙驕(完)",
+    "display_name": "絕代雙驕",
+    "path": "manga/絕代雙驕(完).html",
+    "status": "完结",
+    "colored": false,
+    "latest_chapter": "[Mox.moe][絕代雙驕]卷171-177",
+    "latest_sort_key": 171,
+    "update_time": "2022-08-08",
+    "update_timestamp": 1659941129.0,
+    "chapter_count": 35,
+    "total_size": "2.15 GB"
+  },
+  {
+    "name": "罪惡王冠",
+    "display_name": "罪惡王冠",
+    "path": "manga/罪惡王冠.html",
+    "status": "连载中",
+    "colored": false,
+    "latest_chapter": "[Mox][罪惡王冠]卷07",
+    "latest_sort_key": 7,
+    "update_time": "2023-02-03",
+    "update_timestamp": 1675415743.0,
+    "chapter_count": 6,
+    "total_size": "201.3 MB"
+  },
+  {
+    "name": "老夫子年代大全集(完)",
+    "display_name": "老夫子年代大全集",
+    "path": "manga/老夫子年代大全集(完).html",
+    "status": "完结",
+    "colored": false,
+    "latest_chapter": "[Kmoe][老夫子年代大全集]卷30",
+    "latest_sort_key": 30,
+    "update_time": "2025-09-30",
+    "update_timestamp": 1759197400.0,
+    "chapter_count": 29,
+    "total_size": "2.55 GB"
+  },
+  {
+    "name": "聊斋志异(完)",
+    "display_name": "聊斋志异",
+    "path": "manga/聊斋志异(完).html",
+    "status": "完结",
+    "colored": false,
+    "latest_chapter": "[Mox.moe][聊齋志異][龙纪]聊斋『黄英』",
+    "latest_sort_key": null,
+    "update_time": "2022-09-11",
+    "update_timestamp": 1662828088.916278,
+    "chapter_count": 143,
+    "total_size": "1.94 GB"
+  },
+  {
+    "name": "聖鬥士星矢",
+    "display_name": "聖鬥士星矢",
+    "path": "manga/聖鬥士星矢.html",
+    "status": "连载中",
+    "colored": false,
+    "latest_chapter": "[Mox][聖鬥士星矢(完全版)]卷22",
+    "latest_sort_key": 22,
+    "update_time": "2022-11-24",
+    "update_timestamp": 1669305089.7501743,
+    "chapter_count": 22,
+    "total_size": "2.60 GB"
+  },
+  {
+    "name": "聖鬥士星矢-冥王神話",
+    "display_name": "聖鬥士星矢-冥王神話",
+    "path": "manga/聖鬥士星矢-冥王神話.html",
+    "status": "连载中",
+    "colored": false,
+    "latest_chapter": "[Mox][聖鬥士星矢-冥王神話]卷25",
+    "latest_sort_key": 25,
+    "update_time": "2023-01-05",
+    "update_timestamp": 1672932395.411315,
+    "chapter_count": 27,
+    "total_size": "2.62 GB"
+  },
+  {
+    "name": "聖鬥士星矢冥王神話外傳",
+    "display_name": "聖鬥士星矢冥王神話外傳",
+    "path": "manga/聖鬥士星矢冥王神話外傳.html",
+    "status": "连载中",
+    "colored": false,
+    "latest_chapter": "[Kox][聖鬥士星矢冥王神話外傳]讓葉外傳血墨之紋",
+    "latest_sort_key": null,
+    "update_time": "2024-01-25",
+    "update_timestamp": 1706147006.0,
+    "chapter_count": 14,
+    "total_size": "1.03 GB"
+  },
+  {
+    "name": "英雄本色(豪華版)(完)",
+    "display_name": "英雄本色(豪華版)",
+    "path": "manga/英雄本色(豪華版)(完).html",
+    "status": "完结",
+    "colored": false,
+    "latest_chapter": "[Kmoe][英雄本色(豪華版)]卷12",
+    "latest_sort_key": 12,
+    "update_time": "2025-09-25",
+    "update_timestamp": 1758793676.0,
+    "chapter_count": 12,
+    "total_size": "2.18 GB"
+  },
+  {
+    "name": "變異體少女(未完,缺12)",
+    "display_name": "變異體少女",
+    "path": "manga/變異體少女(未完,缺12).html",
+    "status": "连载中",
+    "colored": false,
+    "latest_chapter": "[Kmoe][變異體少女]卷11",
+    "latest_sort_key": 11,
+    "update_time": "2026-01-30",
+    "update_timestamp": 1769758048.064926,
+    "chapter_count": 11,
+    "total_size": "712.4 MB"
+  },
+  {
+    "name": "賭命兄弟",
+    "display_name": "賭命兄弟",
+    "path": "manga/賭命兄弟.html",
+    "status": "连载中",
+    "colored": false,
+    "latest_chapter": "[Kmoe][賭命兄弟]卷09",
+    "latest_sort_key": 9,
+    "update_time": "2025-07-23",
+    "update_timestamp": 1753201060.4851491,
+    "chapter_count": 9,
+    "total_size": "225.2 MB"
+  },
+  {
+    "name": "遊戲王(全彩愛藏版)(1-22)",
+    "display_name": "遊戲王(全彩愛藏版)",
+    "path": "manga/遊戲王(全彩愛藏版)(1-22).html",
+    "status": "连载中",
+    "colored": true,
+    "latest_chapter": "[Kmoe][遊戲王(全彩愛藏版)]卷22",
+    "latest_sort_key": 22,
+    "update_time": "2025-08-04",
+    "update_timestamp": 1754270780.0,
+    "chapter_count": 22,
+    "total_size": "4.42 GB"
+  },
+  {
+    "name": "遲來的決戰(全一冊)(完)",
+    "display_name": "遲來的決戰(全一冊)",
+    "path": "manga/遲來的決戰(全一冊)(完).html",
+    "status": "完结",
+    "colored": false,
+    "latest_chapter": "[Kmoe][遲來的決戰]全一冊[下]",
+    "latest_sort_key": null,
+    "update_time": "2025-06-24",
+    "update_timestamp": 1750732872.0,
+    "chapter_count": 2,
+    "total_size": "278.7 MB"
+  },
+  {
+    "name": "金田一37歲事件簿(1-132,未完)",
+    "display_name": "金田一37歲事件簿",
+    "path": "manga/金田一37歲事件簿(1-132,未完).html",
+    "status": "连载中",
+    "colored": false,
+    "latest_chapter": "[Kmoe][金田一37歲事件簿]连载前短篇",
+    "latest_sort_key": null,
+    "update_time": "2025-07-08",
+    "update_timestamp": 1751957996.0,
+    "chapter_count": 20,
+    "total_size": "1.79 GB"
+  },
+  {
+    "name": "金田一少年事件簿第一部Case系",
+    "display_name": "金田一少年事件簿第一部Case系",
+    "path": "manga/金田一少年事件簿第一部Case系.html",
+    "status": "连载中",
+    "colored": false,
+    "latest_chapter": "[Kmoe][金田一少年事件簿第一部Case系]卷10",
+    "latest_sort_key": 10,
+    "update_time": "2025-04-02",
+    "update_timestamp": 1743576408.0,
+    "chapter_count": 10,
+    "total_size": "561.7 MB"
+  },
+  {
+    "name": "金田一少年事件簿第一部File系",
+    "display_name": "金田一少年事件簿第一部File系",
+    "path": "manga/金田一少年事件簿第一部File系.html",
+    "status": "连载中",
+    "colored": false,
+    "latest_chapter": "[Kmoe][金田一少年事件簿第一部File系]19速水玲香誘拐殺人",
+    "latest_sort_key": 19,
+    "update_time": "2025-05-27",
+    "update_timestamp": 1748320828.127309,
+    "chapter_count": 19,
+    "total_size": "3.75 GB"
+  },
+  {
+    "name": "金田一少年事件簿第一部明智系列",
+    "display_name": "金田一少年事件簿第一部明智系列",
+    "path": "manga/金田一少年事件簿第一部明智系列.html",
+    "status": "连载中",
+    "colored": false,
+    "latest_chapter": "[Kmoe][金田一少年事件簿第一部明智系列]華麗璀璨事件簿",
+    "latest_sort_key": null,
+    "update_time": "2025-04-15",
+    "update_timestamp": 1744686992.0,
+    "chapter_count": 2,
+    "total_size": "290.1 MB"
+  },
+  {
+    "name": "金田一少年事件簿第一部短篇集",
+    "display_name": "金田一少年事件簿第一部短篇集",
+    "path": "manga/金田一少年事件簿第一部短篇集.html",
+    "status": "连载中",
+    "colored": false,
+    "latest_chapter": "[Kmoe][金田一少年事件簿第一部短篇集]卷06",
+    "latest_sort_key": 6,
+    "update_time": "2025-04-03",
+    "update_timestamp": 1743648856.0,
+    "chapter_count": 5,
+    "total_size": "358.7 MB"
+  },
+  {
+    "name": "阿基拉AKIRA",
+    "display_name": "阿基拉AKIRA",
+    "path": "manga/阿基拉AKIRA.html",
+    "status": "连载中",
+    "colored": false,
+    "latest_chapter": "[Kox][阿基拉AKIRA]卷06",
+    "latest_sort_key": 6,
+    "update_time": "2023-09-13",
+    "update_timestamp": 1694539549.9812405,
+    "chapter_count": 6,
+    "total_size": "1.37 GB"
+  },
+  {
+    "name": "雛蜂",
+    "display_name": "雛蜂",
+    "path": "manga/雛蜂.html",
+    "status": "连载中",
+    "colored": false,
+    "latest_chapter": "[Kox][雛蜂]話116-120",
+    "latest_sort_key": 116,
+    "update_time": "2023-09-27",
+    "update_timestamp": 1695801500.0,
+    "chapter_count": 24,
+    "total_size": "137.2 MB"
+  },
+  {
+    "name": "電影少女(愛藏版)",
+    "display_name": "電影少女",
+    "path": "manga/電影少女(愛藏版).html",
+    "status": "连载中",
+    "colored": false,
+    "latest_chapter": "[Kmoe][電影少女(愛藏版)]卷09",
+    "latest_sort_key": 9,
+    "update_time": "2025-02-28",
+    "update_timestamp": 1740730748.0,
+    "chapter_count": 9,
+    "total_size": "1.30 GB"
+  },
+  {
+    "name": "靈異教師神眉NEO(地狱老师Neo)(完)",
+    "display_name": "靈異教師神眉NEO(地狱老师Neo)",
+    "path": "manga/靈異教師神眉NEO(地狱老师Neo)(完).html",
+    "status": "完结",
+    "colored": false,
+    "latest_chapter": "[Kmoe][靈異教師神眉NEO]卷17",
+    "latest_sort_key": 17,
+    "update_time": "2026-01-01",
+    "update_timestamp": 1767208318.0,
+    "chapter_count": 17,
+    "total_size": "1.45 GB"
+  },
+  {
+    "name": "鬥魔王傑克(完)",
+    "display_name": "鬥魔王傑克",
+    "path": "manga/鬥魔王傑克(完).html",
+    "status": "完结",
+    "colored": false,
+    "latest_chapter": "[Kmoe][鬥魔王傑克]卷31",
+    "latest_sort_key": 31,
+    "update_time": "2026-01-02",
+    "update_timestamp": 1767300615.0,
+    "chapter_count": 31,
+    "total_size": "2.62 GB"
+  },
+  {
+    "name": "鬼眼狂刀KYO",
+    "display_name": "鬼眼狂刀KYO",
+    "path": "manga/鬼眼狂刀KYO.html",
+    "status": "连载中",
+    "colored": false,
+    "latest_chapter": "[Kox][鬼眼狂刀KYO]鬼眼狂刀KYO公式漫迷手冊_陰_",
+    "latest_sort_key": null,
+    "update_time": "2023-03-31",
+    "update_timestamp": 1680236776.0,
+    "chapter_count": 39,
+    "total_size": "4.53 GB"
+  },
+  {
+    "name": "魔乳秘劍帖(完)",
+    "display_name": "魔乳秘劍帖",
+    "path": "manga/魔乳秘劍帖(完).html",
+    "status": "完结",
+    "colored": false,
+    "latest_chapter": "[Kmoe][魔乳秘劍帖]卷07",
+    "latest_sort_key": 7,
+    "update_time": "2026-01-30",
+    "update_timestamp": 1769742524.976456,
+    "chapter_count": 7,
+    "total_size": "471.7 MB"
+  },
+  {
+    "name": "魔法少女小圓(完)",
+    "display_name": "魔法少女小圓",
+    "path": "manga/魔法少女小圓(完).html",
+    "status": "完结",
+    "colored": false,
+    "latest_chapter": "[Kmoe][魔法少女小圓]魔獸篇-卷03",
+    "latest_sort_key": 3,
+    "update_time": "2025-09-03",
+    "update_timestamp": 1756871207.0,
+    "chapter_count": 12,
+    "total_size": "981.9 MB"
+  },
+  {
+    "name": "黑執事(未完)",
+    "display_name": "黑執事",
+    "path": "manga/黑執事(未完).html",
+    "status": "连载中",
+    "colored": false,
+    "latest_chapter": "[Kox][黑執事]話193-198",
+    "latest_sort_key": 193,
+    "update_time": "2023-08-15",
+    "update_timestamp": 1692081233.0,
+    "chapter_count": 32,
+    "total_size": "1.62 GB"
+  },
+  {
+    "name": "龍神少爺",
+    "display_name": "龍神少爺",
+    "path": "manga/龍神少爺.html",
+    "status": "连载中",
+    "colored": false,
+    "latest_chapter": "[Kmoe][龍神少爺]卷03",
+    "latest_sort_key": 3,
+    "update_time": "2025-07-22",
+    "update_timestamp": 1753140102.1796532,
+    "chapter_count": 3,
+    "total_size": "101.7 MB"
+  }
+];
+        
+        // 全局状态
+        let currentSort = { field: 'update_timestamp', direction: 'desc' };
+        let filteredData = [...MANGA_DATA];
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 绑定搜索和筛选事件
+            document.getElementById('searchInput').addEventListener('input', filterData);
+            document.getElementById('statusFilter').addEventListener('change', filterData);
+            document.getElementById('coloredFilter').addEventListener('change', filterData);
+            
+            // 绑定排序事件
+            document.querySelectorAll('th.sortable').forEach(th => {
+                th.addEventListener('click', function() {
+                    const field = this.dataset.sort;
+                    if (currentSort.field === field) {
+                        currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+                    } else {
+                        currentSort.field = field;
+                        currentSort.direction = 'asc';
+                    }
+                    updateSortIndicators();
+                    sortData();
+                    renderTable();
+                });
+            });
+            
+            // 初始渲染
+            updateSortIndicators();
+            sortData();
+            renderTable();
+        });
+        
+        // 过滤数据
+        function filterData() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            const coloredFilter = document.getElementById('coloredFilter').value;
+            
+            filteredData = MANGA_DATA.filter(manga => {
+                // 搜索过滤
+                const matchesSearch = manga.display_name.toLowerCase().includes(searchTerm) ||
+                                     manga.name.toLowerCase().includes(searchTerm);
+                
+                // 状态过滤
+                const matchesStatus = statusFilter === 'all' || manga.status === statusFilter;
+                
+                // 彩色过滤
+                const matchesColored = coloredFilter === 'all' || 
+                                      manga.colored.toString() === coloredFilter;
+                
+                return matchesSearch && matchesStatus && matchesColored;
+            });
+            
+            sortData();
+            renderTable();
+        }
+        
+        // 排序数据
+        function sortData() {
+            filteredData.sort((a, b) => {
+                let valueA = a[currentSort.field];
+                let valueB = b[currentSort.field];
+                
+                // 处理字符串排序
+                if (typeof valueA === 'string') {
+                    valueA = valueA.toLowerCase();
+                    valueB = valueB.toLowerCase();
+                }
+                
+                if (valueA < valueB) {
+                    return currentSort.direction === 'asc' ? -1 : 1;
+                }
+                if (valueA > valueB) {
+                    return currentSort.direction === 'asc' ? 1 : -1;
+                }
+                return 0;
+            });
+        }
+        
+        // 更新排序指示器
+        function updateSortIndicators() {
+            document.querySelectorAll('th.sortable').forEach(th => {
+                th.classList.remove('sort-asc', 'sort-desc');
+                if (th.dataset.sort === currentSort.field) {
+                    th.classList.add(currentSort.direction === 'asc' ? 'sort-asc' : 'sort-desc');
+                }
+            });
+        }
+        
+        // 渲染表格
+        function renderTable() {
+            const tbody = document.getElementById('mangaTableBody');
+            const noResults = document.getElementById('noResults');
+            const stats = document.getElementById('stats');
+            
+            if (filteredData.length === 0) {
+                tbody.innerHTML = '';
+                noResults.style.display = 'block';
+                stats.textContent = '共 0 本漫画';
+                return;
+            }
+            
+            noResults.style.display = 'none';
+            stats.textContent = `共 ${filteredData.length} 本漫画`;
+            
+            tbody.innerHTML = filteredData.map((manga, index) => {
+                const statusClass = manga.status === '完结' ? 'status-completed' :
+                                   manga.status === '停更' ? 'status-stopped' : 'status-ongoing';
+                
+                return `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td><a href="${manga.path}">${manga.display_name}</a></td>
+                        <td>${manga.latest_chapter || '-'}</td>
+                        <td>${manga.update_time}</td>
+                        <td>${manga.chapter_count}</td>
+                        <td><span class="status-badge ${statusClass}">${manga.status}</span></td>
+                        <td>${manga.colored ? '<span class="colored-check">✓</span>' : ''}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+    </script>
+</body>
+</html>

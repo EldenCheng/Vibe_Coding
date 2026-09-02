@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>漫画详情 - 漫画管理器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .back-link {
+            display: inline-block;
+            margin-bottom: 15px;
+            color: #3498db;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        
+        h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+        
+        .manga-info {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        
+        .info-item {
+            font-size: 14px;
+        }
+        
+        .info-label {
+            color: #666;
+        }
+        
+        .info-value {
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-ongoing {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-stopped {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .colored-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .table-container {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .chapter-name {
+            font-weight: 500;
+        }
+        
+        .file-size {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .no-chapters {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="../index.html" class="back-link">← 返回首页</a>
+            <h1 id="mangaTitle">漫画名称</h1>
+            <div class="manga-info" id="mangaInfo">
+                <!-- 由JavaScript填充 -->
+            </div>
+        </header>
+        
+        <div class="table-container">
+            <table id="chapterTable">
+                <thead>
+                    <tr>
+                        <th>序号</th>
+                        <th>章节名称</th>
+                        <th>文件大小</th>
+                    </tr>
+                </thead>
+                <tbody id="chapterTableBody">
+                </tbody>
+            </table>
+            <div class="no-chapters" id="noChapters" style="display: none;">
+                暂无章节数据
+            </div>
+        </div>
+        
+        <footer>
+            漫画管理器 - 扫描本地漫画目录生成离线浏览页面
+        </footer>
+    </div>
+    
+    <script>
+        // 嵌入的漫画信息（由Python脚本生成）
+        var MANGA_INFO = /*MANGA_INFO_PLACEHOLDER*/{
+            "name": "",
+            "display_name": "",
+            "status": "连载中",
+            "colored": false,
+            "chapter_count": 0,
+            "total_size": ""
+        };
+        
+        // 嵌入的章节数据（由Python脚本生成）
+        var CHAPTERS = [
+  {
+    "name": "[Kmoe][聖騎士傳說-哥普拉外传]全一册",
+    "sort_key": null,
+    "size": "233.8 MB"
+  }
+];
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            renderMangaInfo();
+            renderChapters();
+        });
+        
+        // 渲染漫画信息
+        function renderMangaInfo() {
+            document.title = `${MANGA_INFO.display_name} - 漫画管理器`;
+            document.getElementById('mangaTitle').textContent = MANGA_INFO.display_name;
+            
+            const infoContainer = document.getElementById('mangaInfo');
+            
+            // 状态
+            let statusClass = 'status-ongoing';
+            if (MANGA_INFO.status === '完结') {
+                statusClass = 'status-completed';
+            } else if (MANGA_INFO.status === '停更') {
+                statusClass = 'status-stopped';
+            }
+            
+            // 构建信息HTML
+            let infoHTML = `
+                <div class="info-item">
+                    <span class="info-label">状态：</span>
+                    <span class="status-badge ${statusClass}">${MANGA_INFO.status}</span>
+                </div>
+            `;
+            
+            // 彩色
+            if (MANGA_INFO.colored) {
+                infoHTML += `
+                    <div class="info-item">
+                        <span class="colored-badge">彩色</span>
+                    </div>
+                `;
+            }
+            
+            // 章节数
+            infoHTML += `
+                <div class="info-item">
+                    <span class="info-label">章节数：</span>
+                    <span class="info-value">${MANGA_INFO.chapter_count}</span>
+                </div>
+            `;
+            
+            // 总大小
+            if (MANGA_INFO.total_size) {
+                infoHTML += `
+                    <div class="info-item">
+                        <span class="info-label">总大小：</span>
+                        <span class="info-value">${MANGA_INFO.total_size}</span>
+                    </div>
+                `;
+            }
+            
+            infoContainer.innerHTML = infoHTML;
+        }
+        
+        // 渲染章节列表
+        function renderChapters() {
+            const tbody = document.getElementById('chapterTableBody');
+            const noChapters = document.getElementById('noChapters');
+            
+            if (CHAPTERS.length === 0) {
+                tbody.innerHTML = '';
+                noChapters.style.display = 'block';
+                return;
+            }
+            
+            noChapters.style.display = 'none';
+            
+            tbody.innerHTML = CHAPTERS.map((chapter, index) => {
+                return `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td class="chapter-name">${chapter.name}</td>
+                        <td class="file-size">${chapter.size}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+    </script>
+</body>
+</html>

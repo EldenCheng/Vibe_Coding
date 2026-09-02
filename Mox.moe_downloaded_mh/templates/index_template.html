@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>漫画管理器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: #fff;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        .filter-group {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .filter-group select {
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            background: #fff;
+            cursor: pointer;
+        }
+        
+        .filter-group select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        .stats {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .table-container {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #2c3e50;
+            cursor: pointer;
+            user-select: none;
+            white-space: nowrap;
+        }
+        
+        th:hover {
+            background: #e9ecef;
+        }
+        
+        th.sortable {
+            position: relative;
+        }
+        
+        th.sortable::after {
+            content: "↕";
+            margin-left: 5px;
+            opacity: 0.3;
+        }
+        
+        th.sort-asc::after {
+            content: "↑";
+            opacity: 1;
+        }
+        
+        th.sort-desc::after {
+            content: "↓";
+            opacity: 1;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        td a {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        td a:hover {
+            text-decoration: underline;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-ongoing {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-stopped {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .colored-check {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>漫画管理器</h1>
+            <div class="controls">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="搜索漫画名...">
+                </div>
+                <div class="filter-group">
+                    <select id="statusFilter">
+                        <option value="all">全部状态</option>
+                        <option value="完结">已完结</option>
+                        <option value="连载中">连载中</option>
+                        <option value="停更">停更</option>
+                    </select>
+                    <select id="coloredFilter">
+                        <option value="all">全部</option>
+                        <option value="true">彩色</option>
+                        <option value="false">非彩色</option>
+                    </select>
+                </div>
+            </div>
+            <div class="stats" id="stats">共 0 本漫画</div>
+        </header>
+        
+        <div class="table-container">
+            <table id="mangaTable">
+                <thead>
+                    <tr>
+                        <th>序号</th>
+                        <th class="sortable" data-sort="name">漫画名</th>
+                        <th>最新章节</th>
+                        <th class="sortable" data-sort="update_timestamp">更新时间</th>
+                        <th class="sortable" data-sort="chapter_count">章节数</th>
+                        <th>状态</th>
+                        <th>彩色</th>
+                    </tr>
+                </thead>
+                <tbody id="mangaTableBody">
+                </tbody>
+            </table>
+            <div class="no-results" id="noResults" style="display: none;">
+                没有找到匹配的漫画
+            </div>
+        </div>
+        
+        <footer>
+            漫画管理器 - 扫描本地漫画目录生成离线浏览页面
+        </footer>
+    </div>
+    
+    <script>
+        // 嵌入的漫画数据（由Python脚本生成）
+        var MANGA_DATA = /*MANGA_DATA_PLACEHOLDER*/[];
+        
+        // 全局状态
+        let currentSort = { field: 'update_timestamp', direction: 'desc' };
+        let filteredData = [...MANGA_DATA];
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 绑定搜索和筛选事件
+            document.getElementById('searchInput').addEventListener('input', filterData);
+            document.getElementById('statusFilter').addEventListener('change', filterData);
+            document.getElementById('coloredFilter').addEventListener('change', filterData);
+            
+            // 绑定排序事件
+            document.querySelectorAll('th.sortable').forEach(th => {
+                th.addEventListener('click', function() {
+                    const field = this.dataset.sort;
+                    if (currentSort.field === field) {
+                        currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+                    } else {
+                        currentSort.field = field;
+                        currentSort.direction = 'asc';
+                    }
+                    updateSortIndicators();
+                    sortData();
+                    renderTable();
+                });
+            });
+            
+            // 初始渲染
+            updateSortIndicators();
+            sortData();
+            renderTable();
+        });
+        
+        // 过滤数据
+        function filterData() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            const coloredFilter = document.getElementById('coloredFilter').value;
+            
+            filteredData = MANGA_DATA.filter(manga => {
+                // 搜索过滤
+                const matchesSearch = manga.display_name.toLowerCase().includes(searchTerm) ||
+                                     manga.name.toLowerCase().includes(searchTerm);
+                
+                // 状态过滤
+                const matchesStatus = statusFilter === 'all' || manga.status === statusFilter;
+                
+                // 彩色过滤
+                const matchesColored = coloredFilter === 'all' || 
+                                      manga.colored.toString() === coloredFilter;
+                
+                return matchesSearch && matchesStatus && matchesColored;
+            });
+            
+            sortData();
+            renderTable();
+        }
+        
+        // 排序数据
+        function sortData() {
+            filteredData.sort((a, b) => {
+                let valueA = a[currentSort.field];
+                let valueB = b[currentSort.field];
+                
+                // 处理字符串排序
+                if (typeof valueA === 'string') {
+                    valueA = valueA.toLowerCase();
+                    valueB = valueB.toLowerCase();
+                }
+                
+                if (valueA < valueB) {
+                    return currentSort.direction === 'asc' ? -1 : 1;
+                }
+                if (valueA > valueB) {
+                    return currentSort.direction === 'asc' ? 1 : -1;
+                }
+                return 0;
+            });
+        }
+        
+        // 更新排序指示器
+        function updateSortIndicators() {
+            document.querySelectorAll('th.sortable').forEach(th => {
+                th.classList.remove('sort-asc', 'sort-desc');
+                if (th.dataset.sort === currentSort.field) {
+                    th.classList.add(currentSort.direction === 'asc' ? 'sort-asc' : 'sort-desc');
+                }
+            });
+        }
+        
+        // 渲染表格
+        function renderTable() {
+            const tbody = document.getElementById('mangaTableBody');
+            const noResults = document.getElementById('noResults');
+            const stats = document.getElementById('stats');
+            
+            if (filteredData.length === 0) {
+                tbody.innerHTML = '';
+                noResults.style.display = 'block';
+                stats.textContent = '共 0 本漫画';
+                return;
+            }
+            
+            noResults.style.display = 'none';
+            stats.textContent = `共 ${filteredData.length} 本漫画`;
+            
+            tbody.innerHTML = filteredData.map((manga, index) => {
+                const statusClass = manga.status === '完结' ? 'status-completed' :
+                                   manga.status === '停更' ? 'status-stopped' : 'status-ongoing';
+                
+                return `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td><a href="${manga.path}">${manga.display_name}</a></td>
+                        <td>${manga.latest_chapter || '-'}</td>
+                        <td>${manga.update_time}</td>
+                        <td>${manga.chapter_count}</td>
+                        <td><span class="status-badge ${statusClass}">${manga.status}</span></td>
+                        <td>${manga.colored ? '<span class="colored-check">✓</span>' : ''}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+    </script>
+</body>
+</html>
