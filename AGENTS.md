@@ -13,6 +13,7 @@ This is a collection of independent Python scripts and one static HTML/JS game, 
 | `fetch_hs300/`           | Fetch HS300 component stock data from East Money API, output CSV + HTML | `python fetch_hs300.py`             | stdlib only (`urllib`, `json`, `csv`)                                     |
 | `fetech_hs300_detail/`   | Fetch detailed quarterly financial data for HS300 stocks                | `python main.py`                    | `requests` (install via pip)                                              |
 | `fetech_xs/`             | Download novel chapters from a specific site, build EPUB                | `python download_novel.py`          | `requests`, `beautifulsoup4`, `lxml`, `ebooklib` (see `requirements.txt`) |
+| `e-download/`            | Download E-Hentai gallery images (non-original), resume + range support | `python download_gallery.py`        | `requests`, `beautifulsoup4`, `lxml` (see `requirements.txt`)             |
 | `generate_html_for_gif/` | Generate HTML pages from GIF filenames                                  | `python generate_html.py`           | stdlib only                                                               |
 | `create_test_case/`      | Generate QA test matrices for hardware product (not software tests)     | `python generate_test_matrix_v2.py` | `openpyxl` (install via pip)                                              |
 | `QWen3.6Plus_MiniGame/`  | Tic-tac-toe game (HTML/JS/CSS)                                          | Open `index.html` in browser        | None                                                                      |
@@ -46,6 +47,7 @@ Several projects generate output files in their own directory:
 - `fetch_hs300/` → `沪深300_YYYY-MM-DD.csv` and `.html`
 - `fetech_hs300_detail/` → `OriginalData/` subdirectory with CSVs and quarterly HTML reports
 - `fetech_xs/` → novel chapters in a book-named directory, plus EPUB
+- `e-download/` → gallery images in a title-named directory (`images/` + `progress.json`)
 - `generate_html_for_gif/` → HTML files alongside GIFs
 - `create_test_case/` → `.xlsx` test matrix files
 
@@ -75,6 +77,7 @@ Several projects generate output files in their own directory:
 - `fetech_xs/版本变更.md` — Version changelog for the novel downloader.
 - `fetech_xs/使用指南.md` — Detailed usage guide with examples (Chinese).
 - `QWen3.6Plus_MiniGame/计划书.md` — Game design notes.
+- `rewrite_novel/用于AI写作的标准/去AI化/去AI工作流指引.md` — 去AI改写规则体系入口。LLM收到改写请求时，先读此文件获取总流程和文件读取顺序。
 
 
 
