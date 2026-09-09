@@ -1,0 +1,27 @@
+{
+  "aiProvider": "gemini",
+  "gemini": {
+    "apiKey": "",
+    "textModel": "gemini-3.6-flash",
+    "fallbackModel": "gemini-3.5-flash"
+  },
+  "local": {
+    "baseURL": "/local-v1",
+    "directBaseURL": "http://172.18.0.110:8080/v1",
+    "apiKey": "EMPTY",
+    "model": "gemma-4"
+  },
+  "tts": {
+    "lang": "en-US",
+    "voice": "",
+    "rate": 0.9,
+    "pitch": 1.0
+  },
+  "asr": {
+    "lang": "en-US"
+  },
+  "demo": {
+    "evaluationTimeoutMs": 15000,
+    "localEvaluationTimeoutMs": 40000
+  }
+}

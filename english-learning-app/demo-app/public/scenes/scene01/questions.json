@@ -1,0 +1,7 @@
+{
+  "questions": [
+    { "id": "q1", "text": "Look at the picture. What fruits can you see? Name at least three.", "order": 1 },
+    { "id": "q2", "text": "Look at the boy named Zhang. He is holding a camera. What is he doing?", "order": 2 },
+    { "id": "q3", "text": "What is the weather like in the picture? What makes you say that?", "order": 3 }
+  ]
+}
