@@ -1,7 +1,17 @@
 {
   "questions": [
-    { "id": "q1", "text": "Look at the picture. What fruits can you see? Name at least three.", "order": 1 },
-    { "id": "q2", "text": "Look at the boy named Zhang. He is holding a camera. What is he doing?", "order": 2 },
-    { "id": "q3", "text": "What is the weather like in the picture? What makes you say that?", "order": 3 }
+    { "id": "l1q1", "text": "Look at the picture. What fruits can you see? Name at least three.", "order": 1, "level": 1, "kind": "grounded" },
+    { "id": "l1q2", "text": "Look at the boy named Zhang. He is holding a camera. What is he doing?", "order": 2, "level": 1, "kind": "grounded" },
+    { "id": "l1q3", "text": "What is the weather like in the picture? What makes you say that?", "order": 3, "level": 1, "kind": "grounded" },
+    { "id": "l2q1", "text": "What are the students (Li Wei, Sarah, Chen, Zhang) doing now?", "order": 1, "level": 2, "kind": "grounded" },
+    { "id": "l2q2", "text": "Look at the people. Are they happy? Is the market busy?", "order": 2, "level": 2, "kind": "grounded" },
+    { "id": "l2q3", "text": "Look at the signs in the market. What other things can people buy here besides fruits?", "order": 3, "level": 2, "kind": "grounded" },
+    { "id": "l2q4", "text": "Look at the dragon fruit, oranges, and bananas. Which one do you think is the most popular? Why?", "order": 4, "level": 2, "kind": "grounded" },
+    { "id": "l2q5", "text": "There are many people in the market. Where do you think they are going?", "order": 5, "level": 2, "kind": "open" },
+    { "id": "l3q1", "text": "Imagine you are Li Wei. How would you recommend a local fruit (like dragon fruit or oranges) to Sarah? (You can start with: \"You should try...\")", "order": 1, "level": 3, "kind": "open" },
+    { "id": "l3q2", "text": "If you are the store owner, how would you sell your fruits to the students?", "order": 2, "level": 3, "kind": "open" },
+    { "id": "l3q3", "text": "What are the good things and bad things about street markets? What do you like and dislike?", "order": 3, "level": 3, "kind": "open" },
+    { "id": "l3q4", "text": "Sarah and Chen are laughing. What do you think they are talking about?", "order": 4, "level": 3, "kind": "open" },
+    { "id": "l3q5", "text": "You only have 20 yuan. What will you buy at this market? Why?", "order": 5, "level": 3, "kind": "open" }
   ]
 }

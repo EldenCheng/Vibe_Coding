@@ -1,0 +1,20 @@
+{
+  "questions": [
+    { "id": "l1q1", "text": "Look at Panel 1. Whose birthday is it? When and where is the party? How old is she turning?", "order": 1, "level": 1, "kind": "grounded" },
+    { "id": "l1q2", "text": "Look at Panel 2. What are the parents doing to prepare for the party? Who is helping to put up the banner?", "order": 2, "level": 1, "kind": "grounded" },
+    { "id": "l1q3", "text": "What food and drinks can you see on the table in Panel 3?", "order": 3, "level": 1, "kind": "grounded" },
+    { "id": "l1q4", "text": "What is on the birthday cake?", "order": 4, "level": 1, "kind": "grounded" },
+    { "id": "l1q5", "text": "Look at Panel 4. What are the children doing?", "order": 5, "level": 1, "kind": "grounded" },
+    { "id": "l2q1", "text": "Can you use \"First, Next, Then, Finally\" to describe what happened at Yoyo's party?", "order": 1, "level": 2, "kind": "grounded" },
+    { "id": "l2q2", "text": "Can you guess who is Yoyo? Use \"Because...\"", "order": 2, "level": 2, "kind": "grounded" },
+    { "id": "l2q3", "text": "What did the parents do before the party? Use \"First... Then...\"", "order": 3, "level": 2, "kind": "grounded" },
+    { "id": "l3q1", "text": "In Panel 3, there are both Chinese and Western foods. Which do you prefer for your birthday? Why?", "order": 1, "level": 3, "kind": "open" },
+    { "id": "l3q2", "text": "What games do you usually play with your friends after a birthday dinner?", "order": 2, "level": 3, "kind": "open" },
+    { "id": "l3q3", "text": "Which food in Panel 3 do you want to eat most? Why?", "order": 3, "level": 3, "kind": "open" },
+    { "id": "l3q4", "text": "If you go to Yoyo's party, what gift will you bring? Why?", "order": 4, "level": 3, "kind": "open" },
+    { "id": "l4q1", "text": "Role-play: Imagine you are Yoyo, what will you say to your friends at your party?", "order": 1, "level": 4, "kind": "open" },
+    { "id": "l4q2", "text": "Role-play: You are Yoyo's friend. You just arrived at the party with a gift. What do you say to Yoyo?", "order": 2, "level": 4, "kind": "open" },
+    { "id": "l4q3", "text": "Role-play: You are the parent in Panel 3. You are bringing the cake to the table. What do you say to the children?", "order": 3, "level": 4, "kind": "open" },
+    { "id": "l4q4", "text": "Role-play: You are playing the board game in Panel 4. What do you say to your friend next to you?", "order": 4, "level": 4, "kind": "open" }
+  ]
+}

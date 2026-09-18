@@ -5,6 +5,7 @@ interface Props {
   onTranscriptChange: (t: string) => void
   onStartRecording: () => void
   onStopRecording: () => void
+  onClearTranscript: () => void
   onSubmit: () => void
 }
 
@@ -15,10 +16,12 @@ export function AnswerEditor({
   onTranscriptChange,
   onStartRecording,
   onStopRecording,
+  onClearTranscript,
   onSubmit,
 }: Props) {
   const isRecording = status === 'Recording'
   const isTranscribing = status === 'Transcribing'
+  const isSubmitting = status === 'SubmittingSingle' || status === 'Evaluating'
   const canSubmit = status === 'ShowingTranscript' || !!transcript.trim()
 
   return (
@@ -43,10 +46,16 @@ export function AnswerEditor({
             <span className="mic-icon">🎤</span> 点击录音 / Tap to record
           </button>
         )}
-        <span className="record-hint">或在下方直接输入 / Or type below</span>
+        {/* v0.2.7 清空重说：追加模式下说砸了可一键重来（录音中不清，避免与实时文本打架） */}
+        {transcript.trim() && !isRecording && !isTranscribing && (
+          <button type="button" className="clear-btn" onClick={onClearTranscript} aria-label="Clear and record again">
+            🗑 清空重说 / Clear
+          </button>
+        )}
       </div>
+      <div className="record-hint">停顿没关系，想好继续说；再次录音会接在后面 / Pauses are OK — recording again appends, or type below</div>
 
-      {/* 文本编辑区 — Recording 时只读提示，ShowingTranscript 时可编辑 */}
+      {/* 文本编辑区 — Recording 时实时上屏，ShowingTranscript 时可编辑 */}
       <div className="transcript-area">
         <label htmlFor="transcript-input" className="transcript-label">
           Your answer
@@ -66,9 +75,9 @@ export function AnswerEditor({
         type="button"
         className="submit-btn"
         onClick={onSubmit}
-        disabled={!transcript.trim() || status === 'Evaluating'}
+        disabled={!transcript.trim() || isSubmitting}
       >
-        提交并评分 / Submit &amp; Score
+        {isSubmitting ? '评分中… / Scoring…' : '提交并评分 / Submit & Score'}
       </button>
       {!canSubmit && status === 'ShowingQuestion' && <div className="submit-hint">录音或输入后即可提交</div>}
     </div>

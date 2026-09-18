@@ -1,9 +1,11 @@
+// @deprecated 旧版单题流程（v0.2.4 起被 usePresetSession 取代，无任何引用）
+// 仅存档保留；场景硬编码 scene01，未接入多场景机制，请勿在新代码中使用
 import { useCallback, useEffect, useRef, useState } from 'react'
-import type { AppConfig } from '../config/configLoader'
-import { WebSpeechTTSService } from '../speech/ttsService'
-import { WebSpeechASRService } from '../speech/asrService'
-import { createAIProvider } from '../ai/providerFactory'
-import type { EvaluationResult } from '../scoring/parseEvaluation'
+import type { AppConfig } from '../../config/configLoader'
+import { WebSpeechTTSService } from '../../speech/ttsService'
+import { WebSpeechASRService } from '../../speech/asrService'
+import { createAIProvider } from '../../ai/providerFactory'
+import type { EvaluationResult } from '../../scoring/parseEvaluation'
 
 export type DemoStatus =
   | 'Loading'

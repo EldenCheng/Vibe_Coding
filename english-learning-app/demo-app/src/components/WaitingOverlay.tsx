@@ -13,9 +13,17 @@ export function WaitingOverlay({ provider }: { provider?: string }) {
   const scoreRef = useRef(0)
   const [score, setScore] = useState(0)
   const [msgIdx, setMsgIdx] = useState(0)
+  const [elapsedSec, setElapsedSec] = useState(0)
 
   useEffect(() => {
     const t = setInterval(() => setMsgIdx((i) => (i + 1) % MESSAGES.length), 2000)
+    return () => clearInterval(t)
+  }, [])
+
+  // 已等待计时（与 timeout 解耦，仅作安抚）
+  useEffect(() => {
+    const start = Date.now()
+    const t = setInterval(() => setElapsedSec(Math.floor((Date.now() - start) / 1000)), 1000)
     return () => clearInterval(t)
   }, [])
 
@@ -138,13 +146,22 @@ export function WaitingOverlay({ provider }: { provider?: string }) {
     }
   }, [])
 
+  // 根据实测：Local 批量有图 110s/无图 90s，Gemini/GLM 批量预估 20-50s（GLM Flash 速度快，同 Gemini 档）
+  const estimatedText =
+    provider === 'local'
+      ? '本地批量预计约 90–120 秒，已等待 ' + elapsedSec + 's / Local batch ~90–120s'
+      : provider === 'glm'
+        ? 'GLM 批量评分预计约 20–50 秒，已等待 ' + elapsedSec + 's / GLM batch ~20–50s'
+        : '批量评分预计约 20–50 秒，已等待 ' + elapsedSec + 's / Batch ~20–50s'
+
   return (
     <div className="waiting-overlay">
       <div className="waiting-card">
         <div className="spinner" aria-hidden />
         <p className="waiting-msg">{MESSAGES[msgIdx]}</p>
-        <p className="waiting-sub">
-          {provider === 'local' ? '本地模型约 30–40 秒 / Local model ~30–40s' : '评分通常需要 5–15 秒 / Usually 5–15s'}
+        <p className="waiting-sub">{estimatedText}</p>
+        <p className="waiting-sub" style={{ fontSize: 11, color: '#94a3b8' }}>
+          {provider === 'local' ? '本地模型较慢，请耐心等待，不要关闭页面' : '正在等待大模型返回，请稍候'}
         </p>
       </div>
       <div className="game-area">

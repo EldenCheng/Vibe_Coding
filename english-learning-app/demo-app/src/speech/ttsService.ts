@@ -4,8 +4,8 @@ import type { AppConfig } from '../config/configLoader'
 export interface TTSService {
   isAvailable(): boolean
   isSpeaking(): boolean
-  speak(text: string, lang: string): Promise<void>
-  interruptAndSpeak(text: string, lang: string): Promise<void>
+  speak(text: string, lang: string, rateOverride?: number): Promise<void>
+  interruptAndSpeak(text: string, lang: string, rateOverride?: number): Promise<void>
   stop(): void
   onStart(cb: () => void): void
   onEnd(cb: () => void): void
@@ -32,11 +32,11 @@ export class WebSpeechTTSService implements TTSService {
     return window.speechSynthesis.speaking
   }
 
-  // 内部：创建 utterance
-  private createUtterance(text: string, lang: string): SpeechSynthesisUtterance {
+  // 内部：创建 utterance（rateOverride 用于 10-12 岁降速）
+  private createUtterance(text: string, lang: string, rateOverride?: number): SpeechSynthesisUtterance {
     const utter = new SpeechSynthesisUtterance(text)
     utter.lang = lang || this.ttsConfig.lang
-    utter.rate = this.ttsConfig.rate ?? 0.9
+    utter.rate = rateOverride ?? this.ttsConfig.rate ?? 0.9
     utter.pitch = this.ttsConfig.pitch ?? 1.0
     // 尝试匹配 voice 名称
     if (this.ttsConfig.voice) {
@@ -56,13 +56,13 @@ export class WebSpeechTTSService implements TTSService {
     return utter
   }
 
-  speak(text: string, lang: string): Promise<void> {
+  speak(text: string, lang: string, rateOverride?: number): Promise<void> {
     return new Promise((resolve, reject) => {
       if (!this.isAvailable()) {
         reject(new Error('TTS not available'))
         return
       }
-      const utter = this.createUtterance(text, lang)
+      const utter = this.createUtterance(text, lang, rateOverride)
       const onEnd = () => {
         this.endCbs = this.endCbs.filter((cb) => cb !== wrappedEnd)
         this.errorCbs = this.errorCbs.filter((cb) => cb !== wrappedError)
@@ -82,14 +82,14 @@ export class WebSpeechTTSService implements TTSService {
     })
   }
 
-  async interruptAndSpeak(text: string, lang: string): Promise<void> {
+  async interruptAndSpeak(text: string, lang: string, rateOverride?: number): Promise<void> {
     if (this.isSpeaking()) {
       this.suppressNextStart = true
       this.stop()
       // 给浏览器一点时间停止
       await new Promise((r) => setTimeout(r, 50))
     }
-    return this.speak(text, lang)
+    return this.speak(text, lang, rateOverride)
   }
 
   stop(): void {

@@ -4,12 +4,16 @@ interface Props {
   ttsAvailable: boolean
   onSpeak: () => void
   onStop: () => void
+  level?: number // 难度级别徽章 1/2/3/4
 }
 
-export function QuestionCard({ questionText, isSpeaking, ttsAvailable, onSpeak, onStop }: Props) {
+export function QuestionCard({ questionText, isSpeaking, ttsAvailable, onSpeak, onStop, level }: Props) {
   return (
     <div className="question-card">
-      <div className="question-label">Question</div>
+      <div className="question-label">
+        Question
+        {level !== undefined && <span className="level-badge">Level {level}</span>}
+      </div>
       <p className="question-text">{questionText}</p>
       <div className="question-actions">
         <button

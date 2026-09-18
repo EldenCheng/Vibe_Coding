@@ -5,6 +5,13 @@
     "textModel": "gemini-3.6-flash",
     "fallbackModel": "gemini-3.5-flash"
   },
+  "glm": {
+    "baseURL": "/glm-v1",
+    "directBaseURL": "https://ark.cn-beijing.volces.com/api/coding/v3",
+    "apiKey": "",
+    "model": "glm-5-3-flash-260828",
+    "reasoningEffort": "low"
+  },
   "local": {
     "baseURL": "/local-v1",
     "directBaseURL": "http://172.18.0.110:8080/v1",
@@ -21,7 +28,12 @@
     "lang": "en-US"
   },
   "demo": {
-    "evaluationTimeoutMs": 15000,
-    "localEvaluationTimeoutMs": 40000
+    "evaluationTimeoutMs": 120000,
+    "localEvaluationTimeoutMs": 360000,
+    "glmEvaluationTimeoutMs": 120000,
+    "imageStrategy": "imageForOpenOnly",
+    "imageMaxSide": 1024,
+    "imageQuality": 0.72,
+    "questionTransition": "slide"
   }
 }
