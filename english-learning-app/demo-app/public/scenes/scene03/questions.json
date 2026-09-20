@@ -1,0 +1,19 @@
+{
+  "questions": [
+    { "id": "l1q1", "text": "Look at the picture. Where are the students? What time is it? How do you know?", "order": 1, "level": 1, "kind": "grounded" },
+    { "id": "l1q2", "text": "Look at the food counter. What food can you see? Name at least four kinds of food.", "order": 2, "level": 1, "kind": "grounded" },
+    { "id": "l1q3", "text": "What is on Li Ping's tray?", "order": 3, "level": 1, "kind": "grounded" },
+    { "id": "l1q4", "text": "Look at the poster on the wall. What does it say? What can you see in the picture on the poster?", "order": 4, "level": 1, "kind": "grounded" },
+    { "id": "l2q1", "text": "Look at Li Ping's tray and Wang Ming's tray. Whose food is healthier? Why do you think so? (Use \"because...\")", "order": 1, "level": 2, "kind": "grounded" },
+    { "id": "l2q2", "text": "Look at the menu board. How much is the fish? How much are the hamburgers? How much are they together?", "order": 2, "level": 2, "kind": "grounded" },
+    { "id": "l2q3", "text": "Susan is only having a bowl of salad and a glass of juice. Do you think that is a good lunch for a student? Why or why not?", "order": 3, "level": 2, "kind": "open" },
+    { "id": "l2q4", "text": "Look at the other students in the canteen. What are they doing? Describe the busy lunchtime in the canteen.", "order": 4, "level": 2, "kind": "grounded" },
+    { "id": "l2q5", "text": "What do the students in this picture usually eat for lunch? Use \"often\", \"sometimes\" and \"never\" in your answer.", "order": 5, "level": 2, "kind": "open" },
+    { "id": "l3q1", "text": "The poster says \"EAT WELL, LIVE WELL, BE WELL\". In your opinion, what is a balanced diet for a high school student?", "order": 1, "level": 3, "kind": "open" },
+    { "id": "l3q2", "text": "Do you think fast food, like hamburgers and French fries, should be sold in a school canteen? Why or why not?", "order": 2, "level": 3, "kind": "open" },
+    { "id": "l3q3", "text": "Imagine you work in this canteen. Wang Ming wants to eat healthily. What would you say to him? (You can start with: \"You'd better...\" or \"Why not try...\")", "order": 3, "level": 3, "kind": "open" },
+    { "id": "l3q4", "text": "If you could design your own lunch tray in this canteen, what food would you choose? Why do you think it is a balanced meal?", "order": 4, "level": 3, "kind": "open" },
+    { "id": "l3q5", "text": "Think about your own eating habits. Did you use to eat different food when you were in primary school? How have your eating habits changed?", "order": 5, "level": 3, "kind": "open" },
+    { "id": "l3q6", "text": "Some students skip meals to lose weight, like Susan may be doing. What would you say to a classmate of yours who wants to look slim but often feels tired in class?", "order": 6, "level": 3, "kind": "open" }
+  ]
+}

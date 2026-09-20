@@ -1,3 +1,4 @@
+// StartScreen — v0.3.4 开始页：单列居中，只留 Title / 年龄 / 题型 / CTA 四要素，其余为纯装饰
 import { useState } from 'react'
 import type { AgeRange, QuestionFilter, SessionSetup } from '../demo/usePresetSession'
 import { readSavedSetup } from '../demo/usePresetSession'
@@ -6,32 +7,39 @@ interface Props {
   onStart: (setup: SessionSetup) => void
 }
 
-// 年龄只做选项（v0.3.2 起不再渲染小字说明，sub 仅保留作文档参考，不参与评分逻辑）
-const AGES: Array<{ value: AgeRange; title: string }> = [
-  { value: '10-12', title: 'Ages 10-12' },
-  { value: '13-15', title: 'Ages 13-15' },
-  { value: '16-18', title: 'Ages 16-18' },
+const AGES: Array<{ value: AgeRange; label: string; emoji: string }> = [
+  { value: '10-12', label: 'Ages 10-12', emoji: '🧒' },
+  { value: '13-15', label: 'Ages 13-15', emoji: '🧑' },
+  { value: '16-18', label: 'Ages 16-18', emoji: '🧑‍🎓' },
 ]
 
-// 小字说明只在题型下保留（用户确认）
-const FILTERS: Array<{ value: QuestionFilter; title: string; sub: string }> = [
-  { value: 'groundedOnly', title: 'Picture-only', sub: 'Only questions about things visible in the picture. Faster, no photo upload.' },
-  { value: 'all', title: 'Beyond-picture too', sub: 'Also asks about your ideas and experiences. Some questions upload the photo.' },
+const FILTERS: Array<{ value: QuestionFilter; label: string; emoji: string; sub: string }> = [
+  { value: 'groundedOnly', label: 'Picture-only', emoji: '🖼️', sub: 'Only things visible in the picture. Faster, no photo upload.' },
+  { value: 'all', label: 'Beyond-picture too', emoji: '💭', sub: 'Also your ideas and experiences. Some questions upload the photo.' },
 ]
 
-// 内联 SVG logo：对话气泡 + 笑脸，配色与 level-badge 同系（#e0f2fe/#0369a1），无外部资源
-function HeroLogo() {
+// 内联 SVG logo：对话气泡 + 笑脸 + 挥手，无外部资源
+function Mascot() {
   return (
-    <svg className="hero-logo" viewBox="0 0 64 64" role="img" aria-label="Chat With Me logo">
-      <rect x="4" y="8" width="44" height="34" rx="12" fill="#ffffff" opacity="0.95" />
-      <path d="M16 42 L12 52 L24 43 Z" fill="#ffffff" opacity="0.95" />
-      <circle cx="20" cy="24" r="3" fill="#0369a1" />
-      <circle cx="32" cy="24" r="3" fill="#0369a1" />
-      <path d="M20 31 Q26 36 32 31" stroke="#0369a1" strokeWidth="2.5" strokeLinecap="round" fill="none" />
-      <rect x="36" y="26" width="24" height="22" rx="11" fill="#e0f2fe" stroke="#ffffff" strokeWidth="2" />
-      <path d="M44 41 L42 47 L49 42 Z" fill="#e0f2fe" />
-      <circle cx="44" cy="35" r="1.8" fill="#0369a1" />
-      <circle cx="50" cy="35" r="1.8" fill="#0369a1" />
+    <svg className="mascot" viewBox="0 0 96 96" role="img" aria-label="Chat With Me mascot">
+      <rect x="8" y="14" width="66" height="50" rx="18" fill="url(#mascotBubble)" />
+      <path d="M26 62 L20 78 L40 64 Z" fill="#3b82f6" />
+      <circle cx="33" cy="36" r="4.5" fill="#0f2f5a" />
+      <circle cx="51" cy="36" r="4.5" fill="#0f2f5a" />
+      <circle cx="34.5" cy="34.5" r="1.5" fill="#fff" />
+      <circle cx="52.5" cy="34.5" r="1.5" fill="#fff" />
+      <path d="M31 48 Q42 57 53 48" stroke="#0f2f5a" strokeWidth="3.5" strokeLinecap="round" fill="none" />
+      <circle cx="24" cy="45" r="3.5" fill="#7dd3fc" opacity="0.7" />
+      <circle cx="60" cy="45" r="3.5" fill="#7dd3fc" opacity="0.7" />
+      <rect x="60" y="52" width="30" height="27" rx="13" fill="#e0f2fe" stroke="#ffffff" strokeWidth="2.5" />
+      <path d="M68 72 L64 82 L75 74 Z" fill="#e0f2fe" />
+      <text x="75" y="70" fontSize="16" textAnchor="middle">👋</text>
+      <defs>
+        <linearGradient id="mascotBubble" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#3b82f6" />
+          <stop offset="1" stopColor="#06b6d4" />
+        </linearGradient>
+      </defs>
     </svg>
   )
 }
@@ -43,66 +51,74 @@ export function StartScreen({ onStart }: Props) {
 
   return (
     <div className="start-screen">
-      {/* 活泼 Hero：渐变横幅 + Logo + Title，与问题页蓝系保持一致 */}
-      <div className="start-hero">
-        <HeroLogo />
-        <div className="hero-text">
-          <h2 className="hero-title">Chat With Me!</h2>
-          <p className="hero-sub">看图聊英语 · 说出你看到的世界</p>
-        </div>
+      {/* 环境装饰：柔光色块 + 漂浮表情芯片（Look/Say/Score 的氛围化表达） */}
+      <div className="start-bg" aria-hidden="true">
+        <span className="blob blob-a" />
+        <span className="blob blob-b" />
+        <span className="blob blob-c" />
+        <span className="float-chip chip-1">👀</span>
+        <span className="float-chip chip-2">🎤</span>
+        <span className="float-chip chip-3">⭐</span>
+        <span className="float-chip chip-4">💬</span>
       </div>
 
-      {/* 三步玩法说明 */}
-      <div className="how3" aria-label="How it works">
-        <span className="how3-item">👀 Look</span>
-        <span className="how3-arrow">→</span>
-        <span className="how3-item">🎤 Say</span>
-        <span className="how3-arrow">→</span>
-        <span className="how3-item">⭐ Score</span>
+      <div className="start-inner">
+        <header className="start-hero">
+          <div className="mascot-wrap">
+            <Mascot />
+            <span className="mascot-bubble">Hi! 今天一起说英语 👋</span>
+          </div>
+          <h1 className="start-title">Chat With Me!</h1>
+          <p className="start-tagline">看图聊英语 · 说出你看到的世界</p>
+        </header>
+
+        <section className="start-group">
+          <h2 className="start-label">学生年龄 · Age</h2>
+          <div className="age-seg" role="radiogroup" aria-label="Student age range">
+            {AGES.map((a) => (
+              <button
+                key={a.value}
+                type="button"
+                role="radio"
+                aria-checked={age === a.value}
+                className={`age-seg-btn ${age === a.value ? 'is-on' : ''}`}
+                onClick={() => setAge(a.value)}
+              >
+                <span className="age-seg-emoji" aria-hidden="true">{a.emoji}</span>
+                <span className="age-seg-label">{a.label}</span>
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <section className="start-group">
+          <h2 className="start-label">题型 · Question types</h2>
+          <div className="mode-row" role="radiogroup" aria-label="Question type">
+            {FILTERS.map((f) => (
+              <button
+                key={f.value}
+                type="button"
+                role="radio"
+                aria-checked={filter === f.value}
+                className={`mode-card ${filter === f.value ? 'is-on' : ''}`}
+                onClick={() => setFilter(f.value)}
+              >
+                <span className="mode-check" aria-hidden="true">✓</span>
+                <span className="mode-head">
+                  <span className="mode-emoji" aria-hidden="true">{f.emoji}</span>
+                  <span className="mode-label">{f.label}</span>
+                </span>
+                <span className="mode-sub">{f.sub}</span>
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <button type="button" className="start-cta" onClick={() => onStart({ ageRange: age, filter })}>
+          开始对话 · Let's Go
+          <span className="start-cta-arrow" aria-hidden="true">→</span>
+        </button>
       </div>
-
-      <h2 className="start-title">Before we start…</h2>
-
-      <section className="start-group">
-        <h3 className="start-group-title">How old is the student?</h3>
-        <div className="pill-row" role="radiogroup" aria-label="Student age range">
-          {AGES.map((a) => (
-            <button
-              key={a.value}
-              type="button"
-              role="radio"
-              aria-checked={age === a.value}
-              className={`pill-btn ${age === a.value ? 'selected' : ''}`}
-              onClick={() => setAge(a.value)}
-            >
-              {a.title}
-            </button>
-          ))}
-        </div>
-      </section>
-
-      <section className="start-group">
-        <h3 className="start-group-title">Which questions can appear?</h3>
-        <div className="filter-row" role="radiogroup" aria-label="Question type">
-          {FILTERS.map((f) => (
-            <button
-              key={f.value}
-              type="button"
-              role="radio"
-              aria-checked={filter === f.value}
-              className={`filter-btn ${filter === f.value ? 'selected' : ''}`}
-              onClick={() => setFilter(f.value)}
-            >
-              <span className="option-title">{f.title}</span>
-              <span className="option-sub">{f.sub}</span>
-            </button>
-          ))}
-        </div>
-      </section>
-
-      <button type="button" className="submit-btn start-btn" onClick={() => onStart({ ageRange: age, filter })}>
-        Start / 开始
-      </button>
     </div>
   )
 }

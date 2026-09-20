@@ -31,8 +31,8 @@ npm run dev
 - `tts` / `asr`：`lang: en-US`, `rate:0.9, pitch:1.0`
 
 ## 目录
-- `public/scenes/index.json` — 场景注册表（新增场景后在此登记 id）
-- `public/scenes/scene01/`、`scene02/` — 场景资源（image.jfif + meta.json 含 audience/两种描述 + questions.json 含 level）
+- `public/scenes/index.json` — 场景注册表（新增场景后在此登记 id 与 `gradeLevel`：primary/junior/senior，随机选场景按开始页年龄过滤）
+- `public/scenes/scene01/`（junior）、`scene02/`（primary）、`scene03/`（senior）、`scene04/`（primary）— 场景资源（image.jfif + meta.json 含 audience/两种描述 + questions.json 含 level）
 - `src/config/configLoader.ts` — 加载校验（含 `VITE_GEMINI_API_KEY`/`VITE_GLM_API_KEY` 环境变量注入）
 - `src/speech/` — TTS/ASR 封装
 - `src/ai/` — Gemini / GLM（火山 Ark）/ Local 三 Provider

@@ -1,3 +1,8 @@
 {
-  "scenes": ["scene01", "scene02"]
+  "scenes": [
+    { "id": "scene01", "gradeLevel": "junior" },
+    { "id": "scene02", "gradeLevel": "primary" },
+    { "id": "scene03", "gradeLevel": "senior" },
+    { "id": "scene04", "gradeLevel": "primary" }
+  ]
 }

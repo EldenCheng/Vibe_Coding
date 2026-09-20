@@ -112,16 +112,34 @@ function pickQuestionsPerLevel(all: SceneQuestion[], usedIds: Set<string>, filte
   return picked
 }
 
-// 场景解析：URL ?scene= 优先（需存在于 index.json），否则每次打开随机选一个场景
-async function resolveSceneId(): Promise<string> {
+// 年龄档 → 场景学段映射（v0.3.6 场景按学段过滤）
+const GRADE_FOR_AGE: Record<AgeRange, string> = {
+  '10-12': 'primary',
+  '13-15': 'junior',
+  '16-18': 'senior',
+}
+
+interface SceneIndexEntry {
+  id: string
+  gradeLevel?: string
+}
+
+// 场景解析：URL ?scene= 优先（需存在于 index.json，不受学段限制，便于调试/指定），
+// 否则在所选年龄同学段的场景里随机选一个；该学段无场景直接报错（不跨学段回退）
+async function resolveSceneId(ageRange: AgeRange): Promise<string> {
   const res = await fetch('/scenes/index.json')
   if (!res.ok) throw new Error('Failed to load scenes index (/scenes/index.json)')
-  const idx = (await res.json()) as { scenes?: string[] }
+  const idx = (await res.json()) as { scenes?: SceneIndexEntry[] }
   const list = Array.isArray(idx.scenes) ? idx.scenes : []
   if (list.length === 0) throw new Error('No scenes registered in /scenes/index.json')
   const requested = new URLSearchParams(window.location.search).get('scene')
-  if (requested && list.includes(requested)) return requested
-  return list[Math.floor(Math.random() * list.length)]
+  if (requested && list.some((s) => s.id === requested)) return requested
+  const grade = GRADE_FOR_AGE[ageRange]
+  const matching = list.filter((s) => s.gradeLevel === grade)
+  if (matching.length === 0) {
+    throw new Error(`该年龄段（${ageRange} 岁 · ${grade}）暂无对应场景，请返回选择其他年龄段 / No scenes available for the selected age group.`)
+  }
+  return matching[Math.floor(Math.random() * matching.length)].id
 }
 
 // 前端 canvas 压缩：把原始 base64 按最长边等比缩到 maxSide，JPEG quality 0.72
@@ -270,7 +288,7 @@ export function usePresetSession(config: AppConfig | null) {
     setStatus('Loading')
     setErrorMessage(null)
     try {
-      const id = keepSceneId ?? (await resolveSceneId())
+      const id = keepSceneId ?? (await resolveSceneId(s.ageRange))
       const base = `/scenes/${id}`
       const [metaRes, qRes] = await Promise.all([fetch(`${base}/meta.json`), fetch(`${base}/questions.json`)])
       if (!metaRes.ok || !qRes.ok) throw new Error('Failed to load scene data')
@@ -518,8 +536,11 @@ export function usePresetSession(config: AppConfig | null) {
     setErrorMessage(null)
     if (singleResult) setStatus('ShowingSingleResult')
     else if (perQuestionResults.length > 0 && isLastQuestion) setStatus('ShowingSummary')
-    else setStatus(setup ? 'ShowingQuestion' : 'Start')
-  }, [singleResult, perQuestionResults.length, isLastQuestion, setup])
+    else if (setup && questions.length === 0) {
+      // 场景加载失败（网络/学段无场景等）：重走加载流程，避免停在空题屏
+      void loadScene(setup, null)
+    } else setStatus(setup ? 'ShowingQuestion' : 'Start')
+  }, [singleResult, perQuestionResults.length, isLastQuestion, setup, questions.length, loadScene])
 
   const stopSpeaking = useCallback(() => {
     ttsRef.current?.stop()

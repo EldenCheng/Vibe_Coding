@@ -1,0 +1,20 @@
+{
+  "questions": [
+    { "id": "l1q1", "text": "Look at the town map. What places can you see? Name at least four.", "order": 1, "level": 1, "kind": "grounded" },
+    { "id": "l1q2", "text": "Who are the people in the picture? What is the girl doing?", "order": 2, "level": 1, "kind": "grounded" },
+    { "id": "l1q3", "text": "What is the girl wearing? What animal is beside her?", "order": 3, "level": 1, "kind": "grounded" },
+    { "id": "l1q4", "text": "Read the notice on the map board. When is the library open?", "order": 4, "level": 1, "kind": "grounded" },
+    { "id": "l2q1", "text": "Look at the red route. Which place does it go through to get to the library?", "order": 5, "level": 2, "kind": "grounded" },
+    { "id": "l2q2", "text": "Yuanyuan wants to go along Green Street to the library. How should she go? Use \"Go straight\" and \"turn left/right\" in your answer.", "order": 6, "level": 2, "kind": "grounded" },
+    { "id": "l2q3", "text": "Which route to the library is shorter, the red one or the blue one? How do you know?", "order": 7, "level": 2, "kind": "grounded" },
+    { "id": "l2q4", "text": "Today is Monday. What problem will Yuanyuan have when she gets to the library?", "order": 8, "level": 2, "kind": "grounded" },
+    { "id": "l2q5", "text": "Now it is 5:30 in the afternoon. Can Yuanyuan borrow books? Why not?", "order": 9, "level": 2, "kind": "grounded" },
+    { "id": "l3q1", "text": "Which route do you like to walk to the library, the one through the park or the one along Green Street? Why?", "order": 10, "level": 3, "kind": "open" },
+    { "id": "l3q2", "text": "Do you still need paper maps like this town map when you have a phone? Why?", "order": 11, "level": 3, "kind": "open" },
+    { "id": "l3q3", "text": "How do you get to school every day? Talk about one street or one turn on your way.", "order": 12, "level": 3, "kind": "open" },
+    { "id": "l3q4", "text": "Yuanyuan asks the police officer for help. Why is asking a police officer a good idea when you are lost in a city?", "order": 13, "level": 3, "kind": "open" },
+    { "id": "l4q1", "text": "Role-play: You are the police officer. Yuanyuan asks, \"Excuse me, how can I get to the library?\" Tell her the way in at least three sentences. Use \"Go straight\" and \"turn left\" or \"turn right\".", "order": 14, "level": 4, "kind": "open" },
+    { "id": "l4q2", "text": "Role-play: You are Yuanyuan. Ask the police officer the way to the zoo. What do you say? (You can start with: \"Excuse me...\")", "order": 15, "level": 4, "kind": "open" },
+    { "id": "l4q3", "text": "Role-play: A friend from another school visits your city. Tell him or her two interesting places in this town and how to get to one of them.", "order": 16, "level": 4, "kind": "open" }
+  ]
+}
