@@ -18,6 +18,9 @@ class SMBHandler:
     本类只负责文件 I/O，不管理连接生命周期。
     """
 
+    # 分块拷贝的块大小（1MB）：避免一次性把整个文件读进内存
+    CHUNK_SIZE = 1024 * 1024
+
     def __init__(self, server: str, share: str):
         self.server = server
         self.share = share
@@ -74,7 +77,12 @@ class SMBHandler:
         parent = dest.rsplit("\\", 1)[0]
         smbclient.makedirs(parent, exist_ok=True)
         with open(local_path, "rb") as src, smbclient.open_file(dest, mode="wb") as dst:
-            dst.write(src.read())
+            # 分块写入，避免大文件占满内存
+            while True:
+                chunk = src.read(self.CHUNK_SIZE)
+                if not chunk:
+                    break
+                dst.write(chunk)
 
     # ------------------------------------------------------------------ #
     #  下载（从 SMB 写入本地临时文件）                                        #
@@ -85,7 +93,12 @@ class SMBHandler:
         os.makedirs(os.path.dirname(local_path), exist_ok=True)
         with smbclient.open_file(src, mode="rb") as sf:
             with open(local_path, "wb") as lf:
-                lf.write(sf.read())
+                # 分块写入，避免大文件占满内存
+                while True:
+                    chunk = sf.read(self.CHUNK_SIZE)
+                    if not chunk:
+                        break
+                    lf.write(chunk)
 
     # ------------------------------------------------------------------ #
     #  删除                                                                #

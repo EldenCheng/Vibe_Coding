@@ -1,11 +1,12 @@
 import os
+import re
 import json
+import uuid
 import logging
 import threading
 import time
 import datetime
-from flask import Flask, request, jsonify, send_from_directory, send_file, after_this_request
-from werkzeug.utils import secure_filename
+from flask import Flask, request, jsonify, send_from_directory, send_file
 
 from scripts.db import init_db
 from scripts.auth_manager import AuthManager
@@ -22,8 +23,77 @@ CONFIG_PATH = os.path.join(BASE_DIR, 'config.json')
 with open(CONFIG_PATH, 'r', encoding='utf-8') as f:
     config = json.load(f)
 
-app = Flask(__name__, static_folder=BASE_DIR)
+# 上传/下载临时文件目录（独立子目录，避免误删 data/ 根目录下的数据库与密钥文件）
+TEMP_DIR = os.path.join(BASE_DIR, 'data', 'tmp')
+
+# Windows 文件名非法字符（SMB 共享通常落在 Windows 上，按 Windows 规则过滤）
+_ILLEGAL_FILENAME_CHARS = re.compile(r'[\\/:*?"<>|\x00-\x1f]')
+
+# static_folder 必须设为 None：若把 BASE_DIR 设为静态目录，Flask 会自动注册
+# /static/<path> 无鉴权路由，导致 fernet.key、explorer.db、config.json 等敏感文件可被任意下载
+app = Flask(__name__, static_folder=None)
 auth_manager = AuthManager(config['share_path'], config.get('domain'))
+
+# --- Helpers ---
+
+def sanitize_filename(name: str) -> str:
+    """清理上传文件名：保留中文等 Unicode 字符，仅剔除路径分隔符与非法字符。
+
+    注意：不能用 werkzeug 的 secure_filename，它会丢弃所有中文字符，
+    导致"报告.docx"存盘后变成"docx"。
+    """
+    name = _ILLEGAL_FILENAME_CHARS.sub('_', name.strip())
+    # Windows 文件名不能以点或空格结尾
+    name = name.strip(' .')
+    return name or 'unnamed_file'
+
+def _safe_remove(path: str) -> None:
+    """尽力删除文件，失败不抛错（残留文件由后台清理线程兜底回收）"""
+    try:
+        os.remove(path)
+    except OSError:
+        pass
+
+def cleanup_temp_files() -> None:
+    """删除 data/tmp/ 下超过保留时长的临时文件，兜底回收孤儿文件。
+
+    正常流程中临时文件在传输结束后即被删除；此处清理的是
+    进程崩溃、客户端中途断开等异常情况留下的残留。
+    """
+    max_age_seconds = config['session'].get('temp_max_age_minutes', 60) * 60
+    now = time.time()
+    removed = 0
+    try:
+        entries = os.listdir(TEMP_DIR)
+    except OSError:
+        return
+    for entry in entries:
+        file_path = os.path.join(TEMP_DIR, entry)
+        try:
+            if os.path.isfile(file_path) and now - os.path.getmtime(file_path) > max_age_seconds:
+                os.remove(file_path)
+                removed += 1
+        except OSError:
+            # 文件可能仍被流式传输占用，本轮跳过，下轮再试
+            pass
+    if removed:
+        print(f"Cleaned {removed} expired temp file(s).")
+
+def cleanup_legacy_temp_files() -> None:
+    """清理旧版本直接写在 data/ 根目录的临时文件（dl_* / temp_*）"""
+    data_root = os.path.join(BASE_DIR, 'data')
+    removed = 0
+    try:
+        entries = os.listdir(data_root)
+    except OSError:
+        return
+    for entry in entries:
+        file_path = os.path.join(data_root, entry)
+        if entry.startswith(('dl_', 'temp_')) and os.path.isfile(file_path):
+            _safe_remove(file_path)
+            removed += 1
+    if removed:
+        print(f"Cleaned {removed} legacy temp file(s) in data root.")
 
 # --- Helper for auth ---
 def get_authenticated_user():
@@ -38,7 +108,7 @@ def get_authenticated_user():
 
 @app.route('/')
 def index():
-    return send_from_directory(app.static_folder, 'index.html')
+    return send_from_directory(BASE_DIR, 'index.html')
 
 @app.route('/api/auth/key', methods=['GET'])
 def get_auth_key():
@@ -127,16 +197,19 @@ def upload_file():
     
     file = request.files['file']
     remote_path = request.form.get('path') # Should be the directory path
+    if not remote_path:
+        return jsonify({"error": "Missing path"}), 400
     if not remote_path.endswith(('/', '\\')):
         remote_path += '/'
     
-    filename = secure_filename(file.filename)
+    filename = sanitize_filename(file.filename)
     full_remote_path = os.path.join(remote_path, filename).replace('/', '\\')
+    
+    # 唯一命名的临时文件，多用户并发上传互不冲突
+    temp_local = os.path.join(TEMP_DIR, f"up_{uuid.uuid4().hex}_{filename}")
     
     try:
         handler = auth_manager.get_smb_handler(user['credential_id'])
-        # Save to temp local file first
-        temp_local = os.path.join(BASE_DIR, 'data', f"temp_{filename}")
         file.save(temp_local)
         
         handler.upload_file(temp_local, full_remote_path)
@@ -144,6 +217,7 @@ def upload_file():
         
         return jsonify({"status": "success"})
     except Exception as e:
+        _safe_remove(temp_local)
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/files/download', methods=['GET'])
@@ -157,25 +231,20 @@ def download_file():
         return jsonify({"error": "Missing path"}), 400
 
     filename = os.path.basename(remote_path.replace('\\', '/'))
-    temp_local = os.path.join(BASE_DIR, 'data', f"dl_{filename}")
+    # 唯一命名的临时文件，多用户并发下载同名文件互不冲突
+    temp_local = os.path.join(TEMP_DIR, f"dl_{uuid.uuid4().hex}_{filename}")
 
     try:
         handler = auth_manager.get_smb_handler(user['credential_id'])
         handler.download_file(remote_path, temp_local)
-        # send_file with as_attachment; delete temp file after response using after_this_request
-        @after_this_request
-        def remove_temp(response):
-            try:
-                os.remove(temp_local)
-            except OSError:
-                pass
-            return response
-        return send_file(temp_local, as_attachment=True, download_name=filename)
+        # 用 call_on_close 在响应体发送完毕、文件句柄关闭后才删除临时文件。
+        # 不能用 after_this_request —— 它在流式传输开始前执行，Windows 下
+        # 文件句柄尚未关闭，删除必然失败且异常被吞掉，每次下载都会残留孤儿文件。
+        response = send_file(temp_local, as_attachment=True, download_name=filename)
+        response.call_on_close(lambda: _safe_remove(temp_local))
+        return response
     except Exception as e:
-        try:
-            os.remove(temp_local)
-        except OSError:
-            pass
+        _safe_remove(temp_local)
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/files/delete', methods=['POST'])
@@ -198,12 +267,13 @@ def delete_item():
 # --- Background Tasks ---
 
 def background_cleanup():
-    """Periodic cleanup of sessions and transport keys"""
+    """Periodic cleanup of sessions, transport keys and temp files"""
     while True:
         try:
             print(f"[{datetime.datetime.now()}] Running background cleanup...")
             auth_manager.cleanup_expired(config['session']['max_age_hours'])
             clear_old_transport_keys()
+            cleanup_temp_files()
             print("Cleanup completed.")
         except Exception as e:
             print(f"Cleanup error: {e}")
@@ -212,6 +282,10 @@ def background_cleanup():
 
 if __name__ == '__main__':
     init_db()
+    
+    # 确保临时目录存在，并清理旧版本残留在 data/ 根目录的临时文件
+    os.makedirs(TEMP_DIR, exist_ok=True)
+    cleanup_legacy_temp_files()
     
     # Start background thread
     cleanup_thread = threading.Thread(target=background_cleanup, daemon=True)
