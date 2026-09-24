@@ -1,0 +1,12 @@
+{
+  "_readme": "concurrency=下载线程数; proxy=代理(http://.. 或 socks5://.., 留空=不启用); retry_times=单切片重试次数; retry_backoff=重试退避基数(秒); timeout=读取超时(秒, 连接超时固定15); output_dir=输出根目录; download_interval=batch每集下载间隔(秒); ffmpeg_path=ffmpeg路径(留空=PATH查找); insecure=跳过HTTPS证书校验(true/false)",
+  "concurrency": 6,
+  "proxy": "",
+  "retry_times": 3,
+  "retry_backoff": 2,
+  "timeout": 60,
+  "output_dir": "downloads",
+  "download_interval": 60,
+  "ffmpeg_path": "",
+  "insecure": false
+}

@@ -1,0 +1,19 @@
+{
+  "_说明": "站点精修配置（每站一个文件，按 domains 域名后缀匹配）。字段：name=站点名; domains=匹配的域名列表; play_pattern=播放页URL正则(命中才视为剧集链接, 可省略=用通用模板分组); group=正则分组语义(id/line/ep 对应组号, 从1计); line_preference=同集位选线策略[ line_asc=线路号小者优先(默认源) | complete_first=集数最多且集名序号与集位一致的线路优先(容错坏集表) ]; label_strip=集名尾部噪声正则; title_subs=单集成品命名的标题替换规则[[正则,替换],..]; desc_prefix/desc_suffix=简介前后噪声正则; failover_max=单集失败时最多尝试的线路数(主URL+备选)。所有字段均可省略，省略时回退通用引擎行为。",
+  "name": "youknow",
+  "domains": ["youknow.tv"],
+  "play_pattern": "/p/(\\d+)-(\\d+)-(\\d+)/",
+  "group": { "id": 1, "line": 2, "ep": 3 },
+  "line_preference": "line_asc",
+  "label_strip": "",
+  "title_subs": [
+    ["^正在播放", ""],
+    ["《", ""],
+    ["》", " "],
+    ["\\[.*?\\]", ""],
+    ["\\s*-\\s*.*$", ""]
+  ],
+  "desc_prefix": "^.*?剧情[:：]\\s*",
+  "desc_suffix": "\\s*\\|.*$",
+  "failover_max": 3
+}

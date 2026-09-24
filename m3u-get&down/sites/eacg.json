@@ -1,0 +1,16 @@
+{
+  "_说明": "同 sites/youknow.json。eacg.net 特点：线路1(EDD动漫)集表残缺(第08集缺失且'第09集'挂在 -1-8 上)，故用 complete_first 让集数齐全、集名与集位一致的线路2优先；集名有'第12集完结'噪声；播放页标题带'在线播放_日漫 - E-ACG..'后缀；简介带'耽美——..E-ACG动漫XX剧情:'广告前缀。",
+  "name": "eacg",
+  "domains": ["eacg.net"],
+  "play_pattern": "/vodplay/(\\d+)-(\\d+)-(\\d+)\\.html",
+  "group": { "id": 1, "line": 2, "ep": 3 },
+  "line_preference": "complete_first",
+  "label_strip": "完结$",
+  "title_subs": [
+    ["在线播放.*$", ""],
+    ["_.*$", ""]
+  ],
+  "desc_prefix": "^.*?剧情[:：]\\s*",
+  "desc_suffix": "\\s*\\|.*$",
+  "failover_max": 3
+}
