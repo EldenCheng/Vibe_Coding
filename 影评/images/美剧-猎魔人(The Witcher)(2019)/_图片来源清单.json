@@ -1,0 +1,153 @@
+[
+  {
+    "file": "poster.jpg",
+    "type": "海报",
+    "source": "https://static.tvmaze.com/uploads/images/original_untouched/594/1486674.jpg",
+    "size_bytes": 341854,
+    "caption": "《猎魔人》剧集主海报"
+  },
+  {
+    "file": "still-S01E01-The-End-s-Beginning.jpg",
+    "type": "剧照",
+    "season_episode": "S01E01",
+    "episode_name": "The End's Beginning",
+    "source": "https://static.tvmaze.com/uploads/images/original_untouched/232/580508.jpg",
+    "size_bytes": 257606,
+    "caption": "1x01《The End's Beginning》：杰洛特在布拉维肯市场展开大屠杀，从此被称为「布拉维肯的屠夫」；辛特拉陷落、希里的家园毁于战火"
+  },
+  {
+    "file": "still-S01E03-Betrayer-Moon.jpg",
+    "type": "剧照",
+    "season_episode": "S01E03",
+    "episode_name": "Betrayer Moon",
+    "source": "https://static.tvmaze.com/uploads/images/original_untouched/232/580510.jpg",
+    "size_bytes": 274464,
+    "caption": "1x03《Betrayer Moon》：杰洛特在地下墓穴与诅咒尸怪斯崔加（Striga）肉搏，本季最血腥的猎魔场面"
+  },
+  {
+    "file": "still-S01E05-Bottled-Appetites.jpg",
+    "type": "剧照",
+    "season_episode": "S01E05",
+    "episode_name": "Bottled Appetites",
+    "source": "https://static.tvmaze.com/uploads/images/original_untouched/232/580512.jpg",
+    "size_bytes": 175665,
+    "caption": "1x05《Bottled Appetites》：杰洛特与叶妮芙因杰尼（灯神）结缘；本集有全剧最著名的狂欢戏与浴缸戏"
+  },
+  {
+    "file": "still-S01E08-Much-More.jpg",
+    "type": "剧照",
+    "season_episode": "S01E08",
+    "episode_name": "Much More",
+    "source": "https://static.tvmaze.com/uploads/images/original_untouched/232/580515.jpg",
+    "size_bytes": 186533,
+    "caption": "1x08《Much More》：索登山之战，术士大战尼弗迦德大军，叶妮芙遭烈火毁容"
+  },
+  {
+    "file": "still-S02E02-Kaer-Morhen.jpg",
+    "type": "剧照",
+    "season_episode": "S02E02",
+    "episode_name": "Kaer Morhen",
+    "source": "https://static.tvmaze.com/uploads/images/original_untouched/384/960692.jpg",
+    "size_bytes": 241482,
+    "caption": "2x02《Kaer Morhen》：杰洛特带希里回到猎魔人城堡凯尔·莫罕，维瑟米尔与猎魔人兄弟们登场"
+  },
+  {
+    "file": "still-S02E08-Family.jpg",
+    "type": "剧照",
+    "season_episode": "S02E08",
+    "episode_name": "Family",
+    "source": "https://static.tvmaze.com/uploads/images/original_untouched/393/983435.jpg",
+    "size_bytes": 119879,
+    "caption": "2x08《Family》：最终集——死母神沃尔思·梅尔夜袭凯尔·莫罕，猎魔人兄弟在睡梦中被逐一刺杀"
+  },
+  {
+    "file": "still-S03E06-Everybody-Has-a-Plan-til-They-Get-Punched-in-the-Face.jpg",
+    "type": "剧照",
+    "season_episode": "S03E06",
+    "episode_name": "Everybody Has a Plan 'til They Get Punched in the Face",
+    "source": "https://static.tvmaze.com/uploads/images/original_untouched/470/1176137.jpg",
+    "size_bytes": 466394,
+    "caption": "3x06：塔内德政变——Aretuza 血战，维格弗兹背叛，杰洛特被几乎打死"
+  },
+  {
+    "file": "still-S04E01-What-Doesn-t-Kill-You-Makes-You-Stronger.jpg",
+    "type": "剧照",
+    "season_episode": "S04E01",
+    "episode_name": "What Doesn't Kill You Makes You Stronger",
+    "source": "https://static.tvmaze.com/uploads/images/original_untouched/595/1488334.jpg",
+    "size_bytes": 263202,
+    "caption": "4x01：利亚姆·海姆斯沃斯接演杰洛特的首集"
+  },
+  {
+    "file": "actor-Henry-Cavill.jpg",
+    "type": "演员照",
+    "actor": "Henry Cavill",
+    "role": "杰洛特（第 1-3 季）",
+    "source": "https://static.tvmaze.com/uploads/images/original_untouched/458/1145126.jpg",
+    "size_bytes": 273356
+  },
+  {
+    "file": "actor-Liam-Hemsworth.jpg",
+    "type": "演员照",
+    "actor": "Liam Hemsworth",
+    "role": "杰洛特（第 4-5 季）",
+    "source": "https://static.tvmaze.com/uploads/images/original_untouched/585/1464836.jpg",
+    "size_bytes": 101615
+  },
+  {
+    "file": "actor-Freya-Allan.jpg",
+    "type": "演员照",
+    "actor": "Freya Allan",
+    "role": "希瑞菈·希里（Ciri）",
+    "source": "https://static.tvmaze.com/uploads/images/original_untouched/384/962377.jpg",
+    "size_bytes": 91927
+  },
+  {
+    "file": "actor-Anya-Chalotra.jpg",
+    "type": "演员照",
+    "actor": "Anya Chalotra",
+    "role": "叶妮芙",
+    "source": "https://static.tvmaze.com/uploads/images/original_untouched/170/426831.jpg",
+    "size_bytes": 83819
+  },
+  {
+    "file": "actor-Joey-Batey.jpg",
+    "type": "演员照",
+    "actor": "Joey Batey",
+    "role": "亚斯克尔（Jaskier）",
+    "source": "https://static.tvmaze.com/uploads/images/original_untouched/132/331685.jpg",
+    "size_bytes": null
+  },
+  {
+    "file": "actor-MyAnna-Buring.jpg",
+    "type": "演员照",
+    "actor": "MyAnna Buring",
+    "role": "蒂莎娅·德·弗里斯（术士学院院长）",
+    "source": "https://static.tvmaze.com/uploads/images/original_untouched/181/454168.jpg",
+    "size_bytes": 203080
+  },
+  {
+    "file": "actor-Graham-McTavish.jpg",
+    "type": "演员照",
+    "actor": "Graham McTavish",
+    "role": "西吉斯蒙德·迪科斯彻（瑞达尼亚情报头子）",
+    "source": "https://static.tvmaze.com/uploads/images/original_untouched/118/295938.jpg",
+    "size_bytes": null
+  },
+  {
+    "file": "actor-Laurence-Fishburne.jpg",
+    "type": "演员照",
+    "actor": "Laurence Fishburne",
+    "role": "雷吉斯（吸血鬼医师，第 4 季加入）",
+    "source": "https://static.tvmaze.com/uploads/images/original_untouched/636/1590529.jpg",
+    "size_bytes": null
+  },
+  {
+    "file": "actor-Kim-Bodnia-Vesemir.jpg",
+    "type": "演员照",
+    "actor": "Kim Bodnia",
+    "role": "维瑟米尔（猎魔人城堡主、杰洛特的养父，第 2 季加入）",
+    "source": "https://static.tvmaze.com/uploads/images/original_untouched/12/30644.jpg",
+    "size_bytes": 470139
+  }
+]

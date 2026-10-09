@@ -1,0 +1,104 @@
+[
+  {
+    "file": "poster.jpg",
+    "desc": "电影主海报（意大利语原版海报）",
+    "source_page": "https://www.themoviedb.org/movie/5336-salo-o-le-120-giornate-di-sodoma",
+    "image_url": "https://image.tmdb.org/t/p/w780/xnaDdiRfZlJaTf6JRc4in40eaeI.jpg"
+  },
+  {
+    "file": "still-01.jpg",
+    "desc": "影片剧照/宣传画面 1（TMDB backdrops）",
+    "source_page": "https://www.themoviedb.org/movie/5336-salo-o-le-120-giornate-di-sodoma/images/backdrops",
+    "image_url": "https://image.tmdb.org/t/p/w1280/wP1wgntZ6VIja8hprxV6UKdQugk.jpg"
+  },
+  {
+    "file": "still-02.jpg",
+    "desc": "影片剧照/宣传画面 2（TMDB backdrops）",
+    "source_page": "https://www.themoviedb.org/movie/5336-salo-o-le-120-giornate-di-sodoma/images/backdrops",
+    "image_url": "https://image.tmdb.org/t/p/w1280/agwkvkJTJrpRlheTn1Qe1qEgJh4.jpg"
+  },
+  {
+    "file": "still-03.jpg",
+    "desc": "影片剧照/宣传画面 3（TMDB backdrops）",
+    "source_page": "https://www.themoviedb.org/movie/5336-salo-o-le-120-giornate-di-sodoma/images/backdrops",
+    "image_url": "https://image.tmdb.org/t/p/w1280/iIx0wqVg9TYPfkghsOvA7xkIIqI.jpg"
+  },
+  {
+    "file": "still-04.jpg",
+    "desc": "影片剧照/宣传画面 4（TMDB backdrops）",
+    "source_page": "https://www.themoviedb.org/movie/5336-salo-o-le-120-giornate-di-sodoma/images/backdrops",
+    "image_url": "https://image.tmdb.org/t/p/w1280/eAdUGytd5R0vosU2jTLCYJdqmNf.jpg"
+  },
+  {
+    "file": "still-05.jpg",
+    "desc": "影片剧照/宣传画面 5（TMDB backdrops）",
+    "source_page": "https://www.themoviedb.org/movie/5336-salo-o-le-120-giornate-di-sodoma/images/backdrops",
+    "image_url": "https://image.tmdb.org/t/p/w1280/r7Zgwxl1w0kb8pB3ZXCVMoXg5n1.jpg"
+  },
+  {
+    "file": "still-06.jpg",
+    "desc": "影片剧照/宣传画面 6（TMDB backdrops）",
+    "source_page": "https://www.themoviedb.org/movie/5336-salo-o-le-120-giornate-di-sodoma/images/backdrops",
+    "image_url": "https://image.tmdb.org/t/p/w1280/sXdFKnc4MVhk06CGsF3uCERwo1T.jpg"
+  },
+  {
+    "file": "actor-Pasolini.jpg",
+    "desc": "导演 皮埃尔·保罗·帕索里尼",
+    "source_page": "https://www.themoviedb.org/person/5970-pier-paolo-pasolini",
+    "image_url": "https://image.tmdb.org/t/p/w500/eaIDgDUBEZLS2HP4lexm58iaWbG.jpg"
+  },
+  {
+    "file": "actor-Paolo-Bonacelli.jpg",
+    "desc": "保罗·博纳切利（饰 公爵）",
+    "source_page": "https://www.themoviedb.org/person/4819-paolo-bonacelli",
+    "image_url": "https://image.tmdb.org/t/p/w500/7h2EJQ19m9pZCfyGEoXb8aEFIF2.jpg"
+  },
+  {
+    "file": "actor-Giorgio-Cataldi.jpg",
+    "desc": "乔治·卡塔尔迪（饰 主教）",
+    "source_page": "https://www.themoviedb.org/person/42845-giorgio-cataldi",
+    "image_url": "https://image.tmdb.org/t/p/w500/kCfKutu4gxnqQwNNKlaTrFm3yU2.jpg"
+  },
+  {
+    "file": "actor-Uberto-Paolo-Quintavalle.jpg",
+    "desc": "翁贝托·保罗·昆塔瓦莱（饰 法官）",
+    "source_page": "https://www.themoviedb.org/person/42846-uberto-paolo-quintavalle",
+    "image_url": "https://image.tmdb.org/t/p/w500/rewdBU1cXWhUtoM33qa0dcAVjF8.jpg"
+  },
+  {
+    "file": "actor-Aldo-Valletti.jpg",
+    "desc": "阿尔多·瓦莱蒂（饰 总统）",
+    "source_page": "https://www.themoviedb.org/person/42847-aldo-valletti",
+    "image_url": "https://image.tmdb.org/t/p/w500/dwNdnKCiZYGYSNI32SAWPt4GexN.jpg"
+  },
+  {
+    "file": "actor-Caterina-Boratto.jpg",
+    "desc": "卡泰丽娜·博拉托（饰 卡斯特利夫人）",
+    "source_page": "https://www.themoviedb.org/person/5686-caterina-boratto",
+    "image_url": "https://image.tmdb.org/t/p/w500/bG0jlOnMdhgvrqKaIHrQwLcmToI.jpg"
+  },
+  {
+    "file": "actor-Elsa-De-Giorgi.jpg",
+    "desc": "埃尔莎·德·乔治（饰 玛吉夫人）",
+    "source_page": "https://www.themoviedb.org/person/42860-elsa-de-giorgi",
+    "image_url": "https://image.tmdb.org/t/p/w500/yLtvHh7ab9cwu6uOW32atmaq9RS.jpg"
+  },
+  {
+    "file": "actor-Helene-Surgere.jpg",
+    "desc": "海伦·叙尔热尔（饰 瓦卡里夫人）",
+    "source_page": "https://www.themoviedb.org/person/28681-helene-surgere",
+    "image_url": "https://image.tmdb.org/t/p/w500/9u95AroZ7U0XPgZZCquCHMvSUBQ.jpg"
+  },
+  {
+    "file": "actor-Franco-Merli.jpg",
+    "desc": "佛朗哥·梅利（饰 男性受害者）",
+    "source_page": "https://www.themoviedb.org/person/42851-franco-merli",
+    "image_url": "https://image.tmdb.org/t/p/w500/12l8vMTq2mSnIBLP9ZK3sU8i3Y7.jpg"
+  },
+  {
+    "file": "actor-Ines-Pellegrini.jpg",
+    "desc": "伊内斯·佩莱格里尼（饰 女仆）",
+    "source_page": "https://www.themoviedb.org/person/101593-ines-pellegrini",
+    "image_url": "https://image.tmdb.org/t/p/w500/3YPVnn69jIX20RxN10oQrUFyDnX.jpg"
+  }
+]
