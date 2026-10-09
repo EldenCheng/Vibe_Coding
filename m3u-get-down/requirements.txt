@@ -1,0 +1,5 @@
+requests>=2.31
+playwright>=1.40
+pycryptodome>=3.19
+pysocks>=1.7
+yt-dlp>=2025.1

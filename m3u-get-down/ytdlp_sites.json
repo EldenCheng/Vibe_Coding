@@ -1,0 +1,58 @@
+{
+  "_说明": "yt-dlp 引擎配置。mode=auto(默认,yt-dlp 有专用解析器的站点自动走它) / list(仅下面 sites 列出的域名走 yt-dlp)。cookies_file=cookies.txt 路径(非空优先于 cookies_from_browser); cookies_from_browser=从浏览器读 cookie 的浏览器名(edge/chrome/firefox, 留空=不用)。注意: 新版 Edge/Chrome 的 cookie 是App-Bound 加密(v20), yt-dlp 读不到(issue #10927), 建议改用浏览器扩展导出的 cookies.txt, 或改用 firefox(未加密)。format=清晰度选择(默认优先≤720P, 没有则取能下到的最清晰)。sites=仅放需要覆盖默认行为的站点(engine=m3u 强制自研 / ytdlp 强制 yt-dlp, 另可覆盖 format/cookies_from_browser/cookies_file/proxy_policy/extra_opts); auto 模式无需在此列域名。已预置：B站(直连优先, 国内 CDN) + 4 个自研站点(engine=m3u 守卫)。extra_opts=透传给 yt-dlp 的原始选项(逃生舱), 默认已开启 JS 运行时 deno/node 与 EJS 挑战脚本(YouTube 必需, 缺了只告警不报错)。",
+  "enabled": true,
+  "mode": "auto",
+  "cookies_from_browser": "firefox",
+  "cookies_file": "",
+  "format": "bestvideo[height<=720]+bestaudio/best[height<=720]/bestvideo+bestaudio/best",
+  "merge_output_format": "mp4",
+  "extra_opts": {
+    "js_runtimes": {
+      "deno": {},
+      "node": {}
+    },
+    "remote_components": [
+      "ejs:github"
+    ]
+  },
+  "sites": [
+    {
+      "name": "bilibili",
+      "domains": [
+        "bilibili.com",
+        "b23.tv",
+        "acg.tv"
+      ],
+      "proxy_policy": "direct_first"
+    },
+    {
+      "name": "ikanbot",
+      "domains": [
+        "ikanbot.com"
+      ],
+      "engine": "m3u"
+    },
+    {
+      "name": "mvffm",
+      "domains": [
+        "mvffm.net",
+        "movieffm.net"
+      ],
+      "engine": "m3u"
+    },
+    {
+      "name": "eacg",
+      "domains": [
+        "eacg.net"
+      ],
+      "engine": "m3u"
+    },
+    {
+      "name": "youknow",
+      "domains": [
+        "youknow.tv"
+      ],
+      "engine": "m3u"
+    }
+  ]
+}

@@ -32,11 +32,32 @@ from tag_translations import GROUP_PREFIX_TRANSLATIONS, TAG_TRANSLATIONS
 BASE_DIR = Path(__file__).parent
 # 全局配置文件路径
 CONFIG_PATH = BASE_DIR / "config.json"
+# 画廊输出根目录的默认值（相对路径按脚本目录解析，保证从任意 cwd 启动都落在同一处）
+DEFAULT_OUTPUT_DIR = "Download"
+
+
+def resolve_output_dir(value):
+    """把 output_dir 配置/参数解析成绝对路径。
+
+    - 空值 → 默认 Download/
+    - 相对路径 → 相对脚本所在目录（不是 cwd），保证从任意目录启动结果一致
+    - 绝对路径 → 原样使用
+    """
+    text = (value or "").strip()
+    if not text:
+        text = DEFAULT_OUTPUT_DIR
+    p = Path(text).expanduser()
+    p = p if p.is_absolute() else (BASE_DIR / p)
+    try:
+        return p.resolve()
+    except OSError:  # 路径不存在等情况下 resolve 可能失败，退回未规范化的绝对路径
+        return p
 
 
 def load_config():
     """加载 config.json 中的全局配置，缺失的字段用内置默认值补全"""
     defaults = {
+        "output_dir": DEFAULT_OUTPUT_DIR,
         "proxy": "",
         "use_mpv": False,
         "request_delay": {"min": 3, "max": 5},
@@ -56,13 +77,15 @@ def load_config():
     if CONFIG_PATH.exists():
         with open(CONFIG_PATH, encoding="utf-8") as f:
             user_config = json.load(f)
-        # 用户配置覆盖默认值（仅对已有字段进行覆盖）
+        # 用户配置覆盖默认值（未知字段一并保留，避免管理器写入的额外键被丢弃）
         for key in defaults:
             if key in user_config:
                 if isinstance(defaults[key], dict):
                     defaults[key].update(user_config[key])
                 else:
                     defaults[key] = user_config[key]
+        for key, value in user_config.items():
+            defaults.setdefault(key, value)
     return defaults
 
 
@@ -553,12 +576,16 @@ def save_progress(progress_path, data):
 def parse_args():
     """
     解析命令行参数
-    返回 (range_text, retry_failed, check_mode, 位置参数列表)
+    返回 (range_text, retry_failed, check_mode, output_dir, 位置参数列表)
+
+    output_dir 为 --output-dir / --output_dir 的原始字符串；未指定时为 None，
+    由调用方回落到 config.json 的 output_dir（再回落 DEFAULT_OUTPUT_DIR）。
     """
     args = sys.argv[1:]
     retry_failed = False
     check_mode = False
     range_text = None
+    output_dir = None
     positional = []
     i = 0
     while i < len(args):
@@ -573,24 +600,35 @@ def parse_args():
                 i += 1
         elif a.startswith("--range="):
             range_text = a.split("=", 1)[1]
+        elif a in ("--output-dir", "-output-dir", "--output_dir", "-output_dir"):
+            if i + 1 < len(args):
+                output_dir = args[i + 1]
+                i += 1
+        elif a.startswith(("--output-dir=", "--output_dir=")):
+            output_dir = a.split("=", 1)[1]
         else:
             positional.append(a)
         i += 1
-    return range_text, retry_failed, check_mode, positional
+    return range_text, retry_failed, check_mode, output_dir, positional
 
 
 def main():
     """主函数：解析参数 → 获取画廊信息 → 逐页下载（含断点续传）"""
 
-    range_text, retry_failed, check_mode, pos_args = parse_args()
+    range_text, retry_failed, check_mode, output_dir_arg, pos_args = parse_args()
     if not pos_args:
-        print("用法: py download_gallery.py [--range 1-10,20] [--rd] [--check] <画廊URL>")
-        print("  --range   只下载指定页码范围，如 --range 1-10,20,30-40")
-        print("  --rd      重试 progress.json 中记录的所有失败页")
-        print("  --check   检查 images/ 实际文件与记录是否一致，修复 failed 列表")
+        print("用法: py download_gallery.py [--range 1-10,20] [--rd] [--check] [--output-dir DIR] <画廊URL>")
+        print("  --range       只下载指定页码范围，如 --range 1-10,20,30-40")
+        print("  --rd          重试 progress.json 中记录的所有失败页")
+        print("  --check       检查 images/ 实际文件与记录是否一致，修复 failed 列表")
+        print(f"  --output-dir  画廊输出根目录（默认读 config.json 的 output_dir，当前默认 {DEFAULT_OUTPUT_DIR}）")
         sys.exit(1)
 
     config = load_config()
+    # 输出根目录：命令行参数 > config.json > 内置默认（相对路径按脚本目录解析）
+    output_root = resolve_output_dir(output_dir_arg or config.get("output_dir"))
+    output_root.mkdir(parents=True, exist_ok=True)
+    print(f"输出根目录: {output_root}")
     session = create_session(config)
     # 图片下载直连通道（绕过系统代理，见 download_image_with_retry 说明）
     direct_session = create_direct_session(config)
@@ -668,14 +706,14 @@ def main():
     lang = extract_language_tag(gallery_info)
     old_dir_name = build_base_name(title, subtitle)
     new_dir_name = build_dir_name(title, subtitle, category=gallery_info["category"], lang=lang)
-    if old_dir_name and (BASE_DIR / old_dir_name).exists():
+    if old_dir_name and (output_root / old_dir_name).exists():
         dir_name = old_dir_name
         print(f"检测到已有目录（旧命名），沿用: {dir_name}")
     else:
         dir_name = new_dir_name
     if not dir_name:
         dir_name = f"gallery_{gid}"
-    gallery_dir = BASE_DIR / dir_name
+    gallery_dir = output_root / dir_name
     images_dir = gallery_dir / "images"
     images_dir.mkdir(parents=True, exist_ok=True)
     progress_path = gallery_dir / "progress.json"

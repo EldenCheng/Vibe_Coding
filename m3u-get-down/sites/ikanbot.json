@@ -1,0 +1,21 @@
+{
+  "_说明": "爱看机器人（ikanbot.com）：/play/{videoId} 播放页静态 HTML 只有 e_token/current_id/mtype 三个隐藏域；页面 JS 调 /api/getResN?videoId=&mtype=&token= 一次拿到全部线路×全部剧集的 m3u8 直链。token 由混淆 JS get_tks() 客户端计算（视频ID末4位逐位 d%3+1 从 e_token 切片拼接），已在解析器 ikanbot_api 中用 Python 复现，无需浏览器。清单为 VOD（ENDLIST）无加密、切片无 Referer 校验；聚合站部分线路 CDN 常失效（实测 9 条中 4 条死链），batch 默认探活取第一条存活线路，死链由 failover 兜底。--line 可指定序号（如 --line 4）或线路名（如 --line \"线路4 (tpm3u8)\"）。播放页 meta description 是搜索噪声（搜到N条…），无真实简介可取，故 detail 里不配 description，并用 desc_prefix 把整条噪声清空（宁缺毋滥，正常简介不会被误伤）。proxy_policy=direct_first：国内站直连稳定，实测代理出口反而可能被部分 CDN 歧视/代理不稳时切片级失败，故不推荐代理（先直连，不通再走代理）。",
+
+  "name": "ikanbot",
+  "domains": ["ikanbot.com"],
+  "player_embedded": "ikanbot_api",
+  "proxy_policy": "direct_first",
+  "title_subs": [
+    ["\\s*-\\s*免费在线观看.*$", ""]
+  ],
+  "detail": {
+    "_说明": "v0.7.2 配置驱动的详情提取：title/cover/description 是保留键（覆盖通用提取，不中时回退原逻辑），其余键名即简介.md「视频信息」小节里的显示标签。播放页结构：div.item-root > img.cover(data-src=封面, alt=标题) + div.detail > h2.meta.title(标题) + 三个 h3.meta（年份/地区/主演，主演为 'A/B,,C,,D' 格式，用 replace 归一为 /）",
+    "title": {"pattern": "<h2[^>]*class=\"[^\"]*\\btitle\\b[^\"]*\"[^>]*>([^<]+)</h2>"},
+    "cover": {"pattern": "class=\"cover[^\"]*\"[^>]*data-src=\"([^\"]+)\""},
+    "年份": {"pattern": "<h3[^>]*class=\"meta\"[^>]*>\\s*(\\d{4})\\s*</h3>"},
+    "地区": {"pattern": "<h3[^>]*>\\s*\\d{4}\\s*</h3>\\s*<h3[^>]*>\\s*([^<]+?)\\s*</h3>"},
+    "主演": {"pattern": "<h3[^>]*>\\s*([^<]*/[^<]*?)\\s*</h3>", "replace": [[",,", "/"]]}
+  },
+  "desc_prefix": "^搜到\\d+条.*的免费在线观看线路$",
+  "failover_max": 3
+}

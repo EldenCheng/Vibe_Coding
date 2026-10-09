@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>需要访问令牌 · 统一下载管理器</title>
+<style>
+  body {
+    margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    background: #12151a; color: #e6e9ef;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+  }
+  .box { max-width: 560px; padding: 28px; background: #1e232c; border: 1px solid #2b313c; border-radius: 10px; margin: 16px; }
+  h1 { font-size: 19px; margin: 0 0 10px; }
+  p { color: #9aa4b2; font-size: 13.5px; line-height: 1.7; margin: 8px 0; }
+  code { background: #161a21; padding: 1px 6px; border-radius: 4px; font-family: Consolas, monospace; font-size: 12.5px; color: #e6e9ef; }
+  .row { display: flex; gap: 8px; margin-top: 16px; }
+  input { flex: 1; background: #161a21; color: #e6e9ef; border: 1px solid #2b313c; border-radius: 6px; padding: 9px 11px; font-size: 13px; }
+  input:focus { outline: none; border-color: #2b6cb0; }
+  button { background: #2b6cb0; color: #fff; border: 1px solid #4a9eff; border-radius: 6px; padding: 9px 18px; font-size: 13px; cursor: pointer; font-weight: 600; }
+  button:hover { background: #4a9eff; }
+  .err { color: #ffb4ae; font-size: 13px; margin-top: 10px; display: none; }
+</style>
+</head>
+<body>
+<div class="box">
+  <h1>需要访问令牌</h1>
+  <p>这个管理器对局域网开放，因此用一个访问令牌做保护。令牌写在 Mac 上
+     <code>download-manager/config.json</code> 的 <code>server.access_token</code>，
+     或者直接看服务启动时终端里打印的访问地址（形如 <code>http://IP:8765/?token=xxxx</code>）。</p>
+  <p>粘贴令牌后即可进入，浏览器会记住它（长期有效，不会过期）。</p>
+  <div class="row">
+    <input id="token" type="password" placeholder="粘贴访问令牌" autofocus>
+    <button id="go">进入</button>
+  </div>
+  <div class="err" id="err">令牌不正确</div>
+</div>
+<script>
+  const input = document.getElementById('token');
+  const err = document.getElementById('err');
+  document.getElementById('go').addEventListener('click', async () => {
+    const token = input.value.trim();
+    if (!token) { err.textContent = '请先填写令牌'; err.style.display = 'block'; return; }
+    err.style.display = 'none';
+    try {
+      const resp = await fetch('/api/health');
+      if (!resp.ok) throw new Error();
+      const check = await fetch('/api/sysinfo', { headers: { 'X-Auth-Token': token } });
+      if (check.status === 401) { err.textContent = '令牌不正确，请检查是否复制完整'; err.style.display = 'block'; return; }
+      if (!check.ok) { err.textContent = '服务返回错误，请稍后再试'; err.style.display = 'block'; return; }
+      localStorage.setItem('download-manager-token', token);
+      location.href = '/';
+    } catch (e) {
+      err.textContent = '无法连接到后端服务'; err.style.display = 'block';
+    }
+  });
+  input.addEventListener('keydown', (e) => { if (e.key === 'Enter') document.getElementById('go').click(); });
+</script>
+</body>
+</html>

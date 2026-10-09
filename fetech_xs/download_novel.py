@@ -6,7 +6,8 @@ import random
 from pathlib import Path
 
 import requests
-from bs4 import BeautifulSoup
+
+from sites import get_adapter
 
 
 # 脚本所在目录
@@ -15,11 +16,34 @@ BASE_DIR = Path(__file__).parent
 CONFIG_PATH = BASE_DIR / "config.json"
 # HTTP 请求超时时间（秒）
 DEFAULT_TIMEOUT = 30
+# 书籍输出根目录的默认值（相对路径按脚本目录解析，保证从任意 cwd 启动都落在同一处）
+DEFAULT_OUTPUT_DIR = "Download"
+
+
+def resolve_output_dir(value):
+    """把 output_dir 配置/参数解析成绝对路径。
+
+    - 空值 → 默认 Download/
+    - 相对路径 → 相对脚本所在目录（不是 cwd），保证从任意目录启动结果一致
+    - 绝对路径 → 原样使用
+    """
+    text = (value or "").strip()
+    if not text:
+        text = DEFAULT_OUTPUT_DIR
+    p = Path(text).expanduser()
+    p = p if p.is_absolute() else (BASE_DIR / p)
+    try:
+        return p.resolve()
+    except OSError:  # 路径不存在等情况下 resolve 可能失败，退回未规范化的绝对路径
+        return p
 
 
 def load_config():
     """加载 config.json 中的全局配置，缺失的字段用内置默认值补全"""
     defaults = {
+        "output_dir": DEFAULT_OUTPUT_DIR,
+        # 代理：留空则不显式设置（requests 会自行读取系统代理：Windows 注册表 / macOS 网络设置）
+        "proxy": "",
         "request_delay": {"min": 15, "max": 30},
         "retry": {"max_attempts": 5, "backoff_base": 30, "backoff_multiplier": 2},
         "headers": {
@@ -34,13 +58,15 @@ def load_config():
     if CONFIG_PATH.exists():
         with open(CONFIG_PATH, encoding="utf-8") as f:
             user_config = json.load(f)
-        # 用户配置覆盖默认值（仅对已有字段进行覆盖）
+        # 用户配置覆盖默认值（未知字段一并保留，避免管理器写入的额外键被丢弃）
         for key in defaults:
             if key in user_config:
                 if isinstance(defaults[key], dict):
                     defaults[key].update(user_config[key])
                 else:
                     defaults[key] = user_config[key]
+        for key, value in user_config.items():
+            defaults.setdefault(key, value)
     return defaults
 
 
@@ -49,144 +75,39 @@ def create_session(config):
     session = requests.Session()
     session.headers.update(config["headers"])
     session.headers["Referer"] = config.get("base_url", "")
+
+    # 配置代理（http/https，以及装了 pysocks 后的 socks5）
+    # 留空则不设置 session.proxies，此时 requests 会走它自己的默认逻辑（读系统代理）
+    proxy = (config.get("proxy") or "").strip()
+    if proxy:
+        session.proxies = {"http": proxy, "https": proxy}
     return session
 
 
-def fetch_book_info(session, chapters_url):
-    """
-    从章节列表页提取小说信息：
-    - 书名（《》内文字）
-    - 作者
-    - book_id（URL 中的数字 ID）
-    - source_id（章节链接中的源 ID）
-    - 全部章节列表
-    """
-    resp = session.get(chapters_url, timeout=DEFAULT_TIMEOUT)
-    resp.raise_for_status()
-    soup = BeautifulSoup(resp.text, "lxml")
-
-    # 提取书名：<div class="mu_h1"><h1>《书名》</h1>
-    title_tag = soup.select_one("div.mu_h1 h1")
-    if title_tag:
-        raw_title = title_tag.get_text(strip=True)
-        m = re.search(r"《(.+?)》", raw_title)
-        book_name = m.group(1) if m else raw_title
-    else:
-        book_name = "未知书名"
-
-    # 提取作者
-    author_tag = soup.select_one("span:has(a[href*='/search/']) a")
-    author = author_tag.get_text(strip=True) if author_tag else "未知作者"
-
-    # 从章节列表 URL 中提取 book_id
-    m = re.search(r"/id/(\d+)", chapters_url)
-    book_id = int(m.group(1)) if m else 0
-
-    # 从第一个章节链接中提取 source_id（/book/{source_id}/{hash}.html）
-    source_id = 0
-    first_link = soup.select_one("ul.mulu_list li a")
-    if first_link:
-        m = re.search(r"/book/(\d+)/", first_link.get("href", ""))
-        if m:
-            source_id = int(m.group(1))
-
-    # 提取所有章节信息
-    chapters = extract_chapters(soup, source_id)
-
-    return {
-        "book_name": book_name,
-        "author": author,
-        "book_id": book_id,
-        "source_id": source_id,
-        "chapters": chapters,
-    }
+# 书名目录里 Windows 非法字符 → 全角等价字符（保留可读性，且与站点的全角写法统一）
+_BOOK_NAME_MAP = {"\\": "＼", "/": "／", ":": "：", "*": "＊", "?": "？",
+                  '"': "”", "<": "＜", ">": "＞", "|": "｜"}
 
 
-def extract_chapters(soup, source_id):
-    """
-    解析 <ul class="mulu_list"> 中的章节链接
-    过滤掉卷标（如"第一部 黄昏篇"），保留所有正式章节
-    返回按顺序排列的章节列表
-    """
-    chapters = []
-    index = 0
-    for li in soup.select("ul.mulu_list li"):
-        a = li.find("a")
-        if not a:
-            continue
-        title = a.get_text(strip=True)
-        href = a.get("href", "")
-        # 跳过卷标（如"第一部 黄昏篇"），只保留正式章节
-        if re.match(r'^第[^章]+[部卷篇集]', title):
-            continue
-        # 提取章节 hash（URL 中的十六进制部分）
-        m = re.search(r"/book/\d+/([a-f0-9]+)\.html", href)
-        if not m:
-            continue
-        chapter_hash = m.group(1)
-        chapters.append({
-            "index": index,
-            "title": title,
-            "hash": chapter_hash,
-            "url": f"/book/{source_id}/{chapter_hash}.html",
-        })
-        index += 1
-    return chapters
-
-
-def download_chapter_html(session, base_url, source_id, chapter_hash, referer):
-    """
-    方式A：通过 HTML 页面下载章节内容
-    解析 <div class="read-content j_readContent"> 中的 innerHTML
-    返回 (是否成功, 内容/错误信息)
-    """
-    url = f"{base_url}/book/{source_id}/{chapter_hash}.html"
-    headers = {"Referer": referer}
-    resp = session.get(url, headers=headers, timeout=DEFAULT_TIMEOUT)
-    if resp.status_code != 200:
-        return False, f"HTTP {resp.status_code}"
-    soup = BeautifulSoup(resp.text, "lxml")
-    content_div = soup.select_one("div.read-content.j_readContent")
-    if content_div is None:
-        return False, "no content div"
-    html = "".join(str(tag) for tag in content_div.children)
-    if not html.strip():
-        return False, "empty content"
-    return True, html
-
-
-def download_chapter_ajax(session, base_url, source_id, chapter_hash):
-    """
-    方式B：通过 AJAX API 接口下载章节内容（HTML方式失败的备选）
-    GET /home/chapter/info?id={source_id}&key={hash}
-    返回 JSON {code:1, data:{chapter:{content:"..."}}}
-    """
-    url = f"{base_url}/home/chapter/info"
-    params = {"id": source_id, "key": chapter_hash}
-    headers = {
-        "Referer": base_url,
-        "X-Requested-With": "XMLHttpRequest",
-    }
-    resp = session.get(url, params=params, headers=headers, timeout=DEFAULT_TIMEOUT)
-    if resp.status_code != 200:
-        return False, f"AJAX HTTP {resp.status_code}"
-    try:
-        data = resp.json()
-    except json.JSONDecodeError:
-        return False, "AJAX JSON decode error"
-    if data.get("code") != 1:
-        return False, f"AJAX code {data.get('code')}"
-    content = data.get("data", {}).get("chapter", {}).get("content", "")
-    if not content.strip():
-        return False, "AJAX empty content"
-    return True, content
+def sanitize_book_name(name):
+    """书名 → 可安全作为目录名的字符串（替换 Windows 非法字符，避免 mkdir 失败）。"""
+    name = (name or "").strip()
+    for ch, fw in _BOOK_NAME_MAP.items():
+        name = name.replace(ch, fw)
+    return name.strip(" .") or "未命名书籍"
 
 
 def sanitize_filename(title):
-    """将章节标题处理为安全的文件名：去掉"第X章"前缀，移除非法字符"""
+    """将章节标题处理为安全的文件名。
+
+    去掉"第X章"前缀；若去掉后为空（如标题就是"第1章"），则保留原标题，
+    避免退化成 hash 文件名（v2.0 改进）。
+    """
     name = re.sub(r"^第[^章]*章\s*", "", title)
     name = re.sub(r'[\\/:*?"<>|]', "", name)
     name = name.strip()
+    if not name:
+        name = re.sub(r'[\\/:*?"<>|]', "", title).strip()
     if not name:
         name = str(hash(title))
     return name
@@ -204,6 +125,40 @@ def save_chapter(book_dir, chapter_info, html_content):
     return filepath
 
 
+def expected_chapter_filename(chapter):
+    """章节的期望文件名（必须与 save_chapter 完全一致）。"""
+    return f"{chapter['index']:04d}_{sanitize_filename(chapter['title'])}.html"
+
+
+def scan_chapters_dir(chapters_dir, chapters):
+    """扫描磁盘，返回 (已就绪索引集合, 缺失章节列表, 过期文件名列表)。
+
+    以「期望文件名」（索引 + 清洗后的标题）为准比对，因此能识别
+    「章节表更新导致旧文件失效」的情况（旧文件名不再匹配 → 算缺失）。
+    - ready  ：索引 → 磁盘上存在对应期望文件的章节
+    - missing：期望文件不存在的章节（需下载）
+    - stale  ：磁盘上不属于任何期望文件的 .html（章节表变化后遗留的旧文件）
+    """
+    expected = {ch["index"]: expected_chapter_filename(ch) for ch in chapters}
+    existing = set()
+    if chapters_dir.exists():
+        existing = {f.name for f in chapters_dir.iterdir() if f.is_file() and f.suffix == ".html"}
+    ready = {i for i, name in expected.items() if name in existing}
+    missing = [ch for ch in chapters if ch["index"] not in ready]
+    wanted = set(expected.values())
+    stale = sorted(n for n in existing if n not in wanted)
+    return ready, missing, stale
+
+
+def remove_stale_files(chapters_dir, stale):
+    """删除过期章节文件（章节表更新后遗留），失败静默忽略。"""
+    for name in stale:
+        try:
+            (chapters_dir / name).unlink()
+        except OSError:
+            pass
+
+
 def load_progress(progress_path):
     """加载进度文件，不存在则返回空进度"""
     if progress_path.exists():
@@ -218,12 +173,11 @@ def save_progress(progress_path, data):
         json.dump(data, f, ensure_ascii=False, indent=2)
 
 
-def download_with_retry(session, config, base_url, source_id, chapter, referer):
-    """
-    带重试的章节下载：
-    1. 优先用 HTML 页面下载
-    2. 若返回空则自动切换到 AJAX API
-    3. 仍失败则按指数退避等待后重试（最多 max_attempts 次）
+def download_with_retry(session, adapter, chapter, config):
+    """带退避重试的章节下载。
+
+    调用 adapter.download_chapter；失败时按指数退避等待后重试（最多 max_attempts 次）。
+    返回 (是否成功, 正文HTML, 标题, 是否真实发了网络请求)。
     """
     cfg_retry = config["retry"]
     max_attempts = cfg_retry["max_attempts"]
@@ -231,80 +185,88 @@ def download_with_retry(session, config, base_url, source_id, chapter, referer):
     backoff_mult = cfg_retry["backoff_multiplier"]
 
     for attempt in range(1, max_attempts + 1):
-        # 先尝试 HTML 方式
-        success, result = download_chapter_html(
-            session, base_url, source_id, chapter["hash"], referer
-        )
-        if not success:
-            # HTML 失败时切换 AJAX API
-            success2, result2 = download_chapter_ajax(
-                session, base_url, source_id, chapter["hash"]
-            )
-            if success2:
-                return True, result2
-            if attempt < max_attempts:
-                wait = backoff_base * (backoff_mult ** (attempt - 1))
-                print(
-                    f"  [{attempt}/{max_attempts}] 空内容, 等待 {wait}s 后重试... ({result}/{result2})"
-                )
-                time.sleep(wait)
-        else:
-            return True, result
-
-    return False, None
+        ok, html, title, fetched = adapter.download_chapter(session, chapter, config)
+        if ok:
+            return True, html, title, fetched
+        if attempt < max_attempts:
+            wait = backoff_base * (backoff_mult ** (attempt - 1))
+            print(f"  [{attempt}/{max_attempts}] 下载失败, 等待 {wait}s 后重试...")
+            time.sleep(wait)
+    return False, None, None, False
 
 
 def parse_args():
-    """解析命令行参数，返回 (retry_failed, check_mode, 位置参数)"""
+    """解析命令行参数，返回 (retry_failed, check_mode, output_dir, 位置参数)
+
+    output_dir 为 --output-dir / --output_dir 的原始字符串；未指定时为 None，
+    由调用方回落到 config.json 的 output_dir（再回落 DEFAULT_OUTPUT_DIR）。
+    """
     args = sys.argv[1:]
     retry_failed = False
     check_mode = False
+    output_dir = None
     positional = []
-    for a in args:
+    i = 0
+    while i < len(args):
+        a = args[i]
         if a in ("--rd", "-rd"):
             retry_failed = True
         elif a in ("--check", "-check"):
             check_mode = True
+        elif a in ("--output-dir", "-output-dir", "--output_dir", "-output_dir"):
+            if i + 1 < len(args):
+                output_dir = args[i + 1]
+                i += 1
+        elif a.startswith(("--output-dir=", "--output_dir=")):
+            output_dir = a.split("=", 1)[1]
         else:
             positional.append(a)
-    return retry_failed, check_mode, positional
+        i += 1
+    return retry_failed, check_mode, output_dir, positional
 
 
 def main():
-    """主函数：解析参数 → 获取书籍信息 → 逐章下载（含断点续传）"""
+    """主函数：解析参数 → 分发站点适配器 → 获取书籍信息 → 逐章下载（含断点续传）"""
 
-    retry_failed, check_mode, pos_args = parse_args()
+    retry_failed, check_mode, output_dir_arg, pos_args = parse_args()
     if not pos_args:
-        print("用法: py -3 download_novel.py [--rd] [--check] <章节列表URL | book_id>")
-        print("  --rd      重试 progress.json 中记录的所有失败章节")
-        print("  --check   检查实际下载文件与记录是否一致，修复 failed 列表")
+        print("用法: py -3 download_novel.py [--rd] [--check] [--output-dir DIR] <章节列表URL | book_id>")
+        print("  支持站点: 爱丽丝书屋(als1004.space)、cool18(论坛型)")
+        print("  --rd          重试 progress.json 中记录的所有失败章节（含 --check 发现的新章节）")
+        print("  --check       重新抓取入口URL的最新章节表，与实际文件对比，修复 downloaded/failed")
+        print(f"  --output-dir  书籍输出根目录（默认读 config.json 的 output_dir，当前默认 {DEFAULT_OUTPUT_DIR}）")
         sys.exit(1)
 
-    # 加载配置并创建 HTTP 会话
+    # 加载配置
     config = load_config()
-    session = create_session(config)
-    delay = config["request_delay"]
+    output_root = resolve_output_dir(output_dir_arg or config.get("output_dir"))
+    output_root.mkdir(parents=True, exist_ok=True)
+    print(f"输出根目录: {output_root}")
 
-    # 解析参数：纯数字视为 book_id，否则视为完整 URL
+    # 站点分发：按 URL 域名选择适配器；纯数字视为 als1004 book_id
     arg = pos_args[0]
-    if arg.isdigit():
-        chapters_url = f"https://xn--1jqx9a.als1004.space/other/chapters/id/{arg}.html"
-    else:
-        chapters_url = arg
+    adapter = get_adapter(arg, config)
+    print(f"站点: {adapter.type_id}")
 
-    # 从 URL 中提取基础域名
-    base_domain_search = re.search(r"(https?://[^/]+)", chapters_url)
-    base_url = base_domain_search.group(1) if base_domain_search else "https://xn--1jqx9a.als1004.space"
+    # 站点配置覆盖（cool18 可用 sites.cool18 覆盖代理/延迟等）
+    site_config = adapter.site_config()
+    session = create_session(site_config)
+    delay = site_config["request_delay"]
 
-    # 获取书籍信息
-    print(f"正在解析章节列表: {chapters_url}")
-    book_info = fetch_book_info(session, chapters_url)
+    # 入口 URL 规整 + 抓取书籍信息（cool18 在此抓全部帖子并切章，含礼貌延迟）
+    entry_url = adapter.resolve_entry(session, arg, site_config)
+    print(f"正在解析章节列表: {entry_url}")
+    book_info = adapter.fetch_book_info(session, entry_url, site_config)
+    # 书名目录名做非法字符处理（如半角冒号在 Windows 上无法建目录）
+    book_info["book_name"] = sanitize_book_name(book_info["book_name"])
     print(f"书名: {book_info['book_name']}")
     print(f"作者: {book_info['author']}")
-    print(f"章节数: {len(book_info['chapters'])}")
+    chapters = book_info["chapters"]
+    total = len(chapters)
+    print(f"章节数: {total}")
 
     # 创建书籍目录和进度文件路径
-    book_dir = BASE_DIR / book_info["book_name"]
+    book_dir = output_root / book_info["book_name"]
     book_dir.mkdir(parents=True, exist_ok=True)
     progress_path = book_dir / "progress.json"
 
@@ -312,40 +274,31 @@ def main():
     progress = load_progress(progress_path)
     progress["book_name"] = book_info["book_name"]
     progress["author"] = book_info["author"]
-    progress["chapters_url"] = chapters_url
+    progress["chapters_url"] = entry_url
+    progress["total"] = total
 
-    chapters = book_info["chapters"]
-    total = len(chapters)
-
-    # 预填所有章节标题（来自网页抓取，确保完整准确）
+    # 预填所有章节标题（本次抓取的最新完整标题，cool18 含小标题）
     progress["chapter_titles"] = {str(ch["index"]): ch["title"] for ch in chapters}
     save_progress(progress_path, progress)
 
     # --- --check 验证模式 ---
     if check_mode:
         chapters_dir = book_dir / "chapters"
-        existing_indices = set()
-        if chapters_dir.exists():
-            for f in chapters_dir.iterdir():
-                if f.is_file() and f.suffix == ".html":
-                    m = re.match(r"(\d+)_", f.stem)
-                    if m:
-                        existing_indices.add(int(m.group(1)))
+        ready, missing, stale = scan_chapters_dir(chapters_dir, chapters)
+        remove_stale_files(chapters_dir, stale)      # 章节表更新后遗留的旧文件
 
-        all_indices = set(range(total))
-        truly_missing = sorted(all_indices - existing_indices)
-        truly_downloaded = sorted(all_indices & existing_indices)
-
-        progress["downloaded"] = truly_downloaded
-        progress["failed"] = truly_missing
-        progress["last_index"] = max(truly_downloaded) if truly_downloaded else -1
-        progress["status"] = "complete" if not truly_missing else "in_progress"
-        progress["total"] = total
+        missing_indices = [ch["index"] for ch in missing]
+        progress["downloaded"] = sorted(ready)
+        progress["failed"] = missing_indices
+        progress["last_index"] = max(ready) if ready else -1
+        progress["status"] = "complete" if not missing else "in_progress"
         save_progress(progress_path, progress)
 
-        print(f"\n验证完成！实际文件: {len(truly_downloaded)}/{total}, 缺失: {len(truly_missing)}")
-        if truly_missing:
-            print(f"缺失章节已加入 failed: {truly_missing}")
+        print(f"\n验证完成！实际文件: {len(ready)}/{total}, 缺失: {len(missing)}")
+        if stale:
+            print(f"已清理 {len(stale)} 个过期文件（章节表已更新）")
+        if missing:
+            print(f"缺失章节已加入 failed: {missing_indices}")
             print(f"建议运行: py -3 download_novel.py --rd {arg}")
         return
 
@@ -364,20 +317,28 @@ def main():
 
     else:
         # --- 正常下载 / 断点续传 ---
-        if progress["status"] == "complete":
+        # 按「期望文件名」核对磁盘：既能续传，也能识别章节表更新后旧文件失效
+        chapters_dir = book_dir / "chapters"
+        ready, missing, stale = scan_chapters_dir(chapters_dir, chapters)
+        remove_stale_files(chapters_dir, stale)
+        progress["downloaded"] = sorted(ready)
+        progress["failed"] = []
+
+        if not missing:
+            progress["status"] = "complete"
+            progress["last_index"] = max(ready) if ready else -1
+            save_progress(progress_path, progress)
             print("所有章节已下载完成。直接运行 build_epub.py 生成 EPUB。")
-            print("如需重试失败章节，请添加 --rd 参数运行。")
-            print("如需检查实际文件状态，请添加 --check 参数运行。")
+            print("如需检查网站是否有更新章节，请运行 --check；有新章节后用 --rd 下载。")
             return
 
-        if progress["downloaded"]:
-            print(f"已有 {len(progress['downloaded'])} 章已下载，继续未完成的部分。")
-
-        # 断点续传：从上次最后位置之后开始
-        start = 0
-        if progress["last_index"] >= 0:
-            start = progress["last_index"] + 1
-        download_targets = chapters[start:]
+        if stale:
+            print(f"检测到 {len(stale)} 个过期章节文件（章节表已更新），已清理。")
+        if ready:
+            print(f"已有 {len(ready)} 章已下载，继续未完成的部分。")
+        progress["status"] = "in_progress"
+        save_progress(progress_path, progress)
+        download_targets = missing
 
     # 逐章下载
     for ch in download_targets:
@@ -385,14 +346,17 @@ def main():
         if not retry_failed and ch["index"] in progress["downloaded"]:
             continue
 
-        ok, content = download_with_retry(
-            session, config, base_url, book_info["source_id"], ch, chapters_url
+        ok, content, real_title, fetched = download_with_retry(
+            session, adapter, ch, site_config
         )
         if ok:
             saved_path = save_chapter(book_dir, ch, content)
             if ch["index"] not in progress["downloaded"]:
                 progress["downloaded"].append(ch["index"])
             progress["last_index"] = ch["index"]
+            # cool18 等站点的真实标题可能比章节表占位标题更完整（含小标题）
+            if real_title and real_title != ch["title"]:
+                progress["chapter_titles"][str(ch["index"])] = real_title
             save_progress(progress_path, progress)
             print(f"  ✓ {saved_path.name}")
         else:
@@ -400,16 +364,22 @@ def main():
                 progress["failed"] = sorted(set(progress.get("failed", [])) | {ch["index"]})
             save_progress(progress_path, progress)
             print(f"  ✗ 下载失败，已跳过")
-        
-        sleep_time = random.randint(delay["min"], delay["max"])
-        print(f"[{ch['index']+1}/{total}] {ch['title']}  (等待 {sleep_time}s)")
-        time.sleep(sleep_time)
+
+        # 仅在真实发了网络请求时等待（cool18 缓存命中的章节不额外 sleep）
+        if fetched:
+            sleep_time = random.randint(delay["min"], delay["max"])
+            print(f"[{ch['index']+1}/{total}] {ch['title']}  (等待 {sleep_time}s)")
+            time.sleep(sleep_time)
+        else:
+            print(f"[{ch['index']+1}/{total}] {ch['title']}")
 
     # 标记完成（重试模式下也要更新状态）
     if not retry_failed or not progress.get("failed"):
         if not progress.get("failed"):
             progress["status"] = "complete"
             progress["total"] = total
+    progress["downloaded"] = sorted(set(progress.get("downloaded", [])))
+    progress["failed"] = sorted(set(progress.get("failed", [])))
     save_progress(progress_path, progress)
 
     # 输出统计信息

@@ -1,0 +1,14 @@
+{
+  "_说明": "Movieffm（mvffm.net / movieffm.net，WordPress Dooplay 主题）：全部线路与剧集的 m3u8 直链直接写在播放页的 Vue JS（videourls/tables）里，无需嗅探。player_embedded=dooplay_vue 让 batch 走'解析直链→直接下载'流程：默认第1条线路，--line 可指定序号或线路名（如 --line 22 或 --line \"FLV 22 推薦31\"）。同结构的其他站点只需复制本文件改 domains/name。",
+  "name": "mvffm",
+  "domains": ["mvffm.net", "movieffm.net"],
+  "player_embedded": "dooplay_vue",
+  "title_subs": [
+    ["\\s*-\\s*Movieffm.*$", ""],
+    ["線上看$", ""]
+  ],
+  "desc_prefix": "^.*?線上看[|｜]\\s*",
+  "desc_suffix": "",
+  "proxy_policy": "proxy_first",
+  "failover_max": 3
+}

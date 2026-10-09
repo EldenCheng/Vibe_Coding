@@ -1,0 +1,17 @@
+{
+  "_readme": "HTTP 直链下载器配置。output_dir=输出目录(相对路径按本项目目录解析); proxy=留空则读操作系统代理(不是直连); headers=附加请求头; concurrency=分块并发数(1=单流); speed_limit_kb=全局限速KB/s(0=不限); overwrite=重名处理 rename|overwrite|skip; auto_verify=存在同名.sha256文件时自动校验",
+  "output_dir": "Download",
+  "proxy": "",
+  "headers": {},
+  "concurrency": 4,
+  "min_split_mb": 8,
+  "speed_limit_kb": 0,
+  "timeout": 30,
+  "retry": {
+    "max_attempts": 5,
+    "backoff_base": 2,
+    "backoff_multiplier": 2
+  },
+  "overwrite": "rename",
+  "auto_verify": true
+}

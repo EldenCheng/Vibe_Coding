@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>统一下载管理器</title>
+<link rel="icon" href="/favicon.ico">
+<link rel="stylesheet" href="/static/css/app.css">
+</head>
+<body class="dock-small">
+
+<!-- ===================== 粘性头部：顶栏 + 标签栏 + 磁盘条 ===================== -->
+<header class="sticky-head">
+  <div class="topbar">
+    <div class="brand">
+      <span class="logo">⇩</span>
+      <span>统一下载管理器</span>
+      <span class="version" id="version"></span>
+    </div>
+    <div class="sysinfo" id="sysinfo">
+      <span class="muted">正在读取系统信息…</span>
+    </div>
+    <div class="topbar-actions">
+      <span class="running-badge" id="running-badge" hidden></span>
+      <label class="switch" title="任务结束时弹出桌面通知">
+        <input type="checkbox" id="notify-toggle"><span>通知</span>
+      </label>
+      <button class="btn small" id="config-btn" title="打开当前下载器的配置文件（弹窗）">⚙ 配置</button>
+      <button class="btn small ghost" id="logout-btn" title="清除本机保存的访问令牌">退出令牌</button>
+    </div>
+  </div>
+  <nav class="tabs" id="tabs"></nav>
+  <div class="diskbar" id="diskbar"></div>
+</header>
+
+<main id="panes"></main>
+
+<!-- ===================== 底部输出坞（不遮挡内容，按高度留白） ===================== -->
+<section class="logview" id="logview">
+  <div class="logview-head">
+    <button class="btn small" id="logview-toggle">展开输出</button>
+    <div class="log-tabs" id="log-tabs"></div>
+    <div class="logview-actions">
+      <label class="switch small" title="暂停后新日志仍会接收，只是不自动滚动">
+        <input type="checkbox" id="log-follow" checked><span>跟随</span>
+      </label>
+      <button class="btn small ghost" id="log-close-done" disabled
+              title="关闭所有已结束任务的页签（已完成 / 部分失败 / 失败 / 已停止）；正在运行或排队中的页签不会被关闭">关闭已完成</button>
+      <button class="btn small ghost" id="log-clear">清屏</button>
+      <button class="btn small ghost" id="log-download">下载日志</button>
+    </div>
+  </div>
+  <pre class="log-body" id="log-body">（暂无输出。发起任务后会自动显示该任务的实时日志。）</pre>
+</section>
+
+<div class="modal-root" id="modal-root"></div>
+<div class="toast-area" id="toast-area"></div>
+
+<script src="/static/js/utils.js"></script>
+<script src="/static/js/api.js"></script>
+<script src="/static/js/logview.js"></script>
+<script src="/static/js/configform.js"></script>
+<script src="/static/js/tasklist.js"></script>
+<script src="/static/js/notify.js"></script>
+<script src="/static/js/app.js"></script>
+</body>
+</html>

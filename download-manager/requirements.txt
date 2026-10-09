@@ -1,0 +1,31 @@
+# 统一下载管理器的依赖说明
+#
+# 管理器本身**不需要任何第三方包** —— 后端只用 Python 标准库
+# （http.server / subprocess / json / threading 等），前端是原生 HTML/CSS/JS。
+#
+# 为什么不用框架：本机 pip 在当前环境无法访问 PyPI，且三个下载器本来也只依赖标准库。
+# 依赖为零的额外好处是长期运行的版本风险最小（不存在框架升级、C 扩展不兼容的问题），
+# 这与「服务长期不重启」的用法是一致的。
+#
+# ---------------------------------------------------------------------------
+# 下面列的是**三个下载器**各自需要的包。它们运行在同一个 Python 解释器下
+# （由 config.json 的 python.python_exe 决定，留空则用管理器自身的解释器），
+# 所以这些包要装到那个解释器里。
+#
+# 为方便起见，这里把三个下载器的依赖合并列出（与各自目录下的 requirements.txt 内容一致）：
+#
+# requests>=2.31.0          # e-download / fetech_xs / m3u-get-down 都要
+# beautifulsoup4>=4.12.0    # e-download / fetech_xs
+# lxml>=5.0.0               # e-download / fetech_xs
+# ebooklib>=0.18            # fetech_xs（只有生成 EPUB 这一步需要）
+# playwright>=1.40          # m3u-get-down（**顶层依赖**，缺了连直链下载都会失败）
+# pycryptodome>=3.19        # m3u-get-down（AES-128 解密）
+# pysocks>=1.7              # m3u-get-down（socks5 代理）
+#
+# 安装命令（macOS 把 py -3 换成 python3）：
+#   py -3 -m pip install requests beautifulsoup4 lxml ebooklib playwright pycryptodome pysocks
+#   py -3 -m playwright install chromium
+#
+# 另外视频下载器还需要外部命令 ffmpeg（合并切片），不在 pip 里：
+#   macOS:  brew install ffmpeg
+#   Windows: 从 https://ffmpeg.org 下载后把 bin 目录加入 PATH

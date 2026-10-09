@@ -1,0 +1,7 @@
+{
+  "_说明": "JAVDOCK（javdock.com）研究结论（v0.4.1 实测）：\n\n1. 站点形态：单视频页（每页一个视频，简介/标题都在视频页内），无剧集列表页，batch 不适用。\n2. 播放链路三道防护：\n   - Cloudflare Turnstile 拦截无头/自动化浏览器（'请稍候…'），但有头浏览器与 curl 可通过；\n   - 视频 URL 以 AES 密文写在页面 data-ts-live（data-ts-id=视频ID），需浏览器 JS 解密，\n     页面加载即有头浏览器会自动解密并拉取 master m3u8（嗅探可直接捕获）；\n   - 【关键】拿到的是滑动窗口（直播式）HLS：master 只有 240p 一个清晰度；media 清单无\n     #EXT-X-ENDLIST、只列出最近 3 个切片（约 6 秒）、窗口实时前移、离开窗口的切片立即\n     404 删除。因此 get/sniff 直接下载只能拿到当前窗口 3 个切片，无法整片直下；\n     play 模式可跟窗捕获但耗时≈视频时长（约 60 分钟/片），且免费流仅 240p。\n3. 结论：不推荐使用本下载器下载该站视频。unsupported=true 时，任何命令（sniff/get/play/batch）\n   命中本域都会打印 unsupported_reason 并退出（退出码 3），不执行下载。",
+  "name": "javdock",
+  "domains": ["javdock.com"],
+  "unsupported": true,
+  "unsupported_reason": "该站视频为滑动窗口式 HLS 防下载（清单只暴露最近约 6 秒切片、过窗即删），无法直接下载全集，且免费流仅 240p。"
+}

@@ -6,8 +6,74 @@ from pathlib import Path
 from ebooklib import epub
 from bs4 import BeautifulSoup
 
-# 脚本所在目录（同时也是书籍数据目录）
+# 脚本所在目录（配置文件所在位置）
 BASE_DIR = Path(__file__).parent
+# 全局配置文件路径（与 download_novel.py 共用同一份，保证输出目录一致）
+CONFIG_PATH = BASE_DIR / "config.json"
+# 书籍输出根目录的默认值（相对路径按脚本目录解析）
+DEFAULT_OUTPUT_DIR = "Download"
+
+
+def resolve_output_dir(value):
+    """把 output_dir 配置/参数解析成绝对路径（与 download_novel.py 保持同一套规则）。
+
+    - 空值 → 默认 Download/
+    - 相对路径 → 相对脚本所在目录（不是 cwd），保证从任意目录启动结果一致
+    - 绝对路径 → 原样使用
+    """
+    text = (value or "").strip()
+    if not text:
+        text = DEFAULT_OUTPUT_DIR
+    p = Path(text).expanduser()
+    p = p if p.is_absolute() else (BASE_DIR / p)
+    try:
+        return p.resolve()
+    except OSError:  # 路径不存在等情况下 resolve 可能失败，退回未规范化的绝对路径
+        return p
+
+
+# 书名目录里 Windows 非法字符 → 全角等价字符（与 download_novel.py 保持一致）
+_BOOK_NAME_MAP = {"\\": "＼", "/": "／", ":": "：", "*": "＊", "?": "？",
+                  '"': "”", "<": "＜", ">": "＞", "|": "｜"}
+
+
+def sanitize_book_name(name):
+    """书名 → 可安全作为目录名的字符串（与 download_novel.py 一致，保证能找到目录）。"""
+    name = (name or "").strip()
+    for ch, fw in _BOOK_NAME_MAP.items():
+        name = name.replace(ch, fw)
+    return name.strip(" .") or "未命名书籍"
+
+
+def load_config_output_dir():
+    """读取 config.json 中的 output_dir；读不到就用默认值（不报错、不阻断 EPUB 生成）"""
+    if CONFIG_PATH.exists():
+        try:
+            with open(CONFIG_PATH, encoding="utf-8") as f:
+                return json.load(f).get("output_dir")
+        except (OSError, ValueError):
+            pass
+    return None
+
+
+def parse_args():
+    """解析命令行参数，返回 (output_dir, 位置参数)"""
+    args = sys.argv[1:]
+    output_dir = None
+    positional = []
+    i = 0
+    while i < len(args):
+        a = args[i]
+        if a in ("--output-dir", "-output-dir", "--output_dir", "-output_dir"):
+            if i + 1 < len(args):
+                output_dir = args[i + 1]
+                i += 1
+        elif a.startswith(("--output-dir=", "--output_dir=")):
+            output_dir = a.split("=", 1)[1]
+        else:
+            positional.append(a)
+        i += 1
+    return output_dir, positional
 
 
 def load_chapter_titles(book_dir):
@@ -131,13 +197,17 @@ def build_epub(book_name, author, chapters):
 
 def main():
     """主函数：读取进度 → 扫描章节 → 构建 EPUB → 输出文件"""
-    if len(sys.argv) < 2:
-        print("用法: py -3 build_epub.py <小说书名>")
+    output_dir_arg, pos_args = parse_args()
+    if not pos_args:
+        print("用法: py -3 build_epub.py [--output-dir DIR] <小说书名>")
         print("示例: py -3 build_epub.py 召唤圣剑")
+        print(f"  --output-dir  书籍输出根目录（默认读 config.json 的 output_dir，当前默认 {DEFAULT_OUTPUT_DIR}）")
         sys.exit(1)
 
-    book_name = sys.argv[1]
-    book_dir = BASE_DIR / book_name
+    book_name = sanitize_book_name(pos_args[0])
+    # 输出根目录：命令行参数 > config.json > 内置默认（相对路径按脚本目录解析）
+    output_root = resolve_output_dir(output_dir_arg or load_config_output_dir())
+    book_dir = output_root / book_name
     if not book_dir.exists():
         print(f"错误: 未找到小说目录 {book_dir}")
         sys.exit(1)

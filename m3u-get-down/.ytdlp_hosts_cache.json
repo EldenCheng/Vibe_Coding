@@ -1,0 +1,30 @@
+{
+"www.bilibili.com": {
+"v": "2026.08.19",
+"supported": true
+},
+"www.youtube.com": {
+"v": "2026.08.19",
+"supported": true
+},
+"www.javdock.com": {
+"v": "2026.08.19",
+"supported": false
+},
+"cdn.example.com": {
+"v": "2026.08.19",
+"supported": false
+},
+"www.xiaohongshu.com": {
+"v": "2026.08.19",
+"supported": true
+},
+"x.com": {
+"v": "2026.08.19",
+"supported": false
+},
+"javdock.com": {
+"v": "2026.08.19",
+"supported": false
+}
+}
