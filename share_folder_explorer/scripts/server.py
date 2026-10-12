@@ -291,5 +291,15 @@ if __name__ == '__main__':
     cleanup_thread = threading.Thread(target=background_cleanup, daemon=True)
     cleanup_thread.start()
     
-    print(f"Starting server on {config['server']['host']}:{config['server']['port']}")
-    app.run(host=config['server']['host'], port=config['server']['port'], debug=False)
+    host = config['server']['host']
+    port = config['server']['port']
+    print(f"Starting server on {host}:{port}")
+    try:
+        # waitress：生产级纯 Python WSGI 服务器，多线程支撑并发访问
+        # （文件上传/下载期间线程被独占，threads 需大于最大同时传输数）
+        from waitress import serve
+        serve(app, host=host, port=port, threads=config['server'].get('threads', 16))
+    except ImportError:
+        # 未安装 waitress 时回退到 Flask 内置开发服务器（并发能力弱，仅供临时使用）
+        print("Warning: waitress 未安装，回退到 Flask 内置开发服务器（建议 py -m pip install waitress）")
+        app.run(host=host, port=port, debug=False, threaded=True)
