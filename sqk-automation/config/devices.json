@@ -1,0 +1,15 @@
+{
+  "adb_path": "adb",
+  "default_device": "客厅盒子",
+  "screenshot_dir": "screen_shot",
+  "connect_timeout": 10,
+  "devices": [
+    {
+      "name": "客厅盒子",
+      "host": "192.168.19.44",
+      "port": 5555,
+      "enabled": true,
+      "note": "请改成你盒子的实际 IP。IP 查看方式：盒子设置-网络，或在盒子上执行 adb shell ip addr"
+    }
+  ]
+}

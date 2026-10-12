@@ -1,0 +1,4 @@
+# 批处理必须是 CRLF，否则 cmd 会解析错行
+*.bat text eol=crlf
+*.py  text eol=lf
+*.md  text eol=lf

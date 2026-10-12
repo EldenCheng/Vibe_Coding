@@ -1,0 +1,11 @@
+{
+  "_comment": "每个操作读自己那一段；键名要和该操作里的 default_params 对齐，写错键名运行时会给提示。",
+  "connect": {
+    "show_info": true
+  },
+  "screenshot": {
+    "reconnect": true,
+    "show_info": false,
+    "open_after": false
+  }
+}
