@@ -1,0 +1,20 @@
+{
+  "questions": [
+    { "id": "l1q1", "text": "Read the yellow price board. How much are apples? How much are bananas? How much is a watermelon?", "order": 1, "level": 1, "kind": "grounded" },
+    { "id": "l1q2", "text": "Look at the girl's shopping list. What three fruits does she need to buy?", "order": 2, "level": 1, "kind": "grounded" },
+    { "id": "l1q3", "text": "What is in the shopping cart? Name the fruits you can see.", "order": 3, "level": 1, "kind": "grounded" },
+    { "id": "l1q4", "text": "How much money is the girl holding? Read the number on the banknote.", "order": 4, "level": 1, "kind": "grounded" },
+    { "id": "l2q1", "text": "The girl wants one kilo of apples and one kilo of bananas. How much do they cost together? (Use the price board.)", "order": 5, "level": 2, "kind": "grounded" },
+    { "id": "l2q2", "text": "The girl has 20 yuan. Apples cost 5 and bananas cost 6. How much money will she have left after buying both?", "order": 6, "level": 2, "kind": "grounded" },
+    { "id": "l2q3", "text": "Can the girl buy all three fruits on her list with 20 yuan? Why or why not?", "order": 7, "level": 2, "kind": "grounded" },
+    { "id": "l2q4", "text": "What is the shopkeeper doing with the apple? What tool is he using?", "order": 8, "level": 2, "kind": "grounded" },
+    { "id": "l2q5", "text": "Look at the girl's thought bubble. What is she thinking about? How is it different from what is in her cart?", "order": 9, "level": 2, "kind": "grounded" },
+    { "id": "l3q1", "text": "Do you like going shopping with your parents? What do you usually buy?", "order": 10, "level": 3, "kind": "open" },
+    { "id": "l3q2", "text": "If you had 20 yuan at this supermarket, what would you buy? Explain your choice.", "order": 11, "level": 3, "kind": "open" },
+    { "id": "l3q3", "text": "Why do people make a shopping list before they go to the supermarket?", "order": 12, "level": 3, "kind": "open" },
+    { "id": "l3q4", "text": "The watermelon costs 12 yuan. Do you think that is cheap or expensive? Why?", "order": 13, "level": 3, "kind": "open" },
+    { "id": "l4q1", "text": "Role-play: You are the girl. Ask the shopkeeper: \"How much are the apples?\" Then ask, \"Can I have two kilos, please?\"", "order": 14, "level": 4, "kind": "open" },
+    { "id": "l4q2", "text": "Role-play: You are the shopkeeper. The girl asks about the price of bananas. Answer her and ask, \"How many kilos do you want?\"", "order": 15, "level": 4, "kind": "open" },
+    { "id": "l4q3", "text": "Role-play: You are the girl. You are talking to Mum on the phone. Tell her what you have bought and how much money is left.", "order": 16, "level": 4, "kind": "open" }
+  ]
+}

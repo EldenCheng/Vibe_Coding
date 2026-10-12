@@ -1,0 +1,20 @@
+{
+  "questions": [
+    { "id": "l1q1", "text": "Read the big blue sign above the platform. Where is the train going? What time does it leave?", "order": 1, "level": 1, "kind": "grounded" },
+    { "id": "l1q2", "text": "Look at the clock on the platform. What time is it now?", "order": 2, "level": 1, "kind": "grounded" },
+    { "id": "l1q3", "text": "The suitcase is open. Name three things inside it.", "order": 3, "level": 1, "kind": "grounded" },
+    { "id": "l1q4", "text": "What is the girl holding in her hands? Read the words on it.", "order": 4, "level": 1, "kind": "grounded" },
+    { "id": "l2q1", "text": "How much time do they have before the train leaves? How do you know?", "order": 5, "level": 2, "kind": "grounded" },
+    { "id": "l2q2", "text": "Where is this family going on holiday - Beijing or Haikou? Give two pieces of evidence from the picture.", "order": 6, "level": 2, "kind": "grounded" },
+    { "id": "l2q3", "text": "Look at the things in the suitcase: a swim ring, a camera, and a sun hat. Which item tells you they are going somewhere warm? Why?", "order": 7, "level": 2, "kind": "grounded" },
+    { "id": "l2q4", "text": "Mum is holding a map. Why does she need a map on this trip?", "order": 8, "level": 2, "kind": "grounded" },
+    { "id": "l2q5", "text": "The train has a smiling face. Is the train leaving right now? How do you know?", "order": 9, "level": 2, "kind": "grounded" },
+    { "id": "l3q1", "text": "Where did you go on your last holiday? How did you get there?", "order": 10, "level": 3, "kind": "open" },
+    { "id": "l3q2", "text": "If you were going to Haikou, what three things would you put in your suitcase?", "order": 11, "level": 3, "kind": "open" },
+    { "id": "l3q3", "text": "Why is it a good idea to arrive at the station before the train leaves?", "order": 12, "level": 3, "kind": "open" },
+    { "id": "l3q4", "text": "Look at the suitcase. Do you think this family is going for a short trip or a long trip? Why?", "order": 13, "level": 3, "kind": "open" },
+    { "id": "l4q1", "text": "Role-play: You are the girl. You are very excited. Tell your class on the phone: \"We are going to...!\" Say at least three sentences.", "order": 14, "level": 4, "kind": "open" },
+    { "id": "l4q2", "text": "Role-play: You are Mum. The train leaves in 30 minutes. Give two reminders to the family. Start with: \"Hurry up! Don't forget...\"", "order": 15, "level": 4, "kind": "open" },
+    { "id": "l4q3", "text": "Role-play: After the holiday, your teacher asks, \"Where did you go?\" Answer in at least three sentences. Use \"I went to...\" and \"I saw...\"", "order": 16, "level": 4, "kind": "open" }
+  ]
+}

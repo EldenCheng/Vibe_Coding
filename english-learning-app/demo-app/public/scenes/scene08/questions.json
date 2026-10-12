@@ -1,0 +1,20 @@
+{
+  "questions": [
+    { "id": "l1q1", "text": "The picture has four panels. Name the four seasons written in the picture.", "order": 1, "level": 1, "kind": "grounded" },
+    { "id": "l1q2", "text": "What is the girl doing in the spring panel? What is she holding?", "order": 2, "level": 1, "kind": "grounded" },
+    { "id": "l1q3", "text": "What is the girl doing in the summer panel? What is she wearing on her head?", "order": 3, "level": 1, "kind": "grounded" },
+    { "id": "l1q4", "text": "Read the weather words in each panel. Which season is \"warm\"? Which is \"cold\"?", "order": 4, "level": 1, "kind": "grounded" },
+    { "id": "l2q1", "text": "In the spring panel, the sun is smiling. In the summer panel, the sun is wearing sunglasses. Why are the two suns different?", "order": 5, "level": 2, "kind": "grounded" },
+    { "id": "l2q2", "text": "Look at the autumn panel. What colour are the leaves on the ground? What is the girl putting into the basket?", "order": 6, "level": 2, "kind": "grounded" },
+    { "id": "l2q3", "text": "In the winter panel, what is the girl wearing to keep warm? Name two things.", "order": 7, "level": 2, "kind": "grounded" },
+    { "id": "l2q4", "text": "The summer panel has a thermometer. Is the temperature high or low? How do you know?", "order": 8, "level": 2, "kind": "grounded" },
+    { "id": "l2q5", "text": "Match each activity to the season: fly a kite, go swimming, pick apples, make a snowman.", "order": 9, "level": 2, "kind": "grounded" },
+    { "id": "l3q1", "text": "Which of the four seasons do you like best? Why?", "order": 10, "level": 3, "kind": "open" },
+    { "id": "l3q2", "text": "What do you usually do on a rainy day? Is it different from what you do on a sunny day?", "order": 11, "level": 3, "kind": "open" },
+    { "id": "l3q3", "text": "Why do we wear different clothes in summer and winter? Give one example.", "order": 12, "level": 3, "kind": "open" },
+    { "id": "l3q4", "text": "If you could add a fifth season, what would the weather be like? What would you do?", "order": 13, "level": 3, "kind": "open" },
+    { "id": "l4q1", "text": "Role-play: You are the girl in the summer panel. A friend from a cold country asks, \"What is summer like in China?\" Tell him or her in at least three sentences.", "order": 14, "level": 4, "kind": "open" },
+    { "id": "l4q2", "text": "Role-play: You are a TV weather reporter. Tell the audience what the weather will be like tomorrow. Use \"It will be...\" and \"You should wear...\"", "order": 15, "level": 4, "kind": "open" },
+    { "id": "l4q3", "text": "Role-play: The girl and her mum are talking about what to wear to school tomorrow. It is winter. Write the short conversation.", "order": 16, "level": 4, "kind": "open" }
+  ]
+}
