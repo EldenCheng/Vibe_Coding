@@ -1,0 +1,20 @@
+{
+  "questions": [
+    { "id": "l1q1", "text": "Look at the picture. What clubs can you see? Name all three clubs.", "order": 1, "level": 1, "kind": "grounded" },
+    { "id": "l1q2", "text": "Look at the boy on the left. What is he doing? What instrument is he playing?", "order": 2, "level": 1, "kind": "grounded" },
+    { "id": "l1q3", "text": "Look at the girl in the middle. What is she doing? What can you see on her easel?", "order": 3, "level": 1, "kind": "grounded" },
+    { "id": "l1q4", "text": "Look at the table in front. What does the small sign say? What is the student doing at the table?", "order": 4, "level": 1, "kind": "grounded" },
+    { "id": "l2q1", "text": "Read the three posters. Which club meets on Friday? Which club meets on Monday?", "order": 1, "level": 2, "kind": "grounded" },
+    { "id": "l2q2", "text": "The tall boy on the right is spinning a basketball on one finger. Which club do you think he wants to join? Why?", "order": 2, "level": 2, "kind": "grounded" },
+    { "id": "l2q3", "text": "Look at the pictures on the three posters. What can you see in each picture?", "order": 3, "level": 2, "kind": "grounded" },
+    { "id": "l2q4", "text": "Count the students in the picture. How many students can you see? What is each of them doing?", "order": 4, "level": 2, "kind": "grounded" },
+    { "id": "l2q5", "text": "If your teacher asks you to join one club, which one will you choose? Why?", "order": 5, "level": 2, "kind": "open" },
+    { "id": "l3q1", "text": "The girl can paint and the boy on the left can play the guitar. What about you? What can you do?", "order": 1, "level": 3, "kind": "open" },
+    { "id": "l3q2", "text": "Do you think it is a good idea for a student to join two clubs? Why or why not?", "order": 2, "level": 3, "kind": "open" },
+    { "id": "l3q3", "text": "The school wants to start a new club (for example, a chess club or an English club). What club would you like to start? Why?", "order": 3, "level": 3, "kind": "open" },
+    { "id": "l3q4", "text": "The art club meets on Monday and the basketball club meets on Wednesday. A student wants to learn to paint AND play basketball. Can he join both clubs? How do you know?", "order": 4, "level": 3, "kind": "grounded" },
+    { "id": "l4q1", "text": "Imagine you are at the club fair and you want to join the Music Club. Ask the guitar boy two questions about the club. (You can start with: \"Excuse me, when does the club meet?\")", "order": 1, "level": 4, "kind": "open" },
+    { "id": "l4q2", "text": "You are the guitar boy. A new student comes to your booth. Talk about what you can do and invite him to join your club.", "order": 2, "level": 4, "kind": "open" },
+    { "id": "l4q3", "text": "Imagine you want to start a robot club at your school. Talk to your teacher and give two reasons why the school needs this club.", "order": 3, "level": 4, "kind": "open" }
+  ]
+}
