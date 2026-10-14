@@ -19,7 +19,7 @@ TASKS_FILE = DATA_DIR / "tasks.json"
 LOCK_FILE = DATA_DIR / "server.lock"
 
 # 版本号单一来源：banner 与 /api/health 都读它，改版本只需改这一处（与 版本变更.md 对齐）
-VERSION = "0.5.0"
+VERSION = "0.5.1"
 
 # 默认配置：projects 里的 dir 用相对路径，相对于 download-manager/ 解析，
 # 这样四个目录平级放在同一父目录下时，Windows 与 macOS 都不用改配置。

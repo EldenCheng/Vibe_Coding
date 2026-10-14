@@ -351,10 +351,18 @@ window.TaskList = (function () {
     async function runAction(action, item) {
       const target = {
         id: item.id, name: item.name, path: item.path,
-        url: (item.progress && item.progress.gallery_url) || item.extra?.url || '',
+        url: (item.progress && (item.progress.gallery_url || item.progress.list_url))
+             || item.extra?.url || '',
         book_id: item.extra?.book_id || '',
         book_arg: item.extra?.book_arg || '',
       };
+      // v0.5.1 守门：该产物没有任何可恢复的下载地址（如已完成的散文件，
+      // 本来也无事可续跑）——直接提示，不调后端（后端只会报"缺少地址"）。
+      // 通用规则，四个下载器都受益。
+      if (!target.url && !target.book_id && !target.book_arg) {
+        Utils.toast('该产物没有可恢复的下载地址（如已完成的散文件），无需续跑', 'warn');
+        return;
+      }
       const label = (options.actions || []).find((a) => a.action === action)?.label || action;
       if (!confirm(`确定对「${item.name}」执行「${label}」吗？`)) return;
       try {

@@ -352,18 +352,78 @@ class M3uDownAdapter(Adapter):
         return bool(own.get("insecure"))
 
     def build_action(self, action, target):
-        """m3u 没有 --check/--rd，失败恢复靠「重跑同一命令」自动续传。"""
+        """m3u 没有 --check/--rd，失败恢复靠「重跑同一命令」自动续传。
+
+        v0.5.1：续跑命令按产物类型分两种（URL 由 scan() 从产物目录回填，
+        见 _source_url_of_dir；正常情况不会再报"缺少地址"）：
+        - 列表页 URL → 统一 `batch <url> --yes`，并按 批量进度.json 顶层的
+          resume_hint 带回 --line/--pick（不带回会因重探活换线触发下载器
+          "线路变化→重下"，把整季已完成集全部重下）；
+        - 裸 m3u8 + 本目录 progress.json 正是该直链的中断残留 →
+          `get <url> -o <本目录>` 原地续传（不断片、不换目录）；
+          其它裸 m3u8（如 --keep 残留、无 progress 的）走 batch 单集模式
+          （v0.11.0+ 下载器支持）。
+        """
         url = (target or {}).get("url")
         if not url:
             raise ValueError("缺少地址，无法续跑（请在标签页里重新提交一次）")
         if action != "resume":
             raise ValueError(f"m3u 下载器不支持 {action}（可用「续跑」代替）")
-        argv = [self._py(), "-u", "-m", "m3u_down", "batch", url, "--yes",
-                "-o", str(self.output_root())]
+        argv = [self._py(), "-u", "-m", "m3u_down"]
+        path = (target or {}).get("path") or ""
+        if self._is_bare_m3u8(url) and self._single_progress_matches(path, url):
+            argv += ["get", url, "-o", str(Path(path))]
+        else:
+            argv += ["batch", url, "--yes"]
+            hint = self._resume_hint_of(path)
+            if hint.get("line"):
+                argv += ["--line", str(hint["line"])]
+            try:
+                pick = int(hint.get("pick") or 1)
+            except (TypeError, ValueError):
+                pick = 1
+            if pick != 1:
+                argv += ["--pick", str(pick)]
+            argv += ["-o", str(self.output_root())]
+        if self._insecure():
+            argv += ["--insecure"]
         plan = LaunchPlan(argv, self.project_dir, kind="resume",
                           base_dir=self.output_root())
         plan.target_hint = (target or {}).get("name")
         return plan
+
+    @staticmethod
+    def _is_bare_m3u8(url):
+        """是否为裸 m3u8 直链（去 query 按后缀判定，与下载器 is_m3u8_url 同口径）。"""
+        return str(url or "").lower().split("?")[0].endswith((".m3u8", ".m3u"))
+
+    def _resume_hint_of(self, path):
+        """读产物目录 批量进度.json 顶层的 resume_hint（v0.11.0+ 下载器写入）。
+
+        旧版进度文件没有该键 → 返回 {}（= 不补参数，与原来行为一致）。
+        """
+        data = read_json(Path(path) / "批量进度.json") or {}
+        hint = data.get("resume_hint") or {}
+        return hint if isinstance(hint, dict) else {}
+
+    @staticmethod
+    def _single_progress_matches(path, url):
+        """该目录的单集 progress.json 是否正是这个直链的中断残留。
+
+        三个条件缺一不可：progress.json 存在且有 segments 记录、
+        playlist_url 与续跑 URL 一致、且目录里没有 批量进度.json
+        （有批量进度的一律走 batch，那边状态更全）。
+        """
+        try:
+            child = Path(path)
+        except Exception:
+            return False
+        if (child / "批量进度.json").exists():
+            return False
+        single = read_json(child / "progress.json") or {}
+        if not isinstance(single.get("segments"), dict):
+            return False
+        return (str(single.get("playlist_url") or "").strip() == url)
 
     def available_actions(self, item=None):
         return [{"action": "resume", "label": "续跑/补下",
@@ -375,7 +435,40 @@ class M3uDownAdapter(Adapter):
 
     @staticmethod
     def is_item_dir(path):
-        return (path / "批量进度.json").exists() or any(path.glob("*.mp4"))
+        return ((path / "批量进度.json").exists()
+                # v0.5.1：单集 get/sniff 中断残留的目录（progress.json + segments，
+                # 无成品 mp4）此前不可见 → 续跑按钮无处可点； now 同样列出
+                or (path / "progress.json").exists()
+                or any(path.glob("*.mp4")))
+
+    def _source_url_of_dir(self, path):
+        """本产物目录对应的原始入口 URL（供「续跑」重发命令）。
+
+        优先级（v0.5.1）：
+        1. 批量进度.json 顶层的 list_url（v0.11.0+ 下载器每次运行写入，最准）；
+        2. 简介.md 的「来源列表页」行（旧版下载器只有这个；复用 _SOURCE_RE）；
+        3. progress.json 的 playlist_url（单集 get/sniff/play 中断残留，
+           且确实还有未完成切片——成功后下载器会清掉它）。
+        都没有返回 ""（如已完成的散文件：无事可续跑，前端会直接提示而不调后端）。
+        """
+        prog = read_json(path / "批量进度.json") or {}
+        url = str(prog.get("list_url") or "").strip()
+        if url:
+            return url
+        try:
+            head = (path / "简介.md").read_text(encoding="utf-8", errors="replace")[:4000]
+        except OSError:
+            head = ""
+        m = self._SOURCE_RE.search(head or "")
+        if m and m.group(1).strip():
+            return m.group(1).strip()
+        single = read_json(path / "progress.json") or {}
+        segs = single.get("segments")
+        if isinstance(segs, dict) and (single.get("total") or len(segs)):
+            url = str(single.get("playlist_url") or "").strip()
+            if url:
+                return url
+        return ""
 
     def snapshot_dirs(self):
         """父类记录输出根下的子目录名；这里额外记录成品 mp4 文件名。
@@ -547,7 +640,7 @@ class M3uDownAdapter(Adapter):
                 "done": done, "total": total, "failed": len(failed),
                 "failed_items": failed[:100], "status": status, "unit": "集",
                 "summary": f"{done}/{total} 集完成" + (f"，{len(failed)} 集失败" if failed else ""),
-                "kind": "batch",
+                "kind": "batch", "list_url": str(batch.get("list_url") or ""),
             }
 
         # 单集：成品文件 + 切片进度
@@ -571,7 +664,8 @@ class M3uDownAdapter(Adapter):
             return {"done": seg_done, "total": seg_total, "failed": 0, "failed_items": [],
                     "status": status, "unit": "切片",
                     "summary": f"切片 {seg_done}/{seg_total}（未合并或未完成）",
-                    "kind": "single"}
+                    "kind": "single",
+                    "list_url": str((prog or {}).get("playlist_url") or "")}
         return {"done": None, "total": None, "failed": 0, "failed_items": [],
                 "status": "unknown", "unit": "", "summary": "无进度信息", "kind": "unknown"}
 
@@ -593,7 +687,9 @@ class M3uDownAdapter(Adapter):
                     path=child,
                     kind="视频",
                     progress=prog,
-                    extra={"url": ""},
+                    # v0.5.1：续跑地址从产物目录回填（此前写死 "" 导致一律
+                    # "缺少地址，无法续跑"）；实在没有才留空，由前端守门提示
+                    extra={"url": self._source_url_of_dir(child)},
                 ))
             except OSError:
                 continue

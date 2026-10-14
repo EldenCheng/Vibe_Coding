@@ -588,7 +588,9 @@ def download_entries(url, interval=None, episodes=None, yes=False,
     anime_dir = base / sanitize_name(title)
     anime_dir.mkdir(parents=True, exist_ok=True)
     info_path = anime_dir / "简介.md"
-    prog = _BatchProgress(anime_dir / "批量进度.json")
+    # list_url 写入进度顶层（v0.11.0）：与 batch.py 同一约定，
+    # 管理器「续跑」据此重新发起 batch <url>（会再次路由回 yt-dlp）
+    prog = _BatchProgress(anime_dir / "批量进度.json", list_url=url)
 
     selected_idx = _select(eps, episodes, yes)
     if selected_idx is None:
@@ -597,6 +599,10 @@ def download_entries(url, interval=None, episodes=None, yes=False,
     selected = [eps[i] for i in selected_idx]
     selected_urls = {ep.url for ep in selected}
     print(f"[批量] 已选 {len(selected)} 集，输出目录: {anime_dir}")
+
+    # 续跑参数记忆（v0.11.0）：yt-dlp 路径不适用 --line，pick 也不参与，
+    # 写入默认值让进度结构保持一致（管理器只在非默认时才补参数）
+    prog.set_resume_hint(None, None)
 
     # 封面图本地化（v0.7.3）：与 batch.py 同一套约定，落盘 番剧目录/image/。
     # px 为 None 表示探测结论是直连 → 传 "" 不让 build_session 再回落配置代理。

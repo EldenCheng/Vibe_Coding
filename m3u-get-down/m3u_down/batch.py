@@ -486,9 +486,18 @@ def _parse_embedded_page(list_url, site, line, insecure=None, proxy=None):
 # ---------- 批量进度 ----------
 
 class _BatchProgress:
-    """批量进度.json：按剧集 URL 记录状态，重跑自动跳过已完成。"""
+    """批量进度.json：按剧集 URL 记录状态，重跑自动跳过已完成。
 
-    def __init__(self, path):
+    v0.11.0 新增两个**顶层**键（不属于 episodes 内任何一集）：
+    - ``list_url``：本目录对应的原始入口地址（列表页，或裸 m3u8 直链）。
+      管理器「续跑」按钮靠它重新发起 batch 命令——此前管理器拿不到地址，
+      只能报"缺少地址，无法续跑"。
+    - ``resume_hint``：续跑时要带回的 ``--line`` / ``--pick``。
+      不带的后果：内嵌站点重新探活可能换到另一条线路，触发 v0.10 判定
+      "线路变化→重下"，把整个番剧的已完成集全部重下一遍。
+    """
+
+    def __init__(self, path, list_url=""):
         self.path = Path(path)
         self.data = {"episodes": {}}
         if self.path.exists():
@@ -496,6 +505,23 @@ class _BatchProgress:
                 self.data = json.loads(self.path.read_text(encoding="utf-8"))
             except Exception:
                 pass
+        self.data.setdefault("episodes", {})
+        # 每次运行都用本次任务的入口 URL 刷新：同一目录只会来自同一个入口
+        # （用户手工把 A 番剧简介复制到 B 目录的极端情况，以最后一次运行为准）
+        if list_url:
+            self.data["list_url"] = list_url
+
+    def set_resume_hint(self, line=None, pick=None):
+        """记录续跑要带回的 --line/--pick（仅在有变化时落盘）。
+
+        yt-dlp 路径 line 恒为空（不适用），pick 默认 1；管理器据此
+        只在 hint 与命令行默认值不同时才补参数，避免多余参数带来噪音提示。
+        """
+        hint = {"line": str(line) if line else "",
+                "pick": int(pick) if pick else 1}
+        if self.data.get("resume_hint") != hint:
+            self.data["resume_hint"] = hint
+            self.save()
 
     def status(self, url):
         return self.data["episodes"].get(url, {}).get("status")
@@ -647,6 +673,27 @@ def _download_episode(ep, work_dir, fname, pick, insecure, proxy, concurrency,
     raise last_err or RuntimeError("无可用的下载候选")
 
 
+def _single_episode_plan(m3u8_url):
+    """裸 m3u8 直链 → 单集 episode 计划（v0.11.0）。
+
+    batch 支持直链入口的意义：把「get 直链」也纳入批量进度框架——
+    下载管理器无论当初用哪种方式提交，续跑时都统一发 `batch <同一条URL>`，
+    已完成跳过 / failover / 简介.md / 续传全部复用；该集没有播放页可嗅探，
+    alts 为空（无备用线路）。
+
+    标题：取 URL 路径最后一段的文件名去扩展名（去掉 query），
+    为空时回退域名（如 `https://cdn.x.com/hls/index.m3u8` → `index`）。
+    """
+    path_part = urlparse(m3u8_url).path.rstrip("/").rsplit("/", 1)[-1]
+    stem = path_part.rsplit(".", 1)[0] if "." in path_part else path_part
+    # sanitize_name 永远不返回空串（空时给 "video"），所以先判 stem 再清洗，
+    # 否则"路径为空时回退域名"这条分支永远走不到
+    raw = stem if stem else urlparse(m3u8_url).netloc
+    label = sanitize_name(raw) or "m3u8 单集"
+    meta = {"description": "", "cover": "", "list_url": m3u8_url}
+    return label, meta, [Episode(label=label, url=m3u8_url)]
+
+
 def batch(list_url, interval=None, episodes=None, yes=False, pick=1, line=None,
           insecure=None, proxy=None, concurrency=None, out_dir=None, adopt=True):
     """批量下载入口（cli 层调用）。adopt=False 时不扫描外部已下载文件（v0.8.0）。"""
@@ -657,13 +704,18 @@ def batch(list_url, interval=None, episodes=None, yes=False, pick=1, line=None,
         print(f"[批量] 已加载站点配置: {site.name}"
               f"（选线={site.line_preference}, failover={site.failover_max}, "
               f"出口={'直连优先' if df else '代理优先'}）")
-    print(f"[批量] 解析列表页: {list_url}")
-    if site is not None and site.player_embedded:
+    if is_m3u8_url(list_url):
+        # 裸 m3u8 直链 = 单集批量（v0.11.0）：不解析列表页，直接构建一集，
+        # 复用进度/跳过/failover/简介整套框架（管理器续跑统一走 batch）
+        print("[批量] 输入为 m3u8 直链，按单集批量下载")
+        title, meta, eps = _single_episode_plan(list_url)
+    elif site is not None and site.player_embedded:
         # 内嵌播放器站点：直链不经页面（或仅部分在页面），需解析器（可能
         # 还要发 API 请求），先列线路再按选中线路建清单
         title, meta, eps = _parse_embedded_page(list_url, site, line,
                                                 insecure=insecure, proxy=proxy)
     else:
+        print(f"[批量] 解析列表页: {list_url}")
         title, meta, eps = parse_list_page(list_url, site)
     if not eps:
         raise RuntimeError("未从列表页解析到剧集链接")
@@ -674,15 +726,17 @@ def batch(list_url, interval=None, episodes=None, yes=False, pick=1, line=None,
     anime_dir = base / sanitize_name(title)
     anime_dir.mkdir(parents=True, exist_ok=True)
     info_path = anime_dir / "简介.md"
-    prog = _BatchProgress(anime_dir / "批量进度.json")
+    # list_url 一并写入进度顶层（v0.11.0）：管理器「续跑」据此重新发起同一条命令，
+    # 不再出现"缺少地址，无法续跑"
+    prog = _BatchProgress(anime_dir / "批量进度.json", list_url=list_url)
 
     # 外部已下载文件纳管（v0.8.0）：用户可能用 IDM 等先下过一部分、文件名与下载器不同，
     # 逐集比对会重复下载。这里先扫番剧目录顶层，把能唯一对应到剧集的文件并入进度。
     # 放在下载循环之前（而非任务结束后）：否则本轮仍会把它们重下一遍（设计文档 §22.5）。
     if adopt:
-        for line in external.format_report(
+        for report_line in external.format_report(
                 external.adopt_into(anime_dir, eps, prog)):
-            print(line)
+            print(report_line)
 
     # 给"已在进度里/刚纳管"的成品补录分辨率、时长（v0.9.0）：只探缺信息的，
     # 结果写回进度，后续运行 0 成本。与 --no-adopt 无关——它只补记录、不改判定。
@@ -696,10 +750,16 @@ def batch(list_url, interval=None, episodes=None, yes=False, pick=1, line=None,
     selected_urls = {ep.url for ep in selected}
     print(f"[批量] 已选 {len(selected)} 集，输出目录: {anime_dir}")
 
+    # 续跑参数记忆（v0.11.0）：line/pick 写进 批量进度.json 顶层 resume_hint，
+    # 管理器「续跑」据此带回，避免重新探活换线触发"线路变化→重下"的整季误重下
+    prog.set_resume_hint(line, pick)
+
     # 封面图本地化（v0.7.3）：远程图床会先于视频失效，落盘到 番剧目录/image/
-    # 供简介.md 相对引用；幂等（已有即复用）、失败只告警不中断（见 cover.py）
-    cover.prepare(anime_dir, meta, referer=meta.get("list_url") or list_url,
-                  insecure=insecure, proxy=proxy, direct_first=df)
+    # 供简介.md 相对引用；幂等（已有即复用）、失败只告警不中断（见 cover.py）。
+    # 直链单集模式（v0.11.0）没有页面封面可抓，直接跳过
+    if not is_m3u8_url(list_url):
+        cover.prepare(anime_dir, meta, referer=meta.get("list_url") or list_url,
+                      insecure=insecure, proxy=proxy, direct_first=df)
 
     # 集名 → 成品文件名（重名自动加后缀，避免多季同名覆盖）
     fnames, used = {}, set()
