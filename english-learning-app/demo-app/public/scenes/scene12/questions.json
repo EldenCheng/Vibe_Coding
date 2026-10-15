@@ -1,0 +1,20 @@
+{
+  "questions": [
+    { "id": "l1q1", "text": "Look at the banner. What event is the school holding?", "order": 1, "level": 1, "kind": "grounded" },
+    { "id": "l1q2", "text": "Look at the scoreboard. Which race does it show? What is the next event?", "order": 2, "level": 1, "kind": "grounded" },
+    { "id": "l1q3", "text": "What are the three runners wearing? What numbers can you see?", "order": 3, "level": 1, "kind": "grounded" },
+    { "id": "l1q4", "text": "Look at the left side. What is the girl in the navy tracksuit doing?", "order": 4, "level": 1, "kind": "grounded" },
+    { "id": "l2q1", "text": "Who won the 100m race? What was his time? Give two pieces of evidence.", "order": 1, "level": 2, "kind": "grounded" },
+    { "id": "l2q2", "text": "How much faster was Li Hua than Zhang Peng?", "order": 2, "level": 2, "kind": "grounded" },
+    { "id": "l2q3", "text": "Wang Fang finished third. Is her time bigger or smaller than Li Hua's? What does a bigger time mean in a race?", "order": 3, "level": 2, "kind": "grounded" },
+    { "id": "l2q4", "text": "How does the runner with number 1 feel at the finish line? How do you know?", "order": 4, "level": 2, "kind": "grounded" },
+    { "id": "l2q5", "text": "Does your school hold a sports meet? What is your favourite event there?", "order": 5, "level": 2, "kind": "open" },
+    { "id": "l3q1", "text": "Look at the high jump girl. Has she cleared the bar, or does she hit it? How do you know?", "order": 1, "level": 3, "kind": "grounded" },
+    { "id": "l3q2", "text": "Why do schools hold sports meets? What can students learn from them? Give two ideas.", "order": 2, "level": 3, "kind": "open" },
+    { "id": "l3q3", "text": "Some students think winning is the most important thing in sports. Do you agree? Why or why not?", "order": 3, "level": 3, "kind": "open" },
+    { "id": "l3q4", "text": "Which do you enjoy more, individual sports like the 100m race or team sports like the relay? Why?", "order": 4, "level": 3, "kind": "open" },
+    { "id": "l4q1", "text": "Imagine you are Li Hua. A school reporter interviews you after the race. Tell him or her how the race went and how you felt.", "order": 1, "level": 4, "kind": "open" },
+    { "id": "l4q2", "text": "Your friend fell during a race and wants to give up sports. Talk to him and give him two reasons to keep trying. (You can start with: \"I know you are sad, but...\")", "order": 2, "level": 4, "kind": "open" },
+    { "id": "l4q3", "text": "Your class will design a poster for next year's sports meet. What three things will you put on it? Why?", "order": 3, "level": 4, "kind": "open" }
+  ]
+}

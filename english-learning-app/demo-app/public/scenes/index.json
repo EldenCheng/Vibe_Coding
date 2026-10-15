@@ -9,6 +9,8 @@
     { "id": "scene07", "gradeLevel": "primary" },
     { "id": "scene08", "gradeLevel": "primary" },
     { "id": "scene09", "gradeLevel": "junior" },
-    { "id": "scene10", "gradeLevel": "junior" }
+    { "id": "scene10", "gradeLevel": "junior" },
+    { "id": "scene11", "gradeLevel": "senior" },
+    { "id": "scene12", "gradeLevel": "senior" }
   ]
 }

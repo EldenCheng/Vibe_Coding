@@ -1,0 +1,20 @@
+{
+  "questions": [
+    { "id": "l1q1", "text": "Look at the red banner at the top. What does it say?", "order": 1, "level": 1, "kind": "grounded" },
+    { "id": "l1q2", "text": "What can you see hanging above the street? What color are they?", "order": 2, "level": 1, "kind": "grounded" },
+    { "id": "l1q3", "text": "What are the performers in the center doing? Describe the dragon.", "order": 3, "level": 1, "kind": "grounded" },
+    { "id": "l1q4", "text": "Look at the food stall. What food can you see? Name at least two kinds.", "order": 4, "level": 1, "kind": "grounded" },
+    { "id": "l2q1", "text": "Read the riddle board. The answer is in the picture. What is it? How do you know?", "order": 1, "level": 2, "kind": "grounded" },
+    { "id": "l2q2", "text": "How much is a basket of dumplings? How much is one tanghulu? How much are they together?", "order": 2, "level": 2, "kind": "grounded" },
+    { "id": "l2q3", "text": "How do you know it is a winter day? Give two pieces of evidence from the picture.", "order": 3, "level": 2, "kind": "grounded" },
+    { "id": "l2q4", "text": "Look at the people behind the girl. Who is clapping? What are they watching?", "order": 4, "level": 2, "kind": "grounded" },
+    { "id": "l2q5", "text": "Do you enjoy this kind of street fair? Why or why not?", "order": 5, "level": 2, "kind": "open" },
+    { "id": "l3q1", "text": "The girl in the red coat is eating a tanghulu with her eyes closed. How does she feel? What tells you that?", "order": 1, "level": 3, "kind": "grounded" },
+    { "id": "l3q2", "text": "Which tradition in the picture do you like best? Why?", "order": 2, "level": 3, "kind": "open" },
+    { "id": "l3q3", "text": "Some people say traditional festivals are becoming less popular among young people. Do you agree? Give two reasons.", "order": 3, "level": 3, "kind": "open" },
+    { "id": "l3q4", "text": "What does your family usually do at Spring Festival? Is there anything in the picture that your family also does?", "order": 4, "level": 3, "kind": "open" },
+    { "id": "l4q1", "text": "Imagine you are the stall owner. A foreign visitor asks what tanghulu is. Sell it in three sentences. (You can start with: \"Try this...\")", "order": 1, "level": 4, "kind": "open" },
+    { "id": "l4q2", "text": "Imagine you are a dragon dance performer. Your foreign teacher wants to try it. Tell him two things he should do. (You can start with: \"Don't worry. First...\")", "order": 2, "level": 4, "kind": "open" },
+    { "id": "l4q3", "text": "Your class will run a stall at next year's fair. Describe your stall: what will you sell, and how will you make it special?", "order": 3, "level": 4, "kind": "open" }
+  ]
+}

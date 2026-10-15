@@ -32,7 +32,7 @@ npm run dev
 
 ## 目录
 - `public/scenes/index.json` — 场景注册表（新增场景后在此登记 id 与 `gradeLevel`：primary/junior/senior，随机选场景按开始页年龄过滤）
-- `public/scenes/scene01/`（junior）、`scene02/`（primary）、`scene03/`（senior）、`scene04/`（primary）、`scene05/`（primary 家务）、`scene06/`（primary 旅行）、`scene07/`（primary 超市购物）、`scene08/`（primary 四季）、`scene09/`（junior 社团招新）、`scene10/`（junior 诊所看医生）— 场景资源（image.jfif + meta.json 含 audience/两种描述 + questions.json 含 level）
+- `public/scenes/scene01/`（junior）、`scene02/`（primary）、`scene03/`（senior）、`scene04/`（primary）、`scene05/`（primary 家务）、`scene06/`（primary 旅行）、`scene07/`（primary 超市购物）、`scene08/`（primary 四季）、`scene09/`（junior 社团招新）、`scene10/`（junior 诊所看医生）、`scene11/`（senior 春节庙会）、`scene12/`（senior 校运动会）— 场景资源（image.jfif + meta.json 含 audience/两种描述 + questions.json 含 level）
 - `src/config/configLoader.ts` — 加载校验（含 `VITE_GEMINI_API_KEY`/`VITE_GLM_API_KEY` 环境变量注入）
 - `src/speech/` — TTS/ASR 封装
 - `src/ai/` — Gemini / GLM（火山 Ark）/ Local 三 Provider
