@@ -17,12 +17,36 @@ from pathlib import Path
 from .base import (Adapter, DownloadItem, LaunchPlan, STATUS_COMPLETED, STATUS_FAILED,
                    STATUS_PARTIAL, STATUS_UNVERIFIED, read_json)
 
+# 成品媒体扩展名（v0.6.0）：m3u 的产物既可能是视频（get/batch 合并成 .mp4；
+# yt-dlp 视源可能是 .mkv/.webm），也可能是音频（「yt-dlp 音频」模式的 .m4a/.mp3…）。
+# 定位成品目录 / 列出散落成品 / 判断成品是否存在，统一按这套扩展名，别再写死 .mp4。
+_MEDIA_GLOBS = ("*.mp4", "*.mkv", "*.webm",
+                "*.m4a", "*.mp3", "*.opus", "*.flac", "*.aac", "*.wav", "*.ogg")
+_AUDIO_EXTS = (".m4a", ".mp3", ".opus", ".flac", ".aac", ".wav", ".ogg")
+
+
+def _media_files(directory):
+    """目录下的媒体成品文件（按名去重、排序）。目录不存在/无权访问时返回 []。"""
+    found = {}
+    try:
+        for pat in _MEDIA_GLOBS:
+            for f in Path(directory).glob(pat):
+                if f.is_file():
+                    found[f.name] = f
+    except OSError:
+        pass
+    return [found[k] for k in sorted(found)]
+
+
+def _is_audio_file(path):
+    return Path(path).suffix.lower() in _AUDIO_EXTS
+
 # ---- 表单里 ? 图标弹出的详细说明（HTML 片段，前端用 innerHTML 渲染）----
 # 这些说明较长，放进点击才出现的浮动气泡里，避免把参数表单撑高、把「开始下载」按钮挤出屏幕。
 
 _MODE_HELP_HTML = """
-<p>下拉框里的四种方式，分别对应下载器的子命令
-<code>get</code> / <code>batch</code> / <code>sniff</code> / yt-dlp。</p>
+<p>下拉框里的五种方式，分别对应下载器的子命令
+<code>get</code> / <code>batch</code> / <code>sniff</code> / yt-dlp / yt-dlp 音频。</p>
 
 <h4>① 直接下载 <code>get</code></h4>
 <p><b>是什么：</b>你已经拿到 <code>.m3u8</code> 直链，下载器直接抓切片并合并成一个 mp4。</p>
@@ -59,9 +83,21 @@ _MODE_HELP_HTML = """
 之前只能自己 F12 复制 m3u8 用「直接下载」；现在直接粘视频页地址即可。</p>
 <p><b>触发什么：</b>只下载 URL 指向的<b>那一个视频</b>；若地址是合集/番剧，
 只会下第一个（日志会提示改用「批量下载」）。下面是常见支持站点与完整清单。</p>
-<p class="tip-warn">非上述站点（yt-dlp 不支持的站）仍会走有头浏览器嗅探，
+ <p class="tip-warn">非上述站点（yt-dlp 不支持的站）仍会走有头浏览器嗅探，
 需要在桌面上手动点播放，<b>不建议</b>在管理器里用这种方式；
 内嵌播放器站点（如 mvffm、ikanbot）请继续用「批量下载」。</p>
+
+<h4>⑤ yt-dlp 音频 <code>sniff --audio-only</code>（下拉框值 audio）</h4>
+<p><b>是什么：</b>与「yt-dlp 下载」同源，但<b>只取音频流</b>（不下视频字节），
+转封装后存成声音文件（默认 <code>.m4a</code>），并写入标题等标签、内嵌封面。</p>
+<p><b>何时用：</b>B站/YouTube 上的音乐视频，你只要那首歌的音频时。这是真省流量——
+视频数据根本不下载。</p>
+<p><b>触发什么：</b>只下载 URL 指向的<b>那一个视频</b>的音频；成品是扁平的
+<code>&lt;输出根&gt;/&lt;标题&gt;.m4a</code>（或你在「音频格式」里选的 mp3/opus/flac）。
+<b>「批量下载整张歌单音频」暂未支持</b>（一期只做单集）。</p>
+<p class="tip-warn">自研引擎（直接下载 / 批量 / 嗅探）的切片多为音视频混合，
+<b>不支持</b>音频模式；勾了也只会提示并忽略。</p>
+
 
 <h4>常见支持站点（yt-dlp 引擎）</h4>
 <ul>
@@ -133,13 +169,22 @@ class M3uDownAdapter(Adapter):
              {"value": "batch", "label": "批量下载 (batch)：列表页整季 — 可全自动"},
              {"value": "sniff_list", "label": "嗅探仅列候选 (sniff)：只拿直链，不下载"},
              {"value": "ytdlp", "label": "yt-dlp 下载：单个视频 / 合集页 — B站、YouTube 等自动"},
+             {"value": "audio", "label": "yt-dlp 音频：只下音频 — B站、YouTube 音乐视频"},
          ],
-         "help": "不确定选哪个？点右侧的 ? 看四种方式的区别、用法与例子",
+         "help": "不确定选哪个？点右侧的 ? 看五种方式的区别、用法与例子",
          "help_popover": _MODE_HELP_HTML},
         {"key": "url", "label": "地址", "type": "text", "required": True,
          "placeholder": "m3u8 直链 或 播放页/列表页地址",
          "help": "get 填 m3u8 直链；batch 填番剧列表页；sniff_list 填播放页；"
-                 "yt-dlp 填视频/合集页地址（B站、YouTube 等）"},
+                 "yt-dlp / yt-dlp 音频填视频/合集页地址（B站、YouTube 等）"},
+        {"key": "audio_format", "label": "音频格式", "type": "select", "default": "m4a",
+         "show_for": "audio",
+         "options": [{"value": "m4a", "label": "m4a（AAC，体积小、音质好，推荐）"},
+                     {"value": "mp3", "label": "mp3（兼容性最好，老设备/车机都认）"},
+                     {"value": "opus", "label": "opus（同码流封装，体积最小）"},
+                     {"value": "flac", "label": "flac（无损，体积大）"}],
+         "help": "只下载音频；成品为 <输出根>/<标题>.<格式>，并写入标签、内嵌封面"+
+                 "（opus/flac 的封面能否显示取决于播放器）"},
         {"key": "referer", "label": "Referer", "type": "text", "show_for": "get",
          "help": "防盗链站点需要时填写"},
         {"key": "cookie", "label": "Cookie", "type": "text", "show_for": "get",
@@ -332,6 +377,16 @@ class M3uDownAdapter(Adapter):
                     "高清需登录 cookie（默认读 Edge，建议先退出 Edge）；"
                     "清晰度与 cookie 可在 m3u-get-down/ytdlp_sites.json 调整")
 
+        elif mode == "audio":
+            # yt-dlp 音频模式（v0.6.0）：只取音频流（不下视频字节），转封装 + 写标签/封面。
+            # --auto 1 与 ytdlp 分支同理（管理器没有 stdin）；下载器侧仅 yt-dlp 站点支持。
+            argv += ["sniff", url, "--auto", "1", "--audio-only",
+                     "--audio-format", str(form.get("audio_format") or "m4a").strip()]
+            argv += ["-o", out, "--insecure"] if self._insecure() else ["-o", out]
+            note = ("只下载音频（不下视频字节，真省流量），成品为 输出根/标题.<音频格式>，"
+                    "已写入标签并内嵌封面。仅支持单集（整张歌单暂未支持），"
+                    "且只对 yt-dlp 站点（B站/YouTube 等）有效")
+
         elif mode == "sniff_list":
             argv += ["sniff", url, "--no-download"]
             if form.get("auto") not in (None, ""):
@@ -439,7 +494,8 @@ class M3uDownAdapter(Adapter):
                 # v0.5.1：单集 get/sniff 中断残留的目录（progress.json + segments，
                 # 无成品 mp4）此前不可见 → 续跑按钮无处可点； now 同样列出
                 or (path / "progress.json").exists()
-                or any(path.glob("*.mp4")))
+                # v0.6.0：成品可能是音频（--audio-only），按媒体扩展名判定
+                or bool(_media_files(path)))
 
     def _source_url_of_dir(self, path):
         """本产物目录对应的原始入口 URL（供「续跑」重发命令）。
@@ -471,30 +527,26 @@ class M3uDownAdapter(Adapter):
         return ""
 
     def snapshot_dirs(self):
-        """父类记录输出根下的子目录名；这里额外记录成品 mp4 文件名。
+        """父类记录输出根下的子目录名；这里额外记录成品媒体文件名。
 
-        单文件产物（get / yt-dlp）是扁平的 <输出根>/<标题>.mp4，没有目录，
-        仅靠目录差集定位不到，故一并快照。
+        单文件产物（get / yt-dlp 视频 / yt-dlp 音频）是扁平的
+        <输出根>/<标题>.<扩展名>，没有目录，仅靠目录差集定位不到，故一并快照。
         """
         snap = super().snapshot_dirs()
         root = self.output_root()
         try:
-            files = sorted(f.name for f in root.glob("*.mp4") if f.is_file())
+            files = sorted(f.name for f in _media_files(root))
         except OSError:
             files = []
         snap[self._FILES_KEY + str(root)] = files
         return snap
 
-    def _find_new_mp4(self, plan):
-        """按 mp4 快照差集找本次新增的成品（取改动时间最新的一个）。"""
+    def _find_new_product(self, plan):
+        """按成品媒体文件快照差集找本次新增的文件（取改动时间最新的一个）。"""
         baseline = getattr(plan, "baseline", None) or {}
         root = self.output_root()
         before = set(baseline.get(self._FILES_KEY + str(root), []))
-        try:
-            files = [f for f in root.glob("*.mp4") if f.is_file()]
-        except OSError:
-            return None
-        fresh = [f for f in files if f.name not in before]
+        fresh = [f for f in _media_files(root) if f.name not in before]
         if not fresh:
             return None
         try:
@@ -586,8 +638,9 @@ class M3uDownAdapter(Adapter):
 
         if target is None:
             if exit_code == 0:
-                # 单文件产物（get / yt-dlp）：扁平 mp4，没有产物目录，用文件差集判定
-                newbie = self._find_new_mp4(plan)
+                # 单文件产物（get / yt-dlp 视频 / yt-dlp 音频）：扁平媒体文件，
+                # 没有产物目录，用文件差集判定
+                newbie = self._find_new_product(plan)
                 if newbie is not None:
                     return {"status": STATUS_COMPLETED,
                             "message": f"完成：{newbie.name}",
@@ -626,7 +679,7 @@ class M3uDownAdapter(Adapter):
     # ---- 扫描 ----
 
     def progress_of_dir(self, path):
-        """批量：读 批量进度.json；单集：看成品 mp4 与切片进度。"""
+        """批量：读 批量进度.json；单集：看成品媒体文件与切片进度。"""
         batch = read_json(path / "批量进度.json")
         if batch and isinstance(batch.get("episodes"), dict):
             eps = batch["episodes"]
@@ -644,21 +697,17 @@ class M3uDownAdapter(Adapter):
             }
 
         # 单集：成品文件 + 切片进度
-        mp4s = []
-        try:
-            mp4s = [f for f in path.glob("*.mp4") if f.is_file()]
-        except OSError:
-            pass
+        media = _media_files(path)
         prog = read_json(path / "progress.json")
         seg_total = seg_done = 0
         if prog and isinstance(prog.get("segments"), dict):
             seg_total = prog.get("total") or len(prog["segments"])
             seg_done = sum(1 for v in prog["segments"].values() if v.get("done"))
-        if mp4s:
+        if media:
             return {"done": 1, "total": 1, "failed": 0, "failed_items": [],
                     "status": STATUS_COMPLETED, "unit": "个",
-                    "summary": f"成品 {mp4s[0].name}",
-                    "kind": "single", "files": [f.name for f in mp4s]}
+                    "summary": f"成品 {media[0].name}",
+                    "kind": "single", "files": [f.name for f in media]}
         if seg_total:
             status = "in_progress"
             return {"done": seg_done, "total": seg_total, "failed": 0, "failed_items": [],
@@ -693,15 +742,13 @@ class M3uDownAdapter(Adapter):
                 ))
             except OSError:
                 continue
-        # 也把散落在输出根目录下的成品 mp4 列出来（get 模式会扁平到这里）
-        try:
-            for f in root.glob("*.mp4"):
-                if f.is_file():
-                    items.append(DownloadItem(
-                        item_id=str(f.resolve()), name=f.name, path=f, kind="视频文件",
-                        progress={"done": 1, "total": 1, "failed": 0, "status": STATUS_COMPLETED,
-                                  "unit": "个", "summary": "成品文件"},
-                    ))
-        except OSError:
-            pass
+        # 也把散落在输出根目录下的成品媒体文件列出来
+        # （get 模式、yt-dlp 视频/音频模式都会扁平到这里）
+        for f in _media_files(root):
+            items.append(DownloadItem(
+                item_id=str(f.resolve()), name=f.name, path=f,
+                kind="音频文件" if _is_audio_file(f) else "视频文件",
+                progress={"done": 1, "total": 1, "failed": 0, "status": STATUS_COMPLETED,
+                          "unit": "个", "summary": "成品文件"},
+            ))
         return items

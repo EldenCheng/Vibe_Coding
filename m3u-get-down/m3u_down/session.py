@@ -3,7 +3,9 @@
 背景：多数"版权限制不能下载"实为服务器校验 Referer/UA/Cookie，
 带上浏览器的请求头即可直接下载，请求头继承是本工具的隐形主力。
 """
+import socket
 import warnings
+from urllib.parse import urlsplit
 
 import requests
 
@@ -90,6 +92,32 @@ def probe_proxy(url, direct_first=False, insecure=None):
         except requests.exceptions.RequestException:
             return name
     return "direct"
+
+
+def proxy_alive(proxy, timeout=3):
+    """只探测代理端口能否建立 TCP 连接（代理是否"开着"）。
+
+    仅判定端口层：`socket.create_connection` 成功即视为可用，连接被拒/超时/解析
+    失败均视为不可用。**不**判断"端口开着但代理实际不通"（那要发真实请求，代价更大
+    且属于 probe_proxy 的职责范围）。proxy 形如 `http://127.0.0.1:10808` /
+    `socks5://127.0.0.1:1080`；缺省端口按协议取（http 80 / https 443 / socks 1080）。
+    无论何种失败都不抛异常，返回 bool。
+    """
+    if not proxy:
+        return False
+    try:
+        parts = urlsplit(proxy if "://" in proxy else f"//{proxy}")
+        host = parts.hostname
+        if not host:
+            return False
+        default_port = {"http": 80, "https": 443, "socks5": 1080,
+                        "socks5h": 1080, "socks4": 1080}.get(
+                            (parts.scheme or "http").lower(), 80)
+        port = parts.port or default_port
+        with socket.create_connection((host, port), timeout=timeout):
+            return True
+    except (OSError, ValueError):
+        return False
 
 
 def parse_cookie_string(cookie_str):

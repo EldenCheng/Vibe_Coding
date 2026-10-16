@@ -28,6 +28,18 @@ _CACHE_PATH = config.PROJECT_ROOT / ".ytdlp_hosts_cache.json"
 DEFAULT_FORMAT = ("bestvideo[height<=720]+bestaudio/best[height<=720]"
                   "/bestvideo+bestaudio/best")
 
+# 出口决策状态（v0.13.0）：代理端口连不上时强制直连并提示
+_LAST_EXIT_NOTE = []       # 非空=本次因代理不可用改走直连（元素为代理串），供 CLI 失败时补一句
+_PROXY_WARNED = [False]    # 代理警告每进程只打一次（batch 重复决策不刷屏）
+
+# ---- 音频模式（--audio-only，v0.12.0）----
+# 只取音频流（不下视频字节）→ 转封装/转码 → 写标签 + 内嵌封面，存成纯音频文件。
+# 仅对 yt-dlp 引擎（B站/YouTube 等，源本就音视频分离）有意义；自研 m3u8 引擎
+# 的切片多为音视频混合，不参与该模式。
+AUDIO_FORMATS = ("m4a", "mp3", "opus", "flac")
+DEFAULT_AUDIO_FORMAT = "m4a"
+_AUDIO_SOURCE_FORMAT = "bestaudio/best"   # 只选音频流；没有纯音频轨时退到 best
+
 # 仅用于「未安装 yt-dlp」时给出明确错误的高频站点（非路由依据）
 _HINT_DOMAINS = ("bilibili.com", "b23.tv", "youtube.com", "youtu.be")
 
@@ -44,6 +56,8 @@ _DEFAULTS = {
              "App-Bound 加密(v20), yt-dlp 读不到(issue #10927), 建议改用"
              "浏览器扩展导出的 cookies.txt, 或改用 firefox(未加密)。"
              "format=清晰度选择(默认优先≤720P, 没有则取能下到的最清晰)。"
+             "audio_format=音频模式(--audio-only)的输出格式, 可选 m4a(默认)/mp3/opus/flac, "
+             "站点项里可单独覆盖。"
              "sites=仅放需要覆盖默认行为的站点(engine=m3u 强制自研 / ytdlp 强制 yt-dlp, "
              "另可覆盖 format/cookies_from_browser/cookies_file/proxy_policy/extra_opts); "
              "auto 模式无需在此列域名。已预置：B站(直连优先, 国内 CDN) + 4 个自研站点"
@@ -54,6 +68,7 @@ _DEFAULTS = {
     "cookies_from_browser": "edge",
     "cookies_file": "",
     "format": DEFAULT_FORMAT,
+    "audio_format": DEFAULT_AUDIO_FORMAT,
     "merge_output_format": "mp4",
     # YouTube 需要 JS 运行时（yt-dlp 默认只启用 deno）；deno 优先、没装则用 node，
     # 两个都没有时只会告警，不影响其它站点。
@@ -320,16 +335,51 @@ def _extract(opts, url, download):
         raise
 
 
+def _proxy_alive(proxy):
+    """探测代理端口能否连上（见 session.proxy_alive）；探测本身出错时不阻断下载。"""
+    try:
+        from .session import proxy_alive
+        return proxy_alive(proxy)
+    except Exception:
+        return True
+
+
+def _warn_proxy_dead(proxy, forced):
+    """代理端口连不上时的警告（每进程只打一次）。forced=已自动改走直连。"""
+    if _PROXY_WARNED[0]:
+        return
+    _PROXY_WARNED[0] = True
+    if forced:
+        print(f"[网络] 代理 {proxy} 连不上，已改用直连（请检查代理是否已开启）")
+    else:
+        print(f"[网络] 代理 {proxy} 连不上，可能会失败（请检查代理是否已开启）")
+
+
+def last_exit_note():
+    """本次调用是否因「代理不可用改走直连」；是则返回代理串，否则 None。"""
+    return _LAST_EXIT_NOTE[0] if _LAST_EXIT_NOTE else None
+
+
 def _decide_proxy(cfg, site, url, proxy_override, insecure):
     """决定本次 yt-dlp 用代理还是直连（复用 probe_proxy 的出口取舍思路）。
 
     proxy_override 为 None 时用 config.PROXY；为 "" 表示用户要求纯直连。
     站点可配 proxy_policy：proxy_first（默认，先试代理）/ direct_first（先试直连）。
+    v0.13.0：配置代理但**端口连不上**时强制直连并提示（详见 _LAST_EXIT_NOTE）。
     """
+    _LAST_EXIT_NOTE.clear()          # 每次决策重置（一次 CLI 调用只关心一次出口）
     if proxy_override is not None:
-        return proxy_override or None   # 显式指定（含空串）时不做探测
+        # 显式 --proxy：尊重用户意图（不改行为），仅在其端口连不上时警告一次
+        if proxy_override and not _proxy_alive(proxy_override):
+            _warn_proxy_dead(proxy_override, forced=False)
+        return proxy_override or None
     proxy = config.PROXY
     if not proxy:
+        return None
+    if not _proxy_alive(proxy):
+        # 代理没开/端口不通 → 强制直连，并记录供失败时补一句
+        _warn_proxy_dead(proxy, forced=True)
+        _LAST_EXIT_NOTE.append(proxy)
         return None
     df = str(_pick("proxy_policy", cfg, site) or "proxy_first").lower() == "direct_first"
     try:
@@ -378,6 +428,40 @@ def base_opts(cfg, site, proxy, insecure, concurrency):
     return opts
 
 
+def _audio_postprocessors(fmt):
+    """音频模式的后处理链：抽音轨 → 写标签 → 内嵌封面。
+
+    - FFmpegExtractAudio：只保留音频流并转成目标封装（源已是同编码时等价于流复制）
+    - FFmpegMetadata：写入标题/上传者等标签，便于曲库/播放器识别
+    - EmbedThumbnail：把站点缩略图作为封面嵌入（需配合 writethumbnail）
+    封面内嵌在 opus/flac 等容器上视播放器而定，yt-dlp 不支持时只告警，不影响音频。
+    """
+    return [
+        {"key": "FFmpegExtractAudio", "preferredcodec": fmt,
+         "preferredquality": "0"},
+        {"key": "FFmpegMetadata"},
+        {"key": "EmbedThumbnail"},
+    ]
+
+
+def apply_audio(opts, cfg, site, audio_format=None):
+    """把 opts 改成「只下音频」：覆盖 format + 追加后处理，返回实际使用的格式。
+
+    音频格式优先级：命令行 --audio-format > 站点项 audio_format > 全局配置 > m4a。
+    非法值回退默认（不报错，避免一个笔误让整条命令失败）。
+    """
+    fmt = str(audio_format or _pick("audio_format", cfg, site)
+              or DEFAULT_AUDIO_FORMAT).strip().lower()
+    if fmt not in AUDIO_FORMATS:
+        print(f"[yt-dlp] 未知音频格式 {fmt!r}，已回退 {DEFAULT_AUDIO_FORMAT}"
+              f"（可选 {', '.join(AUDIO_FORMATS)}）")
+        fmt = DEFAULT_AUDIO_FORMAT
+    opts["format"] = _AUDIO_SOURCE_FORMAT
+    opts["writethumbnail"] = True            # EmbedThumbnail 需要先下缩略图
+    opts["postprocessors"] = _audio_postprocessors(fmt)
+    return fmt
+
+
 def _make_hook(label):
     """进度钩子：把 yt-dlp 的下载进度渲染成本工具风格的进度条。"""
     from .utils import render_progress
@@ -414,11 +498,15 @@ def _iter_entries(info):
 
 # ---------- 单视频下载（get / sniff / play 命中时） ----------
 
-def download_single(url, out_dir=None, proxy=None, insecure=None, concurrency=None):
+def download_single(url, out_dir=None, proxy=None, insecure=None, concurrency=None,
+                    audio_only=False, audio_format=None):
     """下载单个视频（单集命令路径），产物扁平为 output_dir/<标题>.mp4。
 
     noplaylist=True：只下 URL 指向的那一个视频（合集/番剧请用 batch）；
     探测到是合集时打印一行提示。
+
+    audio_only=True（v0.12.0）：只取音频流（不下视频字节），成品为
+    output_dir/<标题>.<audio_format>（默认 m4a），并写入标签 + 内嵌封面。
     """
     ensure_available()
 
@@ -439,8 +527,11 @@ def download_single(url, out_dir=None, proxy=None, insecure=None, concurrency=No
     dl_opts.update({
         "noplaylist": True,          # 只下 URL 指向的那个视频（整季用 batch）
         "outtmpl": str(work / "%(title)s.%(ext)s"),
-        "progress_hooks": [_make_hook("")],
+        "progress_hooks": [_make_hook("[音频] " if audio_only else "")],
     })
+    if audio_only:
+        fmt = apply_audio(dl_opts, cfg, site, audio_format)
+        print(f"[yt-dlp] 音频模式：只下载音频，输出格式 {fmt}")
     try:
         info = _extract(dl_opts, url, download=True)
         produced = _produced_file(info, work)

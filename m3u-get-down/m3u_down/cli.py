@@ -22,6 +22,13 @@ def _add_common(p):
                    help="代理，如 http://127.0.0.1:7890（默认读 config）")
     p.add_argument("--insecure", action=argparse.BooleanOptionalAction, default=None,
                    help="跳过 HTTPS 证书校验（默认读 config）")
+    # 音频模式（v0.12.0）：只对 yt-dlp 站点（B站/YouTube 等）有效；自研引擎会忽略并提示
+    p.add_argument("--audio-only", action="store_true",
+                   help="只下载音频（不下视频字节），转封装 + 写标签/封面后存为音频文件"
+                        "（仅 yt-dlp 站点：B站/YouTube 等）")
+    p.add_argument("--audio-format", choices=("m4a", "mp3", "opus", "flac"), default=None,
+                   help="音频格式（配合 --audio-only；默认读 ytdlp_sites.json 的 "
+                        "audio_format，缺省 m4a）")
     return p
 
 
@@ -52,7 +59,12 @@ def _run_ytdlp(args):
     url = args.url
     if getattr(args, "line", None) is not None or getattr(args, "pick", None) not in (None, 1):
         print("[yt-dlp] 提示：该站点走 yt-dlp 引擎，--line / --pick 不适用（已忽略）")
+    audio_only = bool(getattr(args, "audio_only", False))
+    audio_format = getattr(args, "audio_format", None)
     if args.cmd == "batch":
+        # 音频模式一期只做单集（歌单/合集批量留待后续版本）
+        if audio_only:
+            raise RuntimeError("批量下载暂不支持 --audio-only（音频模式目前仅支持单集）")
         ytdlp_engine.download_entries(
             url, interval=args.interval, episodes=args.episodes, yes=args.yes,
             proxy=args.proxy, insecure=args.insecure,
@@ -64,7 +76,9 @@ def _run_ytdlp(args):
         return
     ytdlp_engine.download_single(url, out_dir=args.out, proxy=args.proxy,
                                  insecure=args.insecure,
-                                 concurrency=args.concurrency)
+                                 concurrency=args.concurrency,
+                                 audio_only=audio_only,
+                                 audio_format=audio_format)
 
 
 def main(argv=None):
@@ -127,6 +141,10 @@ def main(argv=None):
         if url and not is_m3u8_url(url) and ytdlp_engine.route(url) == "ytdlp":
             _run_ytdlp(args)
             return 0
+        # 走到这里 = 自研引擎：音频参数无意义（自研切片多为音视频混合），提示并忽略
+        if getattr(args, "audio_only", False):
+            print("[提示] --audio-only 仅对 yt-dlp 站点（B站/YouTube 等）有效；"
+                  "当前地址会走自研引擎，音频参数已忽略。")
         # 不推荐站点拦截：命中即提示原因并退出（sniff/get/play/batch 通用）
         if _check_unsupported(url):
             return 3
@@ -147,6 +165,11 @@ def main(argv=None):
         return 130
     except Exception as e:
         print(f"\n[失败] {e}")
+        # v0.13.0：若本次因代理端口连不上改走了直连，补一句，免得误判为下载器故障
+        note = ytdlp_engine.last_exit_note()
+        if note:
+            print(f"[提示] 本次代理 {note} 不可用，已改走直连；直连仍失败多为网络问题，"
+                  "请检查网络，或改用可用代理后重试。")
         return 1
     return 0
 
